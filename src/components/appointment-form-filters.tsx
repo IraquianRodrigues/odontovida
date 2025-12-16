@@ -86,7 +86,7 @@ export function AppointmentFormFilters({
   // Atualiza duração quando ambos estiverem selecionados
   useEffect(() => {
     if (selectedProfessionalId && selectedServiceId) {
-      if (customDuration !== null) {
+      if (customDuration !== null && customDuration !== undefined) {
         onDurationChange(customDuration);
       } else {
         // Fallback para duração padrão do serviço

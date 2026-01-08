@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Calendar,
   User,
@@ -132,167 +132,167 @@ export function AppointmentDetailsModal({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 px-4 sm:px-6">
-          <div className="space-y-4 sm:space-y-6 pb-4 sm:pb-6 pr-2 sm:pr-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                {isLocked && (
-                  <Badge variant="outline" className="gap-1">
-                    <Lock className="h-3 w-3" />
-                    Bloqueado
-                  </Badge>
-                )}
-              </div>
-              <span className="text-sm text-muted-foreground">
-                ID: {appointment.id}
-              </span>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
-                Informações do Paciente
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-0 sm:pl-7">
-                <div>
-                  <p className="text-sm text-muted-foreground">Nome</p>
-                  <p className="font-medium break-words">
-                    {appointment.customer_name}
-                  </p>
+          <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6">
+            <div className="space-y-4 sm:space-y-6 pb-4 sm:pb-6 pr-2 sm:pr-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isLocked && (
+                    <Badge variant="outline" className="gap-1">
+                      <Lock className="h-3 w-3" />
+                      Bloqueado
+                    </Badge>
+                  )}
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Telefone</p>
-                  <p className="font-medium">{appointment.customer_phone}</p>
+                <span className="text-sm text-muted-foreground">
+                  ID: {appointment.id}
+                </span>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                  <User className="h-5 w-5 text-primary" />
+                  Informações do Paciente
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-0 sm:pl-7">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nome</p>
+                    <p className="font-medium break-words">
+                      {appointment.customer_name}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Telefone</p>
+                    <p className="font-medium">{appointment.customer_phone}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <Separator />
+              <Separator />
 
-            <div className="space-y-4">
-              <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Informações do Agendamento
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-0 sm:pl-7">
-                <div>
-                  <p className="text-sm text-muted-foreground">Data</p>
+              <div className="space-y-4">
+                <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Informações do Agendamento
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-0 sm:pl-7">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Data</p>
+                    <p className="font-medium">
+                      {formatDateBR(appointment.start_time)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Horário</p>
+                    <p className="font-medium">
+                      {formatTimeBR(appointment.start_time)} -{" "}
+                      {formatTimeBR(appointment.end_time)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Serviço</p>
+                    <p className="font-medium break-words">
+                      {service?.code || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Duração</p>
+                    <p className="font-medium">
+                      {service?.duration_minutes || 0} minutos
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5 text-primary" />
+                  Profissional
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-0 sm:pl-7">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nome</p>
+                    <p className="font-medium break-words">
+                      {professional?.name || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Código</p>
+                    <p className="font-medium break-words">
+                      {professional?.code || "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
+                <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Informações Adicionais
+                </h3>
+                <div className="pl-0 sm:pl-7">
+                  <p className="text-sm text-muted-foreground">Criado em</p>
                   <p className="font-medium">
-                    {formatDateBR(appointment.start_time)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Horário</p>
-                  <p className="font-medium">
-                    {formatTimeBR(appointment.start_time)} -{" "}
-                    {formatTimeBR(appointment.end_time)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Serviço</p>
-                  <p className="font-medium break-words">
-                    {service?.code || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Duração</p>
-                  <p className="font-medium">
-                    {service?.duration_minutes || 0} minutos
+                    {formatDateTimeBR(appointment.created_at)}
                   </p>
                 </div>
               </div>
-            </div>
 
-            <Separator />
+              <Separator />
 
-            <div className="space-y-4">
-              <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
-                <Stethoscope className="h-5 w-5 text-primary" />
-                Profissional
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-0 sm:pl-7">
-                <div>
-                  <p className="text-sm text-muted-foreground">Nome</p>
-                  <p className="font-medium break-words">
-                    {professional?.name || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Código</p>
-                  <p className="font-medium break-words">
-                    {professional?.code || "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Informações Adicionais
-              </h3>
-              <div className="pl-0 sm:pl-7">
-                <p className="text-sm text-muted-foreground">Criado em</p>
-                <p className="font-medium">
-                  {formatDateTimeBR(appointment.created_at)}
-                </p>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex flex-col gap-2 sm:gap-3 pt-2">
-              <Button
-                onClick={handleWhatsApp}
-                variant="default"
-                className="w-full gap-2 cursor-pointer"
-                size="sm"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Enviar WhatsApp
-              </Button>
-              <Button
-                onClick={handleLockAppointment}
-                variant={isLocked ? "outline" : "secondary"}
-                className="w-full gap-2 cursor-pointer"
-                size="sm"
-                disabled={updateClienteTravaMutation.isPending}
-              >
-                <Lock className="h-4 w-4" />
-                {updateClienteTravaMutation.isPending
-                  ? "Processando..."
-                  : isLocked
-                  ? "Desbloquear"
-                  : "Bloquear"}
-              </Button>
-              {!isPastAppointment && (
+              <div className="flex flex-col gap-2 sm:gap-3 pt-2">
                 <Button
-                  onClick={handleDeleteAppointment}
-                  variant="destructive"
+                  onClick={handleWhatsApp}
+                  variant="default"
                   className="w-full gap-2 cursor-pointer"
                   size="sm"
-                  disabled={
-                    isLocked || isPastAppointment || deleteMutation.isPending
-                  }
-                  title={
-                    isPastAppointment
-                      ? "Não é possível excluir agendamentos passados"
-                      : isLocked
-                      ? "Não é possível excluir agendamentos bloqueados"
-                      : ""
-                  }
                 >
-                  <XCircle className="h-4 w-4" />
-                  {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+                  <MessageCircle className="h-4 w-4" />
+                  Enviar WhatsApp
                 </Button>
-              )}
+                <Button
+                  onClick={handleLockAppointment}
+                  variant={isLocked ? "outline" : "secondary"}
+                  className="w-full gap-2 cursor-pointer"
+                  size="sm"
+                  disabled={updateClienteTravaMutation.isPending}
+                >
+                  <Lock className="h-4 w-4" />
+                  {updateClienteTravaMutation.isPending
+                    ? "Processando..."
+                    : isLocked
+                    ? "Desbloquear"
+                    : "Bloquear"}
+                </Button>
+                {!isPastAppointment && (
+                  <Button
+                    onClick={handleDeleteAppointment}
+                    variant="destructive"
+                    className="w-full gap-2 cursor-pointer"
+                    size="sm"
+                    disabled={
+                      isLocked || isPastAppointment || deleteMutation.isPending
+                    }
+                    title={
+                      isPastAppointment
+                        ? "Não é possível excluir agendamentos passados"
+                        : isLocked
+                        ? "Não é possível excluir agendamentos bloqueados"
+                        : ""
+                    }
+                  >
+                    <XCircle className="h-4 w-4" />
+                    {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

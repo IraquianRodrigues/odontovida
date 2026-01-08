@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { Briefcase, Trash2, Clock, Banknote } from "lucide-react";
 import type { ServiceRow } from "@/types/database.types";
 import { formatDateTimeBR } from "@/lib/date-utils";
@@ -134,7 +134,7 @@ export function ServiceDetailsModal({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 px-4 sm:px-6">
+        <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6">
           <div className="space-y-4 sm:space-y-6 pb-4 sm:pb-6 pr-2 sm:pr-4">
             {service && !isCreating && (
               <>
@@ -266,7 +266,7 @@ export function ServiceDetailsModal({
               </>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="px-4 sm:px-6 pb-4 sm:pb-6 pt-3 sm:pt-4 border-t flex-shrink-0">
           <div className="flex flex-col gap-2 sm:gap-3 w-full">

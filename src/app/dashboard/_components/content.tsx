@@ -31,18 +31,18 @@ export default function DashboardContent() {
   }, [appointments]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-muted/40 transition-colors duration-300">
       <div className="container mx-auto p-6 lg:p-10 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground transition-colors">
               Dashboard
             </h1>
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-muted-foreground font-medium transition-colors">
               Visão geral de {formatDateFullBR(selectedDate)}
             </p>
           </div>
-          <div className="flex items-center gap-3 bg-white p-1 rounded-xl border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-3 bg-card p-1 rounded-xl border border-border shadow-sm transition-colors">
             <DatePickerButton
               date={selectedDate}
               onDateChange={setSelectedDate}
@@ -54,16 +54,16 @@ export default function DashboardContent() {
         {!isLoading && !error && (
           <div className="grid gap-6 sm:grid-cols-3">
             {/* Total Card */}
-            <div className="p-6 bg-white rounded-[24px] border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1">
+            <div className="p-6 bg-card rounded-[24px] border border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1 dark:shadow-none">
               <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-2xl bg-blue-50 text-blue-600">
+                <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
                   <Calendar className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide transition-colors">
                     Total
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  <p className="text-3xl font-bold text-card-foreground tracking-tight transition-colors">
                     {stats.total}
                   </p>
                 </div>
@@ -71,16 +71,16 @@ export default function DashboardContent() {
             </div>
 
             {/* Completed Card */}
-            <div className="p-6 bg-white rounded-[24px] border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1">
+            <div className="p-6 bg-card rounded-[24px] border border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1 dark:shadow-none">
               <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-2xl bg-green-50 text-green-600">
+                <div className="p-3.5 rounded-2xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 transition-colors">
                   <CheckCircle2 className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide transition-colors">
                     Concluídos
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  <p className="text-3xl font-bold text-card-foreground tracking-tight transition-colors">
                     {stats.completed}
                   </p>
                 </div>
@@ -88,16 +88,16 @@ export default function DashboardContent() {
             </div>
 
             {/* Pending Card */}
-            <div className="p-6 bg-white rounded-[24px] border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1">
+            <div className="p-6 bg-card rounded-[24px] border border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1 dark:shadow-none">
               <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-2xl bg-orange-50 text-orange-600">
+                <div className="p-3.5 rounded-2xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 transition-colors">
                   <Clock className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide transition-colors">
                     Pendentes
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 tracking-tight">
+                  <p className="text-3xl font-bold text-card-foreground tracking-tight transition-colors">
                     {stats.pending}
                   </p>
                 </div>
@@ -109,21 +109,21 @@ export default function DashboardContent() {
         {/* Main Content */}
         <div className="flex flex-col gap-6">
           {error ? (
-            <Card className="p-12 border border-gray-100 shadow-sm rounded-2xl bg-white">
+            <Card className="p-12 border border-border shadow-sm rounded-2xl bg-card transition-colors">
               <div className="text-center space-y-3">
-                <div className="mx-auto w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
-                  <Users className="h-6 w-6 text-red-500" />
+                <div className="mx-auto w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center transition-colors">
+                  <Users className="h-6 w-6 text-red-500 dark:text-red-400" />
                 </div>
-                <p className="text-red-600 font-medium">
+                <p className="text-red-600 dark:text-red-400 font-medium transition-colors">
                   Erro ao carregar agendamentos
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground transition-colors">
                   Por favor, tente novamente mais tarde.
                 </p>
               </div>
             </Card>
           ) : (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden">
+            <div className="bg-card rounded-2xl border border-border shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden transition-colors dark:shadow-none">
               <AppointmentsTable
                 appointments={appointments}
                 isLoading={isLoading}

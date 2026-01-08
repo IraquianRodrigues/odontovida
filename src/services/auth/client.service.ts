@@ -23,6 +23,14 @@ export class AuthClientService {
     password,
   }: LoginCredentials): Promise<AuthResponse> {
     try {
+      // Validação das variáveis de ambiente
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        throw new Error("NEXT_PUBLIC_SUPABASE_URL não está definida");
+      }
+      if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY não está definida");
+      }
+
       const supabase = createBrowserClient();
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -31,6 +39,7 @@ export class AuthClientService {
       });
 
       if (error) {
+        console.error("Supabase Auth Error:", error);
         return {
           success: false,
           error: error.message,
@@ -42,9 +51,10 @@ export class AuthClientService {
         user: data.user,
       };
     } catch (error) {
+      console.error("System Login Error:", error);
       return {
         success: false,
-        error: "Erro ao realizar login. Tente novamente.",
+        error: `Erro de sistema: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
   }

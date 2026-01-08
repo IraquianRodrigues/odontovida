@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const navItems = [
   {
@@ -61,25 +62,25 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-sm transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         {/* Logo Section */}
-        <Link href="/dashboard" className="flex items-center gap-3 w-48">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-2.5 flex items-center justify-center shadow-lg shadow-blue-200 hover:shadow-blue-300 transition-all hover:scale-105">
+        <Link href="/dashboard" className="flex items-center gap-3 w-48 group">
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-2.5 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/30 transition-all group-hover:scale-105">
             <Calendar className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-lg font-bold text-gray-900 leading-tight">
+            <h1 className="text-lg font-bold text-foreground leading-tight transition-colors">
               {clinicName}
             </h1>
-            <p className="text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+            <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase transition-colors">
               Agendamentos
             </p>
           </div>
         </Link>
 
         {/* Navigation Section */}
-        <nav className="hidden md:flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100">
+        <nav className="hidden md:flex items-center gap-2 bg-muted/50 p-1.5 rounded-2xl border border-border transition-colors">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -91,11 +92,11 @@ export function AppHeader() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative group",
                   isActive
-                    ? "bg-white text-blue-600 shadow-md shadow-gray-100"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100/50"
+                    ? "bg-background text-primary shadow-sm shadow-black/5 dark:shadow-black/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 )}
               >
-                <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600")} />
+                <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
                 {item.label}
               </Link>
             );
@@ -103,12 +104,13 @@ export function AppHeader() {
         </nav>
 
         {/* User/Action Section */}
-        <div className="w-48 flex justify-end">
+        <div className="w-48 flex justify-end gap-2 items-center">
+          <ModeToggle />
           <Button
             size="sm"
             onClick={handleLogout}
             variant="ghost"
-            className="gap-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
+            className="gap-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-300"
             disabled={isLoggingOut}
           >
             <LogOut className="h-4 w-4" />

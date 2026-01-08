@@ -27,12 +27,12 @@ export function DatePickerButton({
         <Button
           variant="ghost"
           className={cn(
-            "w-full sm:w-[280px] justify-start text-left font-normal text-gray-700 hover:bg-transparent hover:text-gray-900",
-            !date && "text-gray-400"
+            "w-full sm:w-[280px] justify-start text-left font-normal text-muted-foreground hover:bg-transparent hover:text-foreground",
+            !date && "text-muted-foreground/50"
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-          <span className="capitalize">
+          <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+          <span className="capitalize text-foreground">
             {date ? (
               format(date, "PPP", { locale: ptBR })
             ) : (

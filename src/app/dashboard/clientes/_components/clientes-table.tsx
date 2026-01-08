@@ -75,21 +75,21 @@ export function ClientesTable({
 
   return (
     <>
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div className="p-8 space-y-6 border-b border-gray-50">
+      <div className="bg-card rounded-[32px] border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden transition-colors dark:shadow-none">
+        <div className="p-8 space-y-6 border-b border-border">
           <div className="space-y-1">
-            <h2 className="text-xl font-semibold text-gray-900">Lista de Clientes</h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <h2 className="text-xl font-semibold text-card-foreground transition-colors">Lista de Clientes</h2>
+            <p className="text-sm text-muted-foreground font-medium transition-colors">
               Visualize e gerencie os clientes cadastrados
             </p>
           </div>
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-gray-900 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-foreground transition-colors" />
             <Input
               placeholder="Buscar por nome do cliente..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-12 bg-gray-50/50 border-gray-100 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-gray-900/5 transition-all rounded-2xl font-medium text-gray-700"
+              className="pl-11 h-12 bg-muted/50 border-input focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-ring transition-all rounded-2xl font-medium text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -97,10 +97,10 @@ export function ClientesTable({
         {/* Versão Mobile - Cards */}
         <div className="block sm:hidden space-y-3 p-4">
           {paginatedClientes.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
+            <div className="p-12 text-center text-muted-foreground">
               <div className="flex flex-col items-center gap-2">
                 <p className="text-base font-medium">Nenhum cliente encontrado</p>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground/70">
                   Tente ajustar a busca ou verificar os filtros
                 </p>
               </div>
@@ -111,19 +111,19 @@ export function ClientesTable({
               return (
                 <div
                   key={cliente.id}
-                  className={`p-4 border rounded-2xl transition-all ${isBlocked ? "bg-red-50/30 border-red-100" : "bg-white border-gray-100"
+                  className={`p-4 border rounded-2xl transition-all ${isBlocked ? "bg-red-50/30 border-red-100 dark:bg-red-900/20 dark:border-red-900/50" : "bg-card border-border"
                     }`}
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <h3
-                          className={`font-semibold text-base truncate ${isBlocked ? "text-red-700" : "text-gray-900"
+                          className={`font-semibold text-base truncate ${isBlocked ? "text-red-700 dark:text-red-400" : "text-card-foreground"
                             }`}
                         >
                           {cliente.nome}
                         </h3>
-                        <p className="text-sm text-gray-500 font-medium mt-1">
+                        <p className="text-sm text-muted-foreground font-medium mt-1">
                           {cliente.telefone}
                         </p>
                       </div>
@@ -137,7 +137,7 @@ export function ClientesTable({
                           </Badge>
                         ) : (
                           <Badge
-                            className="bg-green-100 text-green-700 hover:bg-green-200 border-0 font-semibold shadow-none text-xs rounded-lg px-2"
+                            className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/60 border-0 font-semibold shadow-none text-xs rounded-lg px-2"
                           >
                             Ativo
                           </Badge>
@@ -148,7 +148,7 @@ export function ClientesTable({
                       variant="outline"
                       size="sm"
                       onClick={() => setSelectedCliente(cliente)}
-                      className="w-full rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-all font-medium"
+                      className="w-full rounded-xl border-input hover:bg-muted hover:text-foreground transition-all font-medium"
                     >
                       Ver Detalhes
                     </Button>
@@ -163,31 +163,31 @@ export function ClientesTable({
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-50 bg-gray-50/30">
-                <th className="text-left p-6 font-medium text-xs text-gray-400 uppercase tracking-wider">
+              <tr className="border-b border-border bg-muted/50">
+                <th className="text-left p-6 font-medium text-xs text-muted-foreground uppercase tracking-wider">
                   Nome
                 </th>
-                <th className="text-left p-6 font-medium text-xs text-gray-400 uppercase tracking-wider">
+                <th className="text-left p-6 font-medium text-xs text-muted-foreground uppercase tracking-wider">
                   Telefone
                 </th>
-                <th className="text-left p-6 font-medium text-xs text-gray-400 uppercase tracking-wider">
+                <th className="text-left p-6 font-medium text-xs text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="text-left p-6 font-medium text-xs text-gray-400 uppercase tracking-wider">
+                <th className="text-left p-6 font-medium text-xs text-muted-foreground uppercase tracking-wider">
                   Ações
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {paginatedClientes.length === 0 ? (
                 <tr>
                   <td
                     colSpan={4}
-                    className="p-12 text-center text-gray-500"
+                    className="p-12 text-center text-muted-foreground"
                   >
                     <div className="flex flex-col items-center gap-2">
                       <p className="text-base font-medium">Nenhum cliente encontrado</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground/70">
                         Tente ajustar a busca ou verificar os filtros
                       </p>
                     </div>
@@ -199,19 +199,19 @@ export function ClientesTable({
                   return (
                     <tr
                       key={cliente.id}
-                      className={`group transition-colors hover:bg-gray-50/50 ${isBlocked ? "bg-red-50/10" : ""
+                      className={`group transition-colors hover:bg-muted/50 ${isBlocked ? "bg-red-50/10 dark:bg-red-900/10" : ""
                         }`}
                     >
                       <td className="p-6">
                         <span
-                          className={`font-medium transition-colors ${isBlocked ? "text-red-700" : "text-gray-700 group-hover:text-gray-900"
+                          className={`font-medium transition-colors ${isBlocked ? "text-red-700 dark:text-red-400" : "text-card-foreground"
                             }`}
                         >
                           {cliente.nome}
                         </span>
                       </td>
                       <td className="p-6">
-                        <span className="text-sm text-gray-500 font-medium">
+                        <span className="text-sm text-muted-foreground font-medium">
                           {cliente.telefone}
                         </span>
                       </td>
@@ -225,7 +225,7 @@ export function ClientesTable({
                           </Badge>
                         ) : (
                           <Badge
-                            className="bg-green-100 text-green-700 hover:bg-green-200 border-0 font-semibold shadow-none rounded-lg px-2.5 py-0.5"
+                            className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/60 border-0 font-semibold shadow-none rounded-lg px-2.5 py-0.5"
                           >
                             Ativo
                           </Badge>
@@ -236,7 +236,7 @@ export function ClientesTable({
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedCliente(cliente)}
-                          className="h-9 px-4 text-sm font-medium text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="h-9 px-4 text-sm font-medium text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         >
                           Ver Detalhes
                         </Button>
@@ -251,13 +251,13 @@ export function ClientesTable({
 
         {/* Paginação */}
         {totalPages > 1 && (
-          <div className="p-6 border-t border-gray-50 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-500 font-medium text-center sm:text-left">
-              Mostrando <span className="font-bold text-gray-900">{startIndex + 1}</span> a{" "}
-              <span className="font-bold text-gray-900">
+          <div className="p-6 border-t border-border bg-muted/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-muted-foreground font-medium text-center sm:text-left">
+              Mostrando <span className="font-bold text-foreground">{startIndex + 1}</span> a{" "}
+              <span className="font-bold text-foreground">
                 {Math.min(endIndex, filteredClientes.length)}
               </span>{" "}
-              de <span className="font-bold text-gray-900">{filteredClientes.length}</span> clientes
+              de <span className="font-bold text-foreground">{filteredClientes.length}</span> clientes
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
               <Button
@@ -265,12 +265,12 @@ export function ClientesTable({
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="h-10 px-4 rounded-xl border-gray-200 hover:bg-white hover:border-gray-300 hover:text-gray-900 transition-all disabled:opacity-50"
+                className="h-10 px-4 rounded-xl border-input hover:bg-background hover:border-ring hover:text-foreground transition-all disabled:opacity-50"
               >
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Anterior
               </Button>
-              <div className="text-sm font-bold w-10 h-10 flex items-center justify-center bg-gray-900 text-white rounded-xl">
+              <div className="text-sm font-bold w-10 h-10 flex items-center justify-center bg-foreground text-background rounded-xl">
                 {currentPage}
               </div>
               <Button
@@ -278,7 +278,7 @@ export function ClientesTable({
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="h-10 px-4 rounded-xl border-gray-200 hover:bg-white hover:border-gray-300 hover:text-gray-900 transition-all disabled:opacity-50"
+                className="h-10 px-4 rounded-xl border-input hover:bg-background hover:border-ring hover:text-foreground transition-all disabled:opacity-50"
               >
                 Próxima
                 <ChevronRight className="h-4 w-4 ml-2" />

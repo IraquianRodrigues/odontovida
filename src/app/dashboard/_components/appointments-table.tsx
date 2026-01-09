@@ -97,7 +97,7 @@ export function AppointmentsTable({
 
   return (
     <>
-      <div className="bg-card rounded-[32px] border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden transition-colors dark:shadow-none">
+      <div className="bg-card rounded-[32px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden transition-colors dark:shadow-none">
         <div className="p-8 space-y-6 border-b border-border">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold text-foreground transition-colors">Agendamentos do Dia</h2>
@@ -163,6 +163,12 @@ export function AppointmentsTable({
                   Telefone
                 </th>
                 <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
+                  Médico
+                </th>
+                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
+                  Procedimento
+                </th>
+                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
                   Horário Início
                 </th>
                 <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
@@ -177,7 +183,7 @@ export function AppointmentsTable({
               {filteredAppointments.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={7}
                     className="p-12 text-center text-muted-foreground"
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -214,6 +220,16 @@ export function AppointmentsTable({
                       <td className="p-4">
                         <span className="text-sm text-muted-foreground font-mono">
                           {appointment.customer_phone}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm text-foreground font-medium">
+                          {appointment.professional?.name || "N/A"}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm text-foreground">
+                          {appointment.service?.code || "N/A"}
                         </span>
                       </td>
                       <td className="p-4">

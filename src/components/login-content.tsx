@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AuthClientService } from "@/services/auth/client.service";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function LoginContent() {
   const [email, setEmail] = useState("");
@@ -108,6 +109,9 @@ export function LoginContent() {
 
       {/* Right Panel - Login Form */}
       <div className="w-full lg:w-[45%] flex items-center justify-center p-8 bg-white dark:bg-zinc-950 relative">
+        <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
+          <ModeToggle />
+        </div>
         <div className="w-full max-w-[400px] space-y-8">
           <div className="space-y-2 text-center lg:text-left">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
@@ -134,7 +138,7 @@ export function LoginContent() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="pl-10 h-12 bg-gray-50 border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                    className="pl-10 h-12 bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
                   />
                 </div>
               </div>
@@ -155,7 +159,7 @@ export function LoginContent() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="pl-10 h-12 bg-gray-50 border-gray-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                    className="pl-10 h-12 bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
                   />
                 </div>
               </div>

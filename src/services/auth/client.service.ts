@@ -31,6 +31,16 @@ export class AuthClientService {
         throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY não está definida");
       }
 
+      // Rate limiting check (importar dinamicamente para evitar erro no build)
+      const { checkLoginRateLimit, resetLoginRateLimit } = await import("@/lib/rate-limit");
+      
+      if (!checkLoginRateLimit(email)) {
+        return {
+          success: false,
+          error: "Muitas tentativas de login. Por favor, aguarde 1 minuto e tente novamente.",
+        };
+      }
+
       const supabase = createBrowserClient();
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -45,6 +55,9 @@ export class AuthClientService {
           error: error.message,
         };
       }
+
+      // Login bem-sucedido - resetar rate limit
+      resetLoginRateLimit(email);
 
       return {
         success: true,

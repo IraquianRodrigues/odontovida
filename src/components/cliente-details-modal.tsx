@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, Phone, Lock, MessageCircle, DollarSign, CalendarClock, Star, FileText } from "lucide-react";
+import { User, Phone, Lock, MessageCircle, DollarSign, CalendarClock, Star, FileText, TrendingUp, Activity, Clock, CheckCircle2, Calendar } from "lucide-react";
 import type { ClienteRow } from "@/types/database.types";
 import { formatDateTimeBR } from "@/lib/date-utils";
 import { toast } from "sonner";
@@ -20,12 +20,13 @@ import {
   useUpdateClienteTrava,
 } from "@/services/clientes/use-clientes";
 import { useAppointmentsByPhone } from "@/services/appointments/use-appointments";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useMemo, useState } from "react";
 import { useUpdateClienteNotes } from "@/services/clientes/use-clientes";
 import { useLatestMedicalRecord, useCreateMedicalRecord, useUpdateMedicalRecord } from "@/services/medical-records/use-medical-records";
 import { useMedicalRecords } from "@/services/medical-records/use-medical-records";
+import { format, formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface ClienteDetailsModalProps {
   cliente: ClienteRow | null;
@@ -46,8 +47,22 @@ export function ClienteDetailsModal({
 
   const { data: appointmentsHistory = [], isLoading: isLoadingHistory } = useAppointmentsByPhone(cliente?.telefone || null);
 
-  const totalInvestido = useMemo(() => {
-    return appointmentsHistory.reduce((acc, apt) => acc + (apt.service?.price || 0), 0);
+  // Estatísticas avançadas
+  const stats = useMemo(() => {
+    const completed = appointmentsHistory.filter(a => a.completed_at);
+    const totalInvestido = completed.reduce((acc, apt) => acc + (apt.service?.price || 0), 0);
+    const avgTicket = completed.length > 0 ? totalInvestido / completed.length : 0;
+    const lastVisit = completed.length > 0 ? new Date(completed[0].created_at) : null;
+    const nextAppointment = appointmentsHistory.find(a => !a.completed_at && new Date(a.start_time) > new Date());
+    
+    return {
+      totalInvestido,
+      totalVisitas: appointmentsHistory.length,
+      visitasConcluidas: completed.length,
+      avgTicket,
+      lastVisit,
+      nextAppointment,
+    };
   }, [appointmentsHistory]);
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -130,60 +145,109 @@ export function ClienteDetailsModal({
 
   return (
     <Dialog open={!!cliente} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] sm:max-w-3xl max-h-[85vh] p-0 flex flex-col bg-card overflow-hidden shadow-2xl border-0">
-        {/* Header com Gradiente e Design Premium */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 px-6 sm:px-8 pt-8 pb-16 flex-shrink-0 text-white">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <User className="w-64 h-64 -mr-16 -mt-16 rotate-12" />
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] p-0 flex flex-col bg-background overflow-hidden shadow-2xl border-0 rounded-3xl">
+        {/* Header Premium com Gradiente */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 px-6 sm:px-8 pt-8 pb-20 flex-shrink-0 text-white">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl -mr-48 -mt-48" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -ml-48 -mb-48" />
           </div>
 
-          <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6">
-            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/30 flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-xl">
-              {clienteAtual.nome.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 text-center sm:text-left space-y-1">
-              <DialogTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-1">
-                {clienteAtual.nome}
-              </DialogTitle>
-              <div className="flex items-center justify-center sm:justify-start gap-3 text-blue-50">
-                <span className="flex items-center gap-1.5 bg-blue-700/50 px-2.5 py-0.5 rounded-full text-sm font-medium backdrop-blur-md border border-white/10">
-                  <Phone className="w-3.5 h-3.5" />
-                  {clienteAtual.telefone}
-                </span>
+          <div className="relative z-10">
+            {/* Avatar e Info Principal */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+              <div className="relative">
+                <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl bg-white/20 backdrop-blur-md border-4 border-white/40 flex items-center justify-center text-4xl sm:text-5xl font-bold shadow-2xl shadow-black/20">
+                  {clienteAtual.nome.charAt(0).toUpperCase()}
+                </div>
                 {isLocked && (
-                  <span className="flex items-center gap-1.5 bg-red-500/90 text-white px-2.5 py-0.5 rounded-full text-sm font-bold shadow-sm">
-                    <Lock className="w-3.5 h-3.5" />
-                    Bloqueado
-                  </span>
+                  <div className="absolute -bottom-2 -right-2 bg-red-500 rounded-full p-2 shadow-lg">
+                    <Lock className="w-4 h-4 text-white" />
+                  </div>
                 )}
+              </div>
+              
+              <div className="flex-1 text-center sm:text-left space-y-2">
+                <DialogTitle className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+                  {clienteAtual.nome}
+                </DialogTitle>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-md px-3 py-1 text-sm font-medium">
+                    <Phone className="w-3.5 h-3.5 mr-1.5" />
+                    {clienteAtual.telefone}
+                  </Badge>
+                  <Badge className={`px-3 py-1 text-sm font-bold ${isLocked ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white border-0`}>
+                    {isLocked ? 'Bloqueado' : 'Ativo'}
+                  </Badge>
+                  <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-md px-3 py-1 text-sm">
+                    <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                    Desde {format(new Date(clienteAtual.created_at), 'MMM yyyy', { locale: ptBR })}
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Floating Stats - Sobrepõem o Header */}
-        <div className="px-6 sm:px-8 -mt-8 relative z-20 flex-shrink-0">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-card rounded-2xl p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-border flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 transition-transform hover:scale-[1.02] dark:shadow-none">
-              <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 mb-2 sm:mb-0">
-                <DollarSign className="w-6 h-6" />
-              </div>
-              <div className="text-center sm:text-left">
-                <p className="text-sm font-medium text-muted-foreground">Total Investido</p>
-                <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalInvestido)}
-                </p>
+        {/* Stats Cards - Floating sobre o header */}
+        <div className="px-6 sm:px-8 -mt-12 relative z-20 flex-shrink-0">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* Total Investido */}
+            <div className="bg-card rounded-2xl p-4 shadow-xl border border-border hover:shadow-2xl transition-all hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Investido</p>
+                  <p className="text-xl font-bold text-foreground truncate">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(stats.totalInvestido)}
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="bg-card rounded-2xl p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-border flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 transition-transform hover:scale-[1.02] dark:shadow-none">
-              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 mb-2 sm:mb-0">
-                <CalendarClock className="w-6 h-6" />
+
+            {/* Total Visitas */}
+            <div className="bg-card rounded-2xl p-4 shadow-xl border border-border hover:shadow-2xl transition-all hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                  <CalendarClock className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visitas</p>
+                  <p className="text-xl font-bold text-foreground">{stats.totalVisitas}</p>
+                </div>
               </div>
-              <div className="text-center sm:text-left">
-                <p className="text-sm font-medium text-muted-foreground">Total Visitas</p>
-                <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-                  {appointmentsHistory.length}
-                </p>
+            </div>
+
+            {/* Ticket Médio */}
+            <div className="bg-card rounded-2xl p-4 shadow-xl border border-border hover:shadow-2xl transition-all hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ticket Médio</p>
+                  <p className="text-xl font-bold text-foreground truncate">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(stats.avgTicket)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Última Visita */}
+            <div className="bg-card rounded-2xl p-4 shadow-xl border border-border hover:shadow-2xl transition-all hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Última Visita</p>
+                  <p className="text-sm font-bold text-foreground truncate">
+                    {stats.lastVisit ? formatDistanceToNow(stats.lastVisit, { addSuffix: true, locale: ptBR }) : 'Nunca'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -193,173 +257,220 @@ export function ClienteDetailsModal({
           <DialogTitle>{clienteAtual.nome}</DialogTitle>
         </DialogHeader>
 
-        {/* Content Area com Tabs Modernas */}
-        <div className="flex-1 overflow-hidden flex flex-col mt-4">
-          {/* Custom Tabs */}
-          <div className="px-6 sm:px-8 mb-2 flex justify-center sm:justify-start">
-            <div className="inline-flex bg-muted/50 p-1 rounded-xl">
+        {/* Content Area com Tabs */}
+        <div className="flex-1 overflow-hidden flex flex-col mt-6">
+          {/* Tabs Navigation */}
+          <div className="px-6 sm:px-8 mb-4 flex justify-center sm:justify-start">
+            <div className="inline-flex bg-muted/50 p-1.5 rounded-2xl gap-1">
               <button
                 onClick={() => setActiveTab("overview")}
-                className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'overview'
-                  ? 'bg-background text-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                className={`px-4 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeTab === 'overview'
+                  ? 'bg-background text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10 scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
                   }`}
               >
-                Visão Geral
+                <User className="w-4 h-4 inline mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Visão Geral</span>
+                <span className="xs:hidden">Geral</span>
               </button>
               <button
-                onClick={() => setActiveTab("history")}
-                className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'history'
-                  ? 'bg-background text-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                onClick={() => setActiveTab("timeline")}
+                className={`px-4 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeTab === 'timeline'
+                  ? 'bg-background text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10 scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
                   }`}
               >
-                Histórico
+                <Activity className="w-4 h-4 inline mr-1 sm:mr-2" />
+                Timeline
               </button>
               <button
                 onClick={() => setActiveTab("prontuario")}
-                className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTab === 'prontuario'
-                  ? 'bg-background text-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                className={`px-4 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeTab === 'prontuario'
+                  ? 'bg-background text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10 scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
                   }`}
               >
+                <FileText className="w-4 h-4 inline mr-1 sm:mr-2" />
                 Prontuário
               </button>
             </div>
           </div>
 
+          {/* Tab Content */}
           <div className="flex-1 overflow-y-auto min-h-0">
-            <div className="p-6 sm:px-8 space-y-6">
+            <div className="p-6 sm:px-8 space-y-6 pb-8">
               {activeTab === "overview" && (
                 <div className="space-y-6">
-                  {/* Informações Pessoais Card */}
-                  <div className="bg-muted/20 p-5 rounded-2xl border border-border flex items-start gap-4">
-                    <div className="hidden sm:flex h-12 w-12 rounded-xl bg-background border border-border items-center justify-center text-muted-foreground shadow-sm shrink-0">
-                      <User className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
-                        <User className="h-4 w-4 sm:hidden text-muted-foreground" />
-                        Informações da Conta
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Status da Conta</p>
-                          <div className="flex items-center gap-2">
-                            <div className={`h-2.5 w-2.5 rounded-full ${isLocked ? 'bg-red-500' : 'bg-green-500'}`} />
-                            <span className="font-medium text-foreground">{isLocked ? 'Bloqueado' : 'Ativo e Regular'}</span>
-                          </div>
+                  {/* Quick Info */}
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-5 rounded-2xl border border-blue-100 dark:border-blue-900/50">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
+                          <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Membro Desde</p>
-                          <p className="font-medium text-foreground">{formatDateTimeBR(clienteAtual.created_at)}</p>
+                        <div className="flex-1">
+                          <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">Status da Conta</p>
+                          <div className="flex items-center gap-2">
+                            <div className={`h-2.5 w-2.5 rounded-full ${isLocked ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                            <span className="font-bold text-foreground">{isLocked ? 'Bloqueado' : 'Ativo e Regular'}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Cliente desde {format(new Date(clienteAtual.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                          </p>
                         </div>
                       </div>
                     </div>
+
+                    {stats.nextAppointment && (
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 p-5 rounded-2xl border border-green-100 dark:border-green-900/50">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2.5 bg-green-100 dark:bg-green-900/50 rounded-xl">
+                            <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider mb-1">Próxima Consulta</p>
+                            <p className="font-bold text-foreground">{format(new Date(stats.nextAppointment.start_time), "dd/MM/yyyy 'às' HH:mm")}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{stats.nextAppointment.service?.code || 'Procedimento'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Anotações Section */}
-                  <div className="flex flex-col gap-3 pt-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1 flex items-center gap-2">
-                      <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                      Anotações & Observações
-                    </h3>
+                  {/* Anotações */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Anotações Importantes</h3>
+                    </div>
                     <div className="relative group">
                       <Textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         onBlur={handleNotesBlur}
-                        placeholder="Clique aqui para adicionar notas sobre este paciente (ex: preferências, histórico médico relevante, etc)..."
-                        className="min-h-[120px] bg-card border-border hover:border-amber-200 dark:hover:border-amber-800 focus:bg-background focus:border-amber-300 dark:focus:border-amber-700 focus:ring-4 focus:ring-amber-100/50 dark:focus:ring-amber-900/20 resize-none placeholder:text-muted-foreground text-foreground leading-relaxed shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-none p-5 rounded-2xl text-sm transition-all duration-300"
+                        placeholder="Adicione observações importantes sobre o paciente..."
+                        className="min-h-[140px] bg-card border-2 border-border hover:border-amber-300 dark:hover:border-amber-700 focus:border-amber-400 dark:focus:border-amber-600 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/30 resize-none text-foreground leading-relaxed p-5 rounded-2xl text-sm transition-all duration-300 shadow-sm"
                       />
                       <div className="absolute bottom-4 right-4 pointer-events-none">
                         {updateClienteNotesMutation.isPending ? (
-                          <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded-full border border-amber-100/50 dark:border-amber-800/50 shadow-sm animate-pulse">
-                            <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                            Salvando
-                          </span>
+                          <Badge className="bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800 animate-pulse">
+                            <div className="h-2 w-2 rounded-full bg-amber-500 mr-1.5 animate-ping" />
+                            Salvando...
+                          </Badge>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground/60 transition-colors bg-background/50 backdrop-blur-sm px-2 py-1 rounded-md">
-                            Salvo autom.
-                          </span>
+                          <Badge variant="secondary" className="text-xs">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Salvo
+                          </Badge>
                         )}
                       </div>
                     </div>
                   </div>
-
-                  {/* Espaço extra no final */}
-                  <div className="h-8"></div>
                 </div>
               )}
 
-              {activeTab === "history" && (
+              {activeTab === "timeline" && (
                 <div className="space-y-4">
                   {isLoadingHistory ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent mb-2" />
-                      <p>Carregando histórico...</p>
+                    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                      <div className="h-10 w-10 animate-spin rounded-full border-4 border-current border-t-transparent mb-3" />
+                      <p className="font-medium">Carregando histórico...</p>
                     </div>
                   ) : appointmentsHistory.length === 0 ? (
-                    <div className="text-center py-16 px-4 bg-muted/30 rounded-3xl border-2 border-dashed border-border">
-                      <CalendarClock className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-foreground font-medium">Nenhum histórico encontrado</p>
-                      <p className="text-sm text-muted-foreground">Este cliente ainda não realizou consultas.</p>
+                    <div className="text-center py-20 px-4 bg-muted/30 rounded-3xl border-2 border-dashed border-border">
+                      <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-bold text-foreground mb-1">Nenhum histórico encontrado</p>
+                      <p className="text-sm text-muted-foreground">Este paciente ainda não realizou consultas.</p>
                     </div>
                   ) : (
-                    appointmentsHistory.slice(0, 5).map((apt: any) => (
-                      <div key={apt.id} className="group flex items-center gap-4 p-4 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md hover:border-blue-100 dark:hover:border-blue-900/50 transition-all dark:shadow-none">
-                        <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 font-bold text-lg ${apt.status === 'completed' || apt.completed_at
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
-                          : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
-                          }`}>
-                          {new Date(apt.created_at).getDate()}
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-0.5">
-                            <h4 className="font-bold text-foreground truncate pr-2">
-                              {apt.service?.name || apt.service?.code || "Serviço não identificado"}
-                            </h4>
-                            {apt.service?.price && (
-                              <span className="font-mono text-sm font-semibold text-foreground bg-muted px-2 py-0.5 rounded-md border border-border">
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(apt.service.price)}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <User className="w-3.5 h-3.5" />
-                              {apt.professional?.name || "N/A"}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${apt.status === 'completed' || apt.completed_at
-                              ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'
-                              : 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                    <div className="relative">
+                      {/* Timeline Line */}
+                      <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 opacity-20" />
+                      
+                      {/* Timeline Items */}
+                      <div className="space-y-6">
+                        {appointmentsHistory.map((apt: any, index) => {
+                          const isCompleted = apt.completed_at !== null;
+                          return (
+                            <div key={apt.id} className="relative pl-16">
+                              {/* Timeline Dot */}
+                              <div className={`absolute left-3.5 top-3 w-5 h-5 rounded-full border-4 border-background ${
+                                isCompleted 
+                                  ? 'bg-green-500 shadow-lg shadow-green-500/50' 
+                                  : 'bg-blue-500 shadow-lg shadow-blue-500/50 animate-pulse'
+                              }`} />
+                              
+                              {/* Content Card */}
+                              <div className={`group p-5 rounded-2xl border-2 transition-all hover:shadow-lg ${
+                                isCompleted
+                                  ? 'bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-800'
+                                  : 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-800'
                               }`}>
-                              {apt.status === 'completed' || apt.completed_at ? 'Concluído' : 'Agendado'}
-                            </span>
-                          </div>
-                        </div>
+                                <div className="flex items-start justify-between gap-4 mb-3">
+                                  <div className="flex-1">
+                                    <h4 className="font-bold text-lg text-foreground mb-1">
+                                      {apt.service?.code || "Procedimento"}
+                                    </h4>
+                                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                                      <span className="flex items-center gap-1">
+                                        <User className="w-3.5 h-3.5" />
+                                        Dr(a). {apt.professional?.name || "N/A"}
+                                      </span>
+                                      <span>•</span>
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-3.5 h-3.5" />
+                                        {format(new Date(apt.start_time), "dd/MM/yyyy 'às' HH:mm")}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-2">
+                                    <Badge className={`font-bold ${
+                                      isCompleted
+                                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                    }`}>
+                                      {isCompleted ? (
+                                        <><CheckCircle2 className="w-3 h-3 mr-1" /> Concluído</>
+                                      ) : (
+                                        <><Clock className="w-3 h-3 mr-1" /> Agendado</>
+                                      )}
+                                    </Badge>
+                                    {apt.service?.price && (
+                                      <span className="font-mono text-lg font-bold text-foreground">
+                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(apt.service.price)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                {isCompleted && apt.completed_at && (
+                                  <p className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
+                                    Concluído {formatDistanceToNow(new Date(apt.completed_at), { addSuffix: true, locale: ptBR })}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))
+                    </div>
                   )}
                 </div>
               )}
 
               {activeTab === "prontuario" && (
                 <div className="space-y-6">
-                  {/* Clinical Notes Section */}
-                  <div className="flex flex-col gap-3">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1 flex items-center gap-2">
-                      <FileText className="h-3.5 w-3.5 text-purple-400 fill-purple-400" />
-                      Evolução Clínica
-                    </h3>
-                    <div className="relative group">
+                  {/* Evolução Clínica */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-purple-500 fill-purple-500" />
+                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Evolução Clínica</h3>
+                    </div>
+                    <div className="relative">
                       <Textarea
                         value={clinicalNotes}
                         onChange={(e) => setClinicalNotes(e.target.value)}
                         onBlur={async () => {
                           if (!latestRecord) {
-                            // Create new record
                             if (clinicalNotes.trim()) {
                               try {
                                 await createRecordMutation.mutateAsync({
@@ -373,7 +484,6 @@ export function ClienteDetailsModal({
                               }
                             }
                           } else if (clinicalNotes !== (latestRecord.clinical_notes || "")) {
-                            // Update existing record
                             try {
                               await updateRecordMutation.mutateAsync({
                                 id: latestRecord.id,
@@ -385,29 +495,28 @@ export function ClienteDetailsModal({
                             }
                           }
                         }}
-                        placeholder="Registre aqui a evolução clínica do paciente, procedimentos realizados, observações importantes..."
-                        className="min-h-[150px] bg-card border-border hover:border-purple-200 dark:hover:border-purple-800 focus:bg-background focus:border-purple-300 dark:focus:border-purple-700 focus:ring-4 focus:ring-purple-100/50 dark:focus:ring-purple-900/20 resize-none placeholder:text-muted-foreground text-foreground leading-relaxed shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-none p-5 rounded-2xl text-sm transition-all duration-300"
+                        placeholder="Registre a evolução clínica, procedimentos realizados, diagnósticos..."
+                        className="min-h-[160px] bg-card border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 focus:border-purple-400 dark:focus:border-purple-600 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/30 resize-none text-foreground leading-relaxed p-5 rounded-2xl text-sm transition-all duration-300 shadow-sm"
                       />
                       <div className="absolute bottom-4 right-4 pointer-events-none">
                         {(createRecordMutation.isPending || updateRecordMutation.isPending) ? (
-                          <span className="flex items-center gap-1.5 text-xs font-medium text-purple-600 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-full border border-purple-100/50 dark:border-purple-800/50 shadow-sm animate-pulse">
-                            <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-                            Salvando
-                          </span>
+                          <Badge className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800 animate-pulse">
+                            <div className="h-2 w-2 rounded-full bg-purple-500 mr-1.5 animate-ping" />
+                            Salvando...
+                          </Badge>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground/60 transition-colors bg-background/50 backdrop-blur-sm px-2 py-1 rounded-md">
-                            Salvo autom.
-                          </span>
+                          <Badge variant="secondary" className="text-xs">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Salvo
+                          </Badge>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Observations Section */}
-                  <div className="flex flex-col gap-3">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">
-                      Observações Importantes
-                    </h3>
+                  {/* Observações Importantes */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">⚠️ Observações Importantes</h3>
                     <Textarea
                       value={observations}
                       onChange={(e) => setObservations(e.target.value)}
@@ -437,80 +546,80 @@ export function ClienteDetailsModal({
                           }
                         }
                       }}
-                      placeholder="Alergias, condições especiais, restrições..."
-                      className="min-h-[80px] bg-amber-50/50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700 focus:bg-background focus:border-amber-400 dark:focus:border-amber-600 focus:ring-4 focus:ring-amber-100/50 dark:focus:ring-amber-900/20 resize-none placeholder:text-muted-foreground text-foreground leading-relaxed p-4 rounded-xl text-sm transition-all duration-300"
+                      placeholder="Alergias, condições especiais, restrições, medicamentos..."
+                      className="min-h-[100px] bg-amber-50/70 dark:bg-amber-950/20 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700 focus:border-amber-400 dark:focus:border-amber-600 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/30 resize-none text-foreground leading-relaxed p-4 rounded-xl text-sm transition-all duration-300"
                     />
                   </div>
 
-                  {/* Procedure Summary */}
-                  <div className="flex flex-col gap-3 pt-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">
-                      Resumo de Procedimentos
-                    </h3>
+                  {/* Resumo de Procedimentos */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">📋 Histórico de Procedimentos</h3>
                     {isLoadingHistory ? (
-                      <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      <div className="flex items-center justify-center py-8">
                         <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
                       </div>
                     ) : appointmentsHistory.length === 0 ? (
-                      <div className="text-center py-8 px-4 bg-muted/20 rounded-xl border border-dashed border-border">
+                      <div className="text-center py-8 px-4 bg-muted/20 rounded-2xl border-2 border-dashed border-border">
                         <p className="text-sm text-muted-foreground">Nenhum procedimento registrado</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {appointmentsHistory.slice(0, 5).map((apt: any) => (
-                          <div key={apt.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border">
+                        {appointmentsHistory.slice(0, 10).map((apt: any) => (
+                          <div key={apt.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/40 border border-border hover:bg-muted/60 transition-colors">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <div className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                              <div className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${
                                 apt.completed_at ? 'bg-green-500' : 'bg-blue-500'
                               }`} />
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">
+                                <p className="text-sm font-bold text-foreground truncate">
                                   {apt.service?.code || "Procedimento"}
                                 </p>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                  <span>{formatDateTimeBR(apt.created_at)}</span>
-                                  {apt.professional?.name && (
-                                    <>
-                                      <span>•</span>
-                                      <span className="truncate">Dr(a). {apt.professional.name}</span>
-                                    </>
-                                  )}
-                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(apt.created_at), "dd/MM/yyyy")} • Dr(a). {apt.professional?.name || "N/A"}
+                                </p>
                               </div>
                             </div>
-                            <span className={`text-xs font-medium px-2 py-1 rounded flex-shrink-0 ml-2 ${
-                              apt.completed_at
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                            }`}>
+                            <Badge variant={apt.completed_at ? "default" : "secondary"} className="ml-2">
                               {apt.completed_at ? 'Concluído' : 'Agendado'}
-                            </span>
+                            </Badge>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
-
-                  {/* Espaço extra no final */}
-                  <div className="h-8"></div>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 sm:px-8 sm:py-6 bg-muted/40 border-t border-border flex flex-col sm:flex-row gap-3 flex-shrink-0 z-20">
-          <Button onClick={handleWhatsApp} className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white border-0 h-11 sm:h-12 text-base font-semibold shadow-lg shadow-green-500/20 rounded-xl">
+        {/* Footer com Actions */}
+        <div className="p-5 sm:px-8 sm:py-6 bg-muted/40 border-t border-border flex flex-col sm:flex-row gap-3 flex-shrink-0">
+          <Button 
+            onClick={handleWhatsApp} 
+            className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white border-0 h-12 text-base font-bold shadow-lg shadow-green-500/30 rounded-xl transition-all hover:scale-105"
+          >
             <MessageCircle className="h-5 w-5 mr-2" />
-            WhatsApp
+            Enviar WhatsApp
           </Button>
           <div className="flex flex-1 gap-3">
-            <Button onClick={handleToggleLock} variant={isLocked ? "secondary" : "destructive"} className={`flex-1 h-11 sm:h-12 rounded-xl font-semibold ${isLocked ? 'bg-muted text-muted-foreground hover:bg-muted/80' : 'shadow-lg shadow-red-500/20'}`}>
+            <Button 
+              onClick={handleToggleLock} 
+              variant={isLocked ? "secondary" : "destructive"} 
+              className={`flex-1 h-12 rounded-xl font-bold transition-all hover:scale-105 ${
+                isLocked 
+                  ? 'bg-muted hover:bg-muted/80 text-foreground' 
+                  : 'shadow-lg shadow-red-500/30'
+              }`}
+            >
               <Lock className="h-4 w-4 mr-2" />
               {isLocked ? "Desbloquear" : "Bloquear"}
             </Button>
-            <Button variant="outline" onClick={onClose} className="w-24 h-11 sm:h-12 border-border hover:bg-background hover:text-foreground rounded-xl font-semibold">
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              className="px-8 h-12 border-2 border-border hover:bg-background hover:border-foreground rounded-xl font-bold transition-all"
+            >
               Fechar
             </Button>
           </div>
@@ -519,3 +628,4 @@ export function ClienteDetailsModal({
     </Dialog>
   );
 }
+

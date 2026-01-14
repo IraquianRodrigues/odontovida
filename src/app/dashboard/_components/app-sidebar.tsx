@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Users, UserCog, Briefcase, DollarSign, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { Calendar, Users, UserCog, Briefcase, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,12 @@ const navItems = [
     href: "/dashboard/clientes",
     label: "Clientes",
     icon: Users,
+  },
+  {
+    href: "/dashboard/prontuarios",
+    label: "Prontuários",
+    icon: FileText,
+    requiresProfessional: true, // Apenas médicos/dentistas
   },
   {
     href: "/dashboard/profissionais",
@@ -41,12 +47,15 @@ export function AppSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { hasFinancialAccess } = useUserRole();
+  const { hasFinancialAccess, isProfessional } = useUserRole();
 
   // Filtrar itens de navegação baseado em permissões
   const filteredNavItems = navItems.filter(item => {
     if (item.requiresAdmin) {
       return hasFinancialAccess;
+    }
+    if (item.requiresProfessional) {
+      return isProfessional;
     }
     return true;
   });

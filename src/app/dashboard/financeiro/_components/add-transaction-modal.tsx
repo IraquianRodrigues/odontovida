@@ -37,6 +37,7 @@ interface Client {
 export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransactionModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [generatePaymentLink, setGeneratePaymentLink] = useState(false);
   const [formData, setFormData] = useState<CreateTransactionInput>({
     client_id: "",
     type: "receita",
@@ -96,6 +97,31 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
     if (result.success) {
       toast.success("Transação criada com sucesso!");
+      
+      // MERCADO PAGO DESATIVADO TEMPORARIAMENTE
+      // Se deve gerar link de pagamento e é uma receita pendente
+      /* if (generatePaymentLink && formData.type === "receita" && formData.status === "pendente" && result.data?.id) {
+        try {
+          const paymentResponse = await fetch("/api/mercadopago/create-preference", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ transaction_id: result.data.id }),
+          });
+          
+          const paymentData = await paymentResponse.json();
+          
+          if (paymentData.success && paymentData.init_point) {
+            toast.success("Link de pagamento gerado!");
+            // Copiar link para clipboard
+            navigator.clipboard.writeText(paymentData.init_point);
+            toast.info("Link copiado para área de transferência!");
+          }
+        } catch (error) {
+          console.error("Erro ao gerar link:", error);
+          toast.error("Transação criada, mas erro ao gerar link de pagamento");
+        }
+      } */
+      
       onSuccess();
       resetForm();
     } else {
@@ -116,6 +142,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
       status: "pendente",
       due_date: new Date().toISOString().split("T")[0],
     });
+    setGeneratePaymentLink(false);
   };
 
   const handleClose = () => {
@@ -305,6 +332,23 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
               </Select>
             </div>
           )}
+
+          {/* MERCADO PAGO DESATIVADO TEMPORARIAMENTE */}
+          {/* Gerar Link de Pagamento - Apenas para Receitas Pendentes */}
+          {/* {formData.type === "receita" && formData.status === "pendente" && (
+            <div className="flex items-center space-x-2 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <input
+                type="checkbox"
+                id="generatePaymentLink"
+                checked={generatePaymentLink}
+                onChange={(e) => setGeneratePaymentLink(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <Label htmlFor="generatePaymentLink" className="text-sm cursor-pointer">
+                Gerar link de pagamento do Mercado Pago automaticamente
+              </Label>
+            </div>
+          )} */}
 
           {/* Buttons */}
           <div className="flex gap-3 pt-4">

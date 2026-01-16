@@ -21,6 +21,11 @@ export interface Transaction {
   notes?: string | null;
   created_at: string;
   updated_at: string;
+  // Mercado Pago fields
+  mercadopago_preference_id?: string | null;
+  mercadopago_payment_id?: string | null;
+  mercadopago_payment_status?: string | null;
+  mercadopago_payment_link?: string | null;
   // Joined data
   client?: {
     id: number;

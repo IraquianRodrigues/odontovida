@@ -9,13 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
 
 export default function ProntuariosPage() {
-  const { profile, isProfessional } = useUserRole();
+  const { profile, hasMedicalRecordsAccess } = useUserRole();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Redirecionar se não for profissional
-  if (!isProfessional) {
+  // Redirecionar se não tiver acesso
+  if (!hasMedicalRecordsAccess) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
@@ -23,7 +23,7 @@ export default function ProntuariosPage() {
             Acesso Restrito
           </h1>
           <p className="text-muted-foreground mt-2">
-            Apenas profissionais de saúde podem acessar os prontuários.
+            Apenas profissionais de saúde e administradores podem acessar os prontuários.
           </p>
         </div>
       </div>

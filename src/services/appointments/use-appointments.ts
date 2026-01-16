@@ -8,9 +8,10 @@ export function useAppointments(params?: GetAppointmentsParams) {
   return useQuery({
     queryKey: ["appointments", params],
     queryFn: () => appointmentsService.getAppointments(params),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60, // Polling a cada 60 segundos
+    staleTime: 1000 * 60 * 10, // 10 minutos - dados considerados frescos
+    gcTime: 1000 * 60 * 15,    // 15 minutos - tempo no cache
+    refetchOnWindowFocus: false, // Desabilitado para melhor performance
+    // Removido refetchInterval - sem polling automático
   });
 }
 
@@ -19,6 +20,8 @@ export function useAppointmentsByPhone(phone: string | null) {
     queryKey: ["appointments-history", phone],
     queryFn: () => phone ? appointmentsService.getAppointmentsByPhone(phone) : Promise.resolve([]),
     enabled: !!phone,
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -28,7 +31,8 @@ export function useAppointment(id: number | null) {
     queryFn: () =>
       id ? appointmentsService.getAppointmentById(id) : Promise.resolve(null),
     enabled: !!id,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 }
 

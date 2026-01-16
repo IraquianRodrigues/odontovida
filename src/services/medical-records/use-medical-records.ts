@@ -13,6 +13,8 @@ export function useMedicalRecords(clientId: number | null) {
       return result.data || [];
     },
     enabled: !!clientId,
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -27,6 +29,8 @@ export function useLatestMedicalRecord(clientId: number | null) {
       return result.data;
     },
     enabled: !!clientId,
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 }
 

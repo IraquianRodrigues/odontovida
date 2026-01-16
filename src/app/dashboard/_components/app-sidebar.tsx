@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Users, UserCog, Briefcase, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { Calendar, Users, UserCog, Briefcase, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X, Activity } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,12 @@ const navItems = [
     requiresProfessional: true, // Apenas médicos/dentistas
   },
   {
+    href: "/dashboard/odontograma",
+    label: "Odontograma",
+    icon: Activity,
+    requiresDentist: true, // Apenas dentistas
+  },
+  {
     href: "/dashboard/profissionais",
     label: "Profissionais",
     icon: UserCog,
@@ -47,7 +53,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { hasFinancialAccess, isProfessional } = useUserRole();
+  const { hasFinancialAccess, hasMedicalRecordsAccess, hasOdontogramAccess } = useUserRole();
 
   // Filtrar itens de navegação baseado em permissões
   const filteredNavItems = navItems.filter(item => {
@@ -55,7 +61,10 @@ export function AppSidebar() {
       return hasFinancialAccess;
     }
     if (item.requiresProfessional) {
-      return isProfessional;
+      return hasMedicalRecordsAccess; // Includes professionals and admin
+    }
+    if (item.requiresDentist) {
+      return hasOdontogramAccess; // Includes dentists and admin
     }
     return true;
   });

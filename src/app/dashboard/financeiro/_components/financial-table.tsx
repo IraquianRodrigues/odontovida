@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FinancialService } from "@/services/financial.service";
 import { toast } from "sonner";
+// import { MercadoPagoPaymentButton } from "@/components/mercadopago-payment-button"; // DESATIVADO TEMPORARIAMENTE
 
 interface FinancialTableProps {
   transactions: Transaction[];
@@ -135,6 +136,7 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
             <TableHead>Categoria</TableHead>
             <TableHead className="text-right">Valor</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Pagamento</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -166,6 +168,15 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
                 {formatCurrency(transaction.amount)}
               </TableCell>
               <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+              <TableCell>
+                {/* MERCADO PAGO DESATIVADO TEMPORARIAMENTE */}
+                {/* {transaction.type === "receita" && transaction.status === "pendente" && (
+                  <MercadoPagoPaymentButton 
+                    transaction={transaction} 
+                    onSuccess={onRefresh}
+                  />
+                )} */}
+              </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

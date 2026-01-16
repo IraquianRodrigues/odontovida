@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import type { PaymentMethod } from "@/types/financial";
 import type { AppointmentWithRelations } from "@/types/database.types";
 import { useClienteByTelefone } from "@/services/clientes/use-clientes";
+import { useDeleteAppointment } from "@/services/appointments/use-appointments";
 import { formatDateBR } from "@/lib/date-utils";
 
 interface CompleteAppointmentPaymentModalProps {
@@ -43,6 +44,9 @@ export function CompleteAppointmentPaymentModal({
 
   // Buscar cliente pelo telefone
   const { data: cliente } = useClienteByTelefone(appointment?.customer_phone || null);
+  
+  // Hook para deletar agendamento
+  const deleteAppointmentMutation = useDeleteAppointment();
 
   // Preencher valor automaticamente se disponível
   useEffect(() => {
@@ -90,13 +94,22 @@ export function CompleteAppointmentPaymentModal({
       });
 
       if (result.success) {
-        toast.success("Pagamento registrado com sucesso!");
+        // Deletar o agendamento após registrar o pagamento usando o hook
+        try {
+          await deleteAppointmentMutation.mutateAsync(appointment.id);
+          toast.success("Pagamento registrado e agendamento concluído!");
+        } catch (deleteError) {
+          console.error('Erro ao deletar agendamento após pagamento:', deleteError);
+          toast.warning('Pagamento registrado, mas o agendamento não foi removido. Por favor, remova manualmente.');
+        }
+        
         onSuccess();
         onClose();
       } else {
         toast.error(result.error || "Erro ao registrar pagamento");
       }
     } catch (error) {
+      console.error('Erro ao processar pagamento:', error);
       toast.error("Erro inesperado ao registrar pagamento");
     }
 

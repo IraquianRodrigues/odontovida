@@ -27,6 +27,7 @@ import { useLatestMedicalRecord, useCreateMedicalRecord, useUpdateMedicalRecord 
 import { useMedicalRecords } from "@/services/medical-records/use-medical-records";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { createClient } from "@/lib/supabase/client";
 
 interface ClienteDetailsModalProps {
   cliente: ClienteRow | null;
@@ -69,6 +70,7 @@ export function ClienteDetailsModal({
   const [notes, setNotes] = useState(cliente?.notes || "");
   const [clinicalNotes, setClinicalNotes] = useState("");
   const [observations, setObservations] = useState("");
+  const [professionalId, setProfessionalId] = useState<number | null>(null);
 
   // Fetch medical records
   const { data: latestRecord, isLoading: isLoadingRecord } = useLatestMedicalRecord(cliente?.id || null);
@@ -92,6 +94,25 @@ export function ClienteDetailsModal({
       setObservations(latestRecord.observations || "");
     }
   }, [latestRecord]);
+
+  // Fetch professional ID for current user
+  useMemo(() => {
+    const fetchProfessionalId = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: professional } = await supabase
+          .from('professionals')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+        if (professional) {
+          setProfessionalId(professional.id);
+        }
+      }
+    };
+    fetchProfessionalId();
+  }, []);
 
   if (!cliente) return null;
 
@@ -471,10 +492,11 @@ export function ClienteDetailsModal({
                         onChange={(e) => setClinicalNotes(e.target.value)}
                         onBlur={async () => {
                           if (!latestRecord) {
-                            if (clinicalNotes.trim()) {
+                            if (clinicalNotes.trim() && professionalId) {
                               try {
                                 await createRecordMutation.mutateAsync({
                                   client_id: clienteAtual.id,
+                                  professional_id: professionalId,
                                   clinical_notes: clinicalNotes,
                                   observations: observations,
                                 });
@@ -522,10 +544,11 @@ export function ClienteDetailsModal({
                       onChange={(e) => setObservations(e.target.value)}
                       onBlur={async () => {
                         if (!latestRecord) {
-                          if (observations.trim()) {
+                          if (observations.trim() && professionalId) {
                             try {
                               await createRecordMutation.mutateAsync({
                                 client_id: clienteAtual.id,
+                                professional_id: professionalId,
                                 clinical_notes: clinicalNotes,
                                 observations: observations,
                               });

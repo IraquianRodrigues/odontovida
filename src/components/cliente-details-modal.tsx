@@ -304,16 +304,7 @@ export function ClienteDetailsModal({
                 <Activity className="w-4 h-4 inline mr-1 sm:mr-2" />
                 Timeline
               </button>
-              <button
-                onClick={() => setActiveTab("prontuario")}
-                className={`px-4 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeTab === 'prontuario'
-                  ? 'bg-background text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10 scale-105'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
-                  }`}
-              >
-                <FileText className="w-4 h-4 inline mr-1 sm:mr-2" />
-                Prontuário
-              </button>
+
             </div>
           </div>
 
@@ -478,140 +469,7 @@ export function ClienteDetailsModal({
                 </div>
               )}
 
-              {activeTab === "prontuario" && (
-                <div className="space-y-6">
-                  {/* Evolução Clínica */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-purple-500 fill-purple-500" />
-                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Evolução Clínica</h3>
-                    </div>
-                    <div className="relative">
-                      <Textarea
-                        value={clinicalNotes}
-                        onChange={(e) => setClinicalNotes(e.target.value)}
-                        onBlur={async () => {
-                          if (!latestRecord) {
-                            if (clinicalNotes.trim() && professionalId) {
-                              try {
-                                await createRecordMutation.mutateAsync({
-                                  client_id: clienteAtual.id,
-                                  professional_id: professionalId,
-                                  clinical_notes: clinicalNotes,
-                                  observations: observations,
-                                });
-                                toast.success("Prontuário salvo com sucesso");
-                              } catch (error) {
-                                toast.error("Erro ao salvar prontuário");
-                              }
-                            }
-                          } else if (clinicalNotes !== (latestRecord.clinical_notes || "")) {
-                            try {
-                              await updateRecordMutation.mutateAsync({
-                                id: latestRecord.id,
-                                input: { clinical_notes: clinicalNotes },
-                              });
-                              toast.success("Prontuário atualizado");
-                            } catch (error) {
-                              toast.error("Erro ao atualizar prontuário");
-                            }
-                          }
-                        }}
-                        placeholder="Registre a evolução clínica, procedimentos realizados, diagnósticos..."
-                        className="min-h-[160px] bg-card border-2 border-border hover:border-purple-300 dark:hover:border-purple-700 focus:border-purple-400 dark:focus:border-purple-600 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/30 resize-none text-foreground leading-relaxed p-5 rounded-2xl text-sm transition-all duration-300 shadow-sm"
-                      />
-                      <div className="absolute bottom-4 right-4 pointer-events-none">
-                        {(createRecordMutation.isPending || updateRecordMutation.isPending) ? (
-                          <Badge className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800 animate-pulse">
-                            <div className="h-2 w-2 rounded-full bg-purple-500 mr-1.5 animate-ping" />
-                            Salvando...
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Salvo
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Observações Importantes */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">⚠️ Observações Importantes</h3>
-                    <Textarea
-                      value={observations}
-                      onChange={(e) => setObservations(e.target.value)}
-                      onBlur={async () => {
-                        if (!latestRecord) {
-                          if (observations.trim() && professionalId) {
-                            try {
-                              await createRecordMutation.mutateAsync({
-                                client_id: clienteAtual.id,
-                                professional_id: professionalId,
-                                clinical_notes: clinicalNotes,
-                                observations: observations,
-                              });
-                              toast.success("Observações salvas");
-                            } catch (error) {
-                              toast.error("Erro ao salvar observações");
-                            }
-                          }
-                        } else if (observations !== (latestRecord.observations || "")) {
-                          try {
-                            await updateRecordMutation.mutateAsync({
-                              id: latestRecord.id,
-                              input: { observations: observations },
-                            });
-                            toast.success("Observações atualizadas");
-                          } catch (error) {
-                            toast.error("Erro ao atualizar observações");
-                          }
-                        }
-                      }}
-                      placeholder="Alergias, condições especiais, restrições, medicamentos..."
-                      className="min-h-[100px] bg-amber-50/70 dark:bg-amber-950/20 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700 focus:border-amber-400 dark:focus:border-amber-600 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/30 resize-none text-foreground leading-relaxed p-4 rounded-xl text-sm transition-all duration-300"
-                    />
-                  </div>
-
-                  {/* Resumo de Procedimentos */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">📋 Histórico de Procedimentos</h3>
-                    {isLoadingHistory ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      </div>
-                    ) : appointmentsHistory.length === 0 ? (
-                      <div className="text-center py-8 px-4 bg-muted/20 rounded-2xl border-2 border-dashed border-border">
-                        <p className="text-sm text-muted-foreground">Nenhum procedimento registrado</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {appointmentsHistory.slice(0, 10).map((apt: any) => (
-                          <div key={apt.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/40 border border-border hover:bg-muted/60 transition-colors">
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <div className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${
-                                apt.completed_at ? 'bg-green-500' : 'bg-blue-500'
-                              }`} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-foreground truncate">
-                                  {apt.service?.code || "Procedimento"}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {format(new Date(apt.created_at), "dd/MM/yyyy")} • Dr(a). {apt.professional?.name || "N/A"}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge variant={apt.completed_at ? "default" : "secondary"} className="ml-2">
-                              {apt.completed_at ? 'Concluído' : 'Agendado'}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

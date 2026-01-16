@@ -5,6 +5,7 @@ import { useClientes } from "@/services/clientes/use-clientes";
 import { Card } from "@/components/ui/card";
 import { useMemo } from "react";
 import { Users, UserCheck, UserX, AlertCircle } from "lucide-react";
+import { StatCard } from "@/app/dashboard/_components/stat-card";
 
 export default function ClientesContent() {
   const { data: clientes = [], isLoading, error } = useClientes();
@@ -13,13 +14,18 @@ export default function ClientesContent() {
     const total = clientes.length;
     const active = clientes.filter((cliente) => !cliente.trava).length;
     const blocked = clientes.filter((cliente) => cliente.trava).length;
+    
+    // Calculate percentages
+    const activeRate = total > 0 ? Math.round((active / total) * 100) : 0;
+    const blockedRate = total > 0 ? Math.round((blocked / total) * 100) : 0;
 
-    return { total, active, blocked };
+    return { total, active, blocked, activeRate, blockedRate };
   }, [clientes]);
 
   return (
     <div className="min-h-screen bg-muted/40 transition-colors duration-300">
-      <div className="container mx-auto p-6 lg:p-10 space-y-8">
+      <div className="container mx-auto p-4 lg:p-10 space-y-8">
+        {/* Header */}
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground transition-colors">
             Clientes
@@ -29,79 +35,80 @@ export default function ClientesContent() {
           </p>
         </div>
 
-        {/* Cards de Estatísticas */}
+        {/* Stats Cards */}
         {!isLoading && !error && (
-          <div className="grid gap-6 sm:grid-cols-3">
-            <div className="p-6 bg-card rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 dark:shadow-none">
-              <div className="flex items-start justify-between">
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 transition-colors">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-semibold tracking-tight text-card-foreground leading-none mb-1 transition-colors">
-                      {stats.total}
-                    </p>
-                    <p className="text-sm font-medium text-muted-foreground transition-colors">
-                      Total de Clientes
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Total Card */}
+            <StatCard
+              title="Total de Clientes"
+              value={stats.total}
+              icon={Users}
+              variant="blue"
+              progress={100}
+              delay={0}
+            />
 
-            <div className="p-6 bg-card rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 dark:shadow-none">
-              <div className="flex items-start justify-between">
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400 transition-colors">
-                    <UserCheck className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-semibold tracking-tight text-card-foreground leading-none mb-1 transition-colors">
-                      {stats.active}
-                    </p>
-                    <p className="text-sm font-medium text-muted-foreground transition-colors">
-                      Clientes Ativos
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Active Card */}
+            <StatCard
+              title="Clientes Ativos"
+              value={stats.active}
+              icon={UserCheck}
+              variant="green"
+              progress={stats.activeRate}
+              delay={100}
+            />
 
-            <div className="p-6 bg-card rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 dark:shadow-none">
-              <div className="flex items-start justify-between">
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400 transition-colors">
-                    <UserX className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-semibold tracking-tight text-card-foreground leading-none mb-1 transition-colors">
-                      {stats.blocked}
-                    </p>
-                    <p className="text-sm font-medium text-muted-foreground transition-colors">
-                      Bloqueados
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Blocked Card */}
+            <StatCard
+              title="Bloqueados"
+              value={stats.blocked}
+              icon={UserX}
+              variant="red"
+              progress={stats.blockedRate}
+              delay={200}
+            />
           </div>
         )}
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-[160px] rounded-[24px] border border-border bg-card animate-pulse"
+              >
+                <div className="p-6 space-y-4">
+                  <div className="h-12 w-12 rounded-2xl bg-muted/50" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-20 rounded bg-muted/50" />
+                    <div className="h-8 w-16 rounded bg-muted/50" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Main Content */}
         {error ? (
-          <Card className="p-12 border shadow-sm">
-            <div className="text-center space-y-2">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
-              <p className="text-destructive font-medium">
+          <Card className="p-12 border border-border shadow-sm rounded-2xl bg-card transition-colors">
+            <div className="text-center space-y-3">
+              <div className="mx-auto w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center transition-colors">
+                <AlertCircle className="h-6 w-6 text-red-500 dark:text-red-400" />
+              </div>
+              <p className="text-red-600 dark:text-red-400 font-medium transition-colors">
                 Erro ao carregar clientes
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground transition-colors">
                 Por favor, tente novamente mais tarde.
               </p>
             </div>
           </Card>
         ) : (
-          <ClientesTable clientes={clientes} isLoading={isLoading} />
+          <div className="bg-card rounded-2xl border border-border shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-none">
+            <ClientesTable clientes={clientes} isLoading={isLoading} />
+          </div>
         )}
       </div>
     </div>

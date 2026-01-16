@@ -103,10 +103,10 @@ export default function FinanceiroPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                {metrics ? formatCurrency(metrics.totalPending) : "..."}
+                {metrics ? formatCurrency(metrics.dailyAppointmentsReceivable) : "..."}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Pendente de pagamento
+                Agendamentos de hoje
               </p>
             </CardContent>
           </Card>

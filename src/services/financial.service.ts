@@ -123,6 +123,45 @@ export class FinancialService {
 
   // ==================== METRICS ====================
 
+  static async getDailyAppointmentsReceivable(): Promise<number> {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Get today's appointments with service prices
+      const { data: appointments, error } = await supabase
+        .from("appointments")
+        .select(`
+          id,
+          start_time,
+          service_code,
+          services!appointments_service_code_fkey(price)
+        `)
+        .gte("start_time", `${today}T00:00:00`)
+        .lt("start_time", `${today}T23:59:59`);
+
+      if (error) {
+        console.error("Error fetching daily appointments:", error);
+        return 0;
+      }
+
+      if (!appointments || appointments.length === 0) {
+        return 0;
+      }
+
+      // Calculate total from service prices
+      const total = appointments.reduce((sum, appointment: any) => {
+        const service = appointment.services;
+        const price = service?.price || 0;
+        return sum + parseFloat(price.toString());
+      }, 0);
+
+      return total;
+    } catch (error: any) {
+      console.error("Error calculating daily appointments receivable:", error);
+      return 0;
+    }
+  }
+
   static async getFinancialMetrics(): Promise<{ success: boolean; data?: FinancialMetrics; error?: string }> {
     try {
       const now = new Date();
@@ -177,6 +216,9 @@ export class FinancialService {
 
       const netProfit = monthlyRevenue - monthlyExpenses;
 
+      // Get daily appointments receivable
+      const dailyAppointmentsReceivable = await this.getDailyAppointmentsReceivable();
+
       return {
         success: true,
         data: {
@@ -187,6 +229,7 @@ export class FinancialService {
           monthlyRevenue,
           monthlyExpenses,
           netProfit,
+          dailyAppointmentsReceivable,
         },
       };
     } catch (error: any) {

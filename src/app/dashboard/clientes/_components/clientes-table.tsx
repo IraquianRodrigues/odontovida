@@ -75,7 +75,7 @@ export function ClientesTable({
 
   return (
     <>
-      <div className="bg-card rounded-[32px] border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden transition-colors dark:shadow-none">
+      <div className="bg-card rounded-2xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden transition-colors dark:shadow-none">
         <div className="p-8 space-y-6 border-b border-border">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold text-card-foreground transition-colors">Lista de Clientes</h2>

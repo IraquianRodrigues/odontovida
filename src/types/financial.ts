@@ -91,6 +91,7 @@ export interface FinancialMetrics {
   monthlyRevenue: number;
   monthlyExpenses: number;
   netProfit: number;
+  dailyAppointmentsReceivable: number;
 }
 
 export interface CreateTransactionInput {

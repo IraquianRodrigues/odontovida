@@ -73,6 +73,24 @@ export function useDeleteAppointment() {
   });
 }
 
+export function useCreateAppointment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      customer_name: string;
+      customer_phone: string;
+      service_code: number;
+      professional_code: number;
+      start_time: string;
+      end_time: string;
+    }) => appointmentsService.createAppointment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    },
+  });
+}
+
 export function useMarkAppointmentAsCompleted() {
   const queryClient = useQueryClient();
 

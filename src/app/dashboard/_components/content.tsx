@@ -8,9 +8,12 @@ import { useAppointments } from "@/services/appointments/use-appointments";
 import { Card } from "@/components/ui/card";
 import { Calendar, Clock, Users, CheckCircle2 } from "lucide-react";
 import { StatCard } from "./stat-card";
+import { FloatingActionButton } from "@/components/floating-action-button";
+import { NewAppointmentModal } from "@/components/new-appointment-modal";
 
 export default function DashboardContent() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
 
   const {
     data: appointments = [],
@@ -137,6 +140,19 @@ export default function DashboardContent() {
             </div>
           )}
         </div>
+
+        {/* Floating Action Button */}
+        <FloatingActionButton onClick={() => setIsNewAppointmentModalOpen(true)} />
+
+        {/* New Appointment Modal */}
+        <NewAppointmentModal
+          isOpen={isNewAppointmentModalOpen}
+          onClose={() => setIsNewAppointmentModalOpen(false)}
+          onSuccess={() => {
+            refetchAppointments();
+            setIsNewAppointmentModalOpen(false);
+          }}
+        />
       </div>
     </div>
   );

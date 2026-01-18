@@ -259,6 +259,35 @@ export class AppointmentsService {
   }
 
   /**
+   * Cria um novo agendamento
+   */
+  async createAppointment(params: {
+    customer_name: string;
+    customer_phone: string;
+    service_code: number;
+    professional_code: number;
+    start_time: string;
+    end_time: string;
+  }): Promise<void> {
+    const { error } = await this.supabase
+      .from("appointments")
+      .insert({
+        customer_name: params.customer_name,
+        customer_phone: params.customer_phone,
+        service_code: params.service_code,
+        professional_code: params.professional_code,
+        start_time: params.start_time,
+        end_time: params.end_time,
+        status: "agendado",
+      });
+
+    if (error) {
+      console.error("Erro ao criar agendamento:", error);
+      throw new Error("Falha ao criar agendamento");
+    }
+  }
+
+  /**
    * Busca serviços disponíveis para um profissional
    * Retorna apenas serviços ativos configurados para o profissional
    */

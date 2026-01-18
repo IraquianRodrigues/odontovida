@@ -31,6 +31,9 @@ import {
   TOOTH_NAMES,
   TOOTH_STATUS_LABELS,
   TOOTH_SURFACE_LABELS,
+  SURFACE_CONDITION_LABELS,
+  RESTORATION_MATERIAL_LABELS,
+  TREATMENT_TYPE_LABELS,
 } from "@/types/odontogram";
 import { OdontogramService } from "@/services/odontogram.service";
 import { toast } from "sonner";
@@ -205,11 +208,11 @@ export function ToothDetailModal({
                         {TOOTH_SURFACE_LABELS[condition.surface]}
                       </span>
                       <span className="text-muted-foreground ml-2">
-                        - {condition.condition}
+                        - {SURFACE_CONDITION_LABELS[condition.condition]}
                       </span>
                       {condition.material && (
                         <Badge variant="outline" className="ml-2">
-                          {condition.material}
+                          {RESTORATION_MATERIAL_LABELS[condition.material]}
                         </Badge>
                       )}
                     </div>
@@ -259,12 +262,11 @@ export function ToothDetailModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cavity">Cárie</SelectItem>
-                    <SelectItem value="filling">Restauração</SelectItem>
-                    <SelectItem value="fracture">Fratura</SelectItem>
-                    <SelectItem value="wear">Desgaste</SelectItem>
-                    <SelectItem value="stain">Mancha</SelectItem>
-                    <SelectItem value="erosion">Erosão</SelectItem>
+                    {Object.entries(SURFACE_CONDITION_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -293,7 +295,7 @@ export function ToothDetailModal({
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="font-medium">{treatment.treatment_type}</div>
+                        <div className="font-medium">{TREATMENT_TYPE_LABELS[treatment.treatment_type]}</div>
                         {treatment.description && (
                           <p className="text-sm text-muted-foreground mt-1">
                             {treatment.description}
@@ -330,12 +332,11 @@ export function ToothDetailModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="filling">Restauração</SelectItem>
-                    <SelectItem value="extraction">Extração</SelectItem>
-                    <SelectItem value="root_canal">Canal</SelectItem>
-                    <SelectItem value="crown">Coroa</SelectItem>
-                    <SelectItem value="cleaning">Limpeza</SelectItem>
-                    <SelectItem value="whitening">Clareamento</SelectItem>
+                    {Object.entries(TREATMENT_TYPE_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Input

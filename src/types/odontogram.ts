@@ -270,6 +270,59 @@ export const TOOTH_SURFACE_LABELS: Record<ToothSurface, string> = {
 };
 
 /**
+ * Display labels for surface conditions
+ */
+export const SURFACE_CONDITION_LABELS: Record<SurfaceCondition, string> = {
+  cavity: 'Cárie',
+  filling: 'Restauração',
+  fracture: 'Fratura',
+  wear: 'Desgaste',
+  stain: 'Mancha',
+  erosion: 'Erosão',
+  abrasion: 'Abrasão',
+};
+
+/**
+ * Display labels for restoration materials
+ */
+export const RESTORATION_MATERIAL_LABELS: Record<RestorationMaterial, string> = {
+  amalgam: 'Amálgama',
+  composite: 'Resina Composta',
+  ceramic: 'Cerâmica',
+  gold: 'Ouro',
+  porcelain: 'Porcelana',
+  resin: 'Resina',
+  glass_ionomer: 'Ionômero de Vidro',
+};
+
+/**
+ * Display labels for condition severity
+ */
+export const SEVERITY_LABELS: Record<ConditionSeverity, string> = {
+  mild: 'Leve',
+  moderate: 'Moderado',
+  severe: 'Severo',
+};
+
+/**
+ * Display labels for treatment types
+ */
+export const TREATMENT_TYPE_LABELS: Record<TreatmentType, string> = {
+  extraction: 'Extração',
+  filling: 'Restauração',
+  root_canal: 'Tratamento de Canal',
+  crown: 'Coroa',
+  cleaning: 'Limpeza',
+  scaling: 'Raspagem',
+  whitening: 'Clareamento',
+  implant: 'Implante',
+  bridge: 'Ponte',
+  veneer: 'Faceta',
+  sealant: 'Selante',
+};
+
+
+/**
  * FDI tooth number to name mapping (Portuguese)
  */
 export const TOOTH_NAMES: Record<number, string> = {

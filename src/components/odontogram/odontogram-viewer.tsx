@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import type { ToothRecordWithDetails } from "@/types/odontogram";
-import { TOOTH_STATUS_COLORS, TOOTH_NAMES, getToothPosition } from "@/types/odontogram";
+import { TOOTH_STATUS_COLORS, TOOTH_NAMES, TOOTH_STATUS_LABELS, getToothPosition } from "@/types/odontogram";
 import { cn } from "@/lib/utils";
+import { ToothIcon } from "./tooth-svg";
+import { getToothType, getToothOrientation, getToothDescription } from "./tooth-utils";
+import { ToothFaces } from "./tooth-faces";
 
 interface OdontogramViewerProps {
   teeth: ToothRecordWithDetails[];
@@ -25,6 +28,9 @@ export function OdontogramViewer({ teeth, onToothClick }: OdontogramViewerProps)
     const isHovered = hoveredTooth === tooth.tooth_number;
     const color = TOOTH_STATUS_COLORS[tooth.status];
     const hasConditions = tooth.surface_conditions.length > 0;
+    const toothType = getToothType(tooth.tooth_number);
+    const orientation = getToothOrientation(tooth.tooth_number);
+    const description = getToothDescription(tooth.tooth_number);
 
     return (
       <div
@@ -33,42 +39,59 @@ export function OdontogramViewer({ teeth, onToothClick }: OdontogramViewerProps)
         onMouseEnter={() => setHoveredTooth(tooth.tooth_number)}
         onMouseLeave={() => setHoveredTooth(null)}
       >
-        {/* Tooth visual */}
+        {/* Tooth visual with SVG */}
         <button
           onClick={() => onToothClick(tooth)}
           className={cn(
-            "relative w-12 h-16 rounded-lg transition-all duration-200",
-            "border-2 flex flex-col items-center justify-center",
-            "hover:scale-110 hover:shadow-lg hover:z-10",
-            isHovered && "scale-110 shadow-lg z-10"
+            "relative w-14 h-18 rounded-lg transition-all duration-300",
+            "flex flex-col items-center justify-center",
+            "hover:scale-105 hover:shadow-xl hover:z-10",
+            "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+            isHovered && "scale-105 shadow-xl z-10"
           )}
-          style={{
-            backgroundColor: color,
-            borderColor: hasConditions ? "#ef4444" : color,
-            borderWidth: hasConditions ? "3px" : "2px",
-          }}
         >
-          {/* Tooth number */}
-          <span className="text-xs font-bold text-white drop-shadow-md">
+          {/* SVG Tooth Icon */}
+          <div className="w-full h-full p-1">
+            <ToothIcon
+              type={toothType}
+              color={color}
+              orientation={orientation}
+              className="w-full h-full"
+            />
+          </div>
+
+          {/* Tooth number label */}
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-bold border border-border shadow-sm">
             {tooth.tooth_number}
-          </span>
-          
-          {/* Condition indicator */}
+          </div>
+
+          {/* Face condition indicators */}
           {hasConditions && (
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
+            <ToothFaces conditions={tooth.surface_conditions} />
           )}
         </button>
 
-        {/* Tooltip */}
+        {/* Enhanced Tooltip */}
         {isHovered && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-lg whitespace-nowrap z-50 border border-border">
-            <div className="font-semibold">{TOOTH_NAMES[tooth.tooth_number]}</div>
-            <div className="text-muted-foreground mt-1">
-              Status: {tooth.status}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-3 bg-popover text-popover-foreground text-xs rounded-lg shadow-xl whitespace-nowrap z-50 border border-border min-w-[200px]">
+            <div className="font-bold text-sm mb-1">{description}</div>
+            <div className="flex items-center gap-2 mt-2">
+              <div 
+                className="w-3 h-3 rounded-full border border-border" 
+                style={{ backgroundColor: color }}
+              />
+              <span className="text-muted-foreground">
+                {TOOTH_STATUS_LABELS[tooth.status]}
+              </span>
             </div>
             {hasConditions && (
-              <div className="text-red-500 mt-1">
-                {tooth.surface_conditions.length} condição(ões)
+              <div className="mt-2 pt-2 border-t border-border">
+                <div className="text-red-500 font-semibold mb-1">
+                  {tooth.surface_conditions.length} condição(ões)
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  Clique para ver detalhes
+                </div>
               </div>
             )}
           </div>
@@ -78,14 +101,14 @@ export function OdontogramViewer({ teeth, onToothClick }: OdontogramViewerProps)
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 space-y-8">
+    <div className="w-full max-w-5xl mx-auto p-4 space-y-6">
       {/* Upper Jaw */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-center text-muted-foreground">
           Arcada Superior
         </h3>
         
-        <div className="flex justify-center gap-8">
+        <div className="flex justify-center gap-6">
           {/* Upper Right (Quadrant 1) */}
           <div className="flex gap-2">
             {quadrants[1].map(renderTooth)}
@@ -119,7 +142,7 @@ export function OdontogramViewer({ teeth, onToothClick }: OdontogramViewerProps)
           Arcada Inferior
         </h3>
         
-        <div className="flex justify-center gap-8">
+        <div className="flex justify-center gap-6">
           {/* Lower Right (Quadrant 4) */}
           <div className="flex gap-2">
             {quadrants[4].map(renderTooth)}

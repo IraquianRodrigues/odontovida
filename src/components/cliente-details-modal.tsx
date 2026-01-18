@@ -166,21 +166,20 @@ export function ClienteDetailsModal({
 
   return (
     <Dialog open={!!cliente} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] p-0 flex flex-col bg-background overflow-hidden shadow-2xl border-0 rounded-3xl">
-        {/* Header Premium com Gradiente */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 px-6 sm:px-8 pt-8 pb-20 flex-shrink-0 text-white">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl -mr-48 -mt-48" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -ml-48 -mb-48" />
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] p-0 flex flex-col bg-background overflow-hidden shadow-2xl border rounded-2xl">
+        {/* Header Clean e Neutro */}
+        <div className="relative overflow-hidden bg-muted/30 dark:bg-muted/20 px-6 sm:px-8 pt-8 pb-20 flex-shrink-0 border-b">
+          {/* Subtle Pattern */}
+          <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:2rem_2rem]"></div>
           </div>
 
           <div className="relative z-10">
             {/* Avatar e Info Principal */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
               <div className="relative">
-                <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl bg-white/20 backdrop-blur-md border-4 border-white/40 flex items-center justify-center text-4xl sm:text-5xl font-bold shadow-2xl shadow-black/20">
-                  {clienteAtual.nome.charAt(0).toUpperCase()}
+                <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-muted border-2 border-border flex items-center justify-center text-4xl sm:text-5xl font-bold shadow-sm">
+                  <span className="text-foreground">{clienteAtual.nome.charAt(0).toUpperCase()}</span>
                 </div>
                 {isLocked && (
                   <div className="absolute -bottom-2 -right-2 bg-red-500 rounded-full p-2 shadow-lg">
@@ -190,18 +189,18 @@ export function ClienteDetailsModal({
               </div>
               
               <div className="flex-1 text-center sm:text-left space-y-2">
-                <DialogTitle className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+                <DialogTitle className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-2">
                   {clienteAtual.nome}
                 </DialogTitle>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-md px-3 py-1 text-sm font-medium">
+                  <Badge variant="outline" className="px-3 py-1 text-sm font-medium">
                     <Phone className="w-3.5 h-3.5 mr-1.5" />
                     {clienteAtual.telefone}
                   </Badge>
                   <Badge className={`px-3 py-1 text-sm font-bold ${isLocked ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white border-0`}>
                     {isLocked ? 'Bloqueado' : 'Ativo'}
                   </Badge>
-                  <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-md px-3 py-1 text-sm">
+                  <Badge variant="secondary" className="px-3 py-1 text-sm">
                     <Calendar className="w-3.5 h-3.5 mr-1.5" />
                     Desde {format(new Date(clienteAtual.created_at), 'MMM yyyy', { locale: ptBR })}
                   </Badge>

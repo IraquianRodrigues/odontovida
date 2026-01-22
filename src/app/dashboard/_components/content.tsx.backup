@@ -66,6 +66,7 @@ export default function DashboardContent() {
               title="Total de Agendamentos"
               value={stats.total}
               icon={Calendar}
+              variant="blue"
               progress={100}
               delay={0}
             />
@@ -75,6 +76,7 @@ export default function DashboardContent() {
               title="Concluídos"
               value={stats.completed}
               icon={CheckCircle2}
+              variant="green"
               progress={stats.completionRate}
               delay={100}
             />
@@ -84,6 +86,7 @@ export default function DashboardContent() {
               title="Pendentes"
               value={stats.pending}
               icon={Clock}
+              variant="orange"
               progress={stats.pendingRate}
               delay={200}
             />

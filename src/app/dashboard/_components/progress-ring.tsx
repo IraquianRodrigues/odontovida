@@ -1,43 +1,25 @@
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+"use client";
 
 interface ProgressRingProps {
   progress: number; // 0-100
   size?: number;
   strokeWidth?: number;
-  color?: string;
   showPercentage?: boolean;
-  className?: string;
 }
 
 export function ProgressRing({
   progress,
   size = 60,
   strokeWidth = 4,
-  color = "text-blue-600",
-  showPercentage = true,
-  className,
+  showPercentage = false,
 }: ProgressRingProps) {
-  const [animatedProgress, setAnimatedProgress] = useState(0);
-  
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (animatedProgress / 100) * circumference;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimatedProgress(progress);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [progress]);
+  const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center", className)}>
-      <svg
-        width={size}
-        height={size}
-        className="transform -rotate-90"
-      >
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
           cx={size / 2}
@@ -46,7 +28,7 @@ export function ProgressRing({
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="none"
-          className="text-muted/20"
+          className="text-muted/30"
         />
         {/* Progress circle */}
         <circle
@@ -58,16 +40,14 @@ export function ProgressRing({
           fill="none"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
+          className="text-foreground transition-all duration-500 ease-out"
           strokeLinecap="round"
-          className={cn(color, "transition-all duration-1000 ease-out")}
         />
       </svg>
       {showPercentage && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-bold text-foreground">
-            {Math.round(animatedProgress)}%
-          </span>
-        </div>
+        <span className="absolute text-xs font-bold text-foreground">
+          {Math.round(progress)}%
+        </span>
       )}
     </div>
   );

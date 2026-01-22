@@ -52,7 +52,6 @@ export default function ClientesContent() {
               title="Total de Clientes"
               value={stats.total}
               icon={Users}
-              variant="blue"
               progress={100}
               delay={0}
             />
@@ -62,7 +61,6 @@ export default function ClientesContent() {
               title="Clientes Ativos"
               value={stats.active}
               icon={UserCheck}
-              variant="green"
               progress={stats.activeRate}
               delay={100}
             />
@@ -72,7 +70,6 @@ export default function ClientesContent() {
               title="Bloqueados"
               value={stats.blocked}
               icon={UserX}
-              variant="red"
               progress={stats.blockedRate}
               delay={200}
             />

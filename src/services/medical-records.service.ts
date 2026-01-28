@@ -187,6 +187,46 @@ export class MedicalRecordsService {
     }
   }
 
+  // Get patient summary (single patient stats)
+  static async getPatientSummary(clientId: number) {
+    try {
+      const { data: client } = await supabase
+        .from("clientes")
+        .select("id, nome, telefone")
+        .eq("id", clientId)
+        .single();
+
+      if (!client) {
+        return { success: false, error: "Patient not found" };
+      }
+
+      const { data: appointments } = await supabase
+        .from("appointments")
+        .select("start_time")
+        .eq("customer_phone", client.telefone)
+        .order("start_time", { ascending: false });
+
+      const { data: records } = await supabase
+        .from("medical_records")
+        .select("id")
+        .eq("client_id", client.id);
+
+      const summary: PatientSummary = {
+        client_id: client.id,
+        client_name: client.nome,
+        client_phone: client.telefone,
+        last_appointment: appointments?.[0]?.start_time || null,
+        total_appointments: appointments?.length || 0,
+        total_records: records?.length || 0,
+        professional_id: 0,
+      };
+
+      return { success: true, data: summary };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
   // Get latest medical record for a client
   static async getLatestMedicalRecord(clientId: number, professionalId?: number) {
     try {

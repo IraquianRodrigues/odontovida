@@ -10,7 +10,7 @@ interface ProgressRingProps {
 export function ProgressRing({
   progress,
   size = 60,
-  strokeWidth = 4,
+  strokeWidth = 3,
   showPercentage = false,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
@@ -28,7 +28,7 @@ export function ProgressRing({
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="none"
-          className="text-muted/30"
+          className="text-muted/20"
         />
         {/* Progress circle */}
         <circle
@@ -40,12 +40,12 @@ export function ProgressRing({
           fill="none"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="text-primary transition-all duration-500 ease-out"
+          className="text-primary transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]"
           strokeLinecap="round"
         />
       </svg>
       {showPercentage && (
-        <span className="absolute text-xs font-bold text-foreground">
+        <span className="absolute text-xs font-bold text-foreground tabular-nums">
           {Math.round(progress)}%
         </span>
       )}

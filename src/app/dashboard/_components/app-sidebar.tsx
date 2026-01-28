@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Users, UserCog, Briefcase, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X, Activity, CalendarDays, LogOut, User } from "lucide-react";
+import { Calendar, Users, UserCog, Briefcase, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X, Activity, CalendarDays, LogOut, User, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -51,6 +51,12 @@ const navItems = [
     href: "/dashboard/financeiro",
     label: "Financeiro",
     icon: DollarSign,
+    requiresAdmin: true,
+  },
+  {
+    href: "/dashboard/configuracoes",
+    label: "Configurações",
+    icon: Settings,
     requiresAdmin: true,
   },
 ];
@@ -166,13 +172,13 @@ export function AppSidebar() {
           isCollapsed ? "justify-center px-2" : "justify-start"
         )}>
           {isCollapsed ? (
-            <div className="bg-foreground rounded-xl p-2.5 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
-              <Calendar className="h-5 w-5 text-background" />
+            <div className="bg-primary rounded-xl p-2.5 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
+              <Calendar className="h-5 w-5 text-primary-foreground" />
             </div>
           ) : (
             <div className="flex items-center gap-3 group">
-              <div className="bg-foreground rounded-xl p-2.5 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
-                <Calendar className="h-5 w-5 text-background" />
+              <div className="bg-primary rounded-xl p-2.5 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
+                <Calendar className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="flex flex-col">
                 <h1 className="text-lg font-bold text-foreground leading-tight">
@@ -205,20 +211,20 @@ export function AppSidebar() {
                   "group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300",
                   "animate-in fade-in slide-in-from-left-2",
                   isActive
-                    ? "bg-foreground text-background shadow-sm scale-[1.02]"
+                    ? "bg-sidebar-accent text-sidebar-primary shadow-sm scale-[1.02]"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent hover:scale-[1.01]",
                   isCollapsed && "md:justify-center md:px-2"
                 )}
               >
                 {/* Active indicator bar */}
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-background rounded-r-full" />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-l-full" />
                 )}
 
                 <Icon 
                   className={cn(
                     "h-5 w-5 flex-shrink-0 transition-all duration-300",
-                    isActive ? "scale-110" : "group-hover:scale-110"
+                    isActive ? "scale-110 text-primary" : "group-hover:scale-110"
                   )} 
                 />
                 <span
@@ -249,7 +255,7 @@ export function AppSidebar() {
           {isCollapsed ? (
             <div className="flex flex-col items-center gap-2">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center text-background font-bold shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm">
                   {profile?.full_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm" />
@@ -266,7 +272,7 @@ export function AppSidebar() {
             <div className="space-y-3">
               <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-accent transition-all duration-200 cursor-pointer group">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center text-background font-bold shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
                     {profile?.full_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm animate-pulse" />

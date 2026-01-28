@@ -9,6 +9,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,6 +119,7 @@ export function ProfessionalDetailsModal({
     deleteMutation.isPending;
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex-shrink-0">
@@ -205,47 +216,13 @@ export function ProfessionalDetailsModal({
               </>
             )}
 
-            {isConfirmingDelete && professional && (
-              <>
-                <Separator />
-                <div className="space-y-4 p-4 border border-destructive rounded-lg bg-destructive/5">
-                  <p className="font-semibold text-destructive">
-                    Confirmar exclusão
-                  </p>
-                  <p className="text-sm">
-                    Tem certeza que deseja excluir o profissional{" "}
-                    <strong>{professional.name}</strong>? Esta ação não pode ser
-                    desfeita.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="destructive"
-                      onClick={handleDelete}
-                      disabled={isPending}
-                      className="flex-1"
-                    >
-                      {deleteMutation.isPending
-                        ? "Excluindo..."
-                        : "Confirmar Exclusão"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsConfirmingDelete(false)}
-                      disabled={isPending}
-                      className="flex-1"
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
+
           </div>
         </div>
 
         <DialogFooter className="px-4 sm:px-6 pb-4 sm:pb-6 pt-3 sm:pt-4 border-t flex-shrink-0">
           <div className="flex flex-col gap-2 sm:gap-3 w-full">
-            {professional && !isCreating && !isConfirmingDelete && (
+            {professional && !isCreating && (
               <Button
                 variant="destructive"
                 onClick={() => setIsConfirmingDelete(true)}
@@ -267,20 +244,42 @@ export function ProfessionalDetailsModal({
               >
                 Cancelar
               </Button>
-              {!isConfirmingDelete && (
-                <Button
-                  onClick={handleSave}
-                  disabled={isPending || !name.trim()}
-                  className="w-full sm:w-auto order-1 sm:order-2"
-                  size="sm"
-                >
-                  {isPending ? "Salvando..." : isCreating ? "Criar" : "Salvar"}
-                </Button>
-              )}
+              <Button
+                onClick={handleSave}
+                disabled={isPending || !name.trim()}
+                className="w-full sm:w-auto order-1 sm:order-2"
+                size="sm"
+              >
+                {isPending ? "Salvando..." : isCreating ? "Criar" : "Salvar"}
+              </Button>
             </div>
           </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Delete Confirmation Alert Dialog */}
+    <AlertDialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza que deseja excluir o profissional{" "}
+            <strong>{professional?.name}</strong>? Esta ação não pode ser desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleteMutation.isPending ? "Excluindo..." : "Confirmar Exclusão"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }

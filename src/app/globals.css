@@ -45,105 +45,136 @@
 
 :root {
   --radius: 0.625rem;
-  /* Backgrounds - Clean whites and light grays */
-  --background: oklch(1 0 0); /* Pure white #FFFFFF */
-  --foreground: oklch(0.15 0 0); /* Very dark gray #1A1A1A */
-  --card: oklch(1 0 0); /* Pure white */
-  --card-foreground: oklch(0.15 0 0); /* Very dark gray */
-  --popover: oklch(1 0 0); /* Pure white */
-  --popover-foreground: oklch(0.15 0 0); /* Very dark gray */
+  
+  /* === FRESH HEALTH DESIGN SYSTEM === */
+  
+  /* Backgrounds - Clinical white and cool slate */
+  --background: #F8FAFC; /* surface-page: Slate-50 - Cool white background */
+  --foreground: #18181B; /* text-primary: Zinc-900 - Primary text */
+  --card: #FFFFFF; /* surface-card: Pure white for cards */
+  --card-foreground: #18181B; /* text-primary: Zinc-900 */
+  --popover: #FFFFFF; /* surface-elevated: White with shadow */
+  --popover-foreground: #18181B; /* text-primary: Zinc-900 */
 
-  /* Primary - Neutral dark gray for main actions */
-  --primary: oklch(0.15 0 0); /* Very dark gray #1A1A1A */
-  --primary-foreground: oklch(0.98 0 0); /* Off-white */
+  /* Primary - Lime Green (Brand Color) */
+  --primary: #84CC16; /* brand-primary: Lime-500 */
+  --primary-foreground: #FFFFFF; /* text-on-brand: White */
 
-  /* Secondary - Light gray backgrounds */
-  --secondary: oklch(0.96 0 0); /* Very light gray #F3F4F6 */
-  --secondary-foreground: oklch(0.15 0 0); /* Very dark gray */
+  /* Secondary - Subtle gray backgrounds */
+  --secondary: #F4F4F5; /* surface-subtle: Zinc-100 */
+  --secondary-foreground: #18181B; /* text-primary: Zinc-900 */
 
-  /* Muted - Subtle backgrounds and text */
-  --muted: oklch(0.975 0 0); /* Ultra light gray #F8F9FA */
-  --muted-foreground: oklch(0.5 0 0); /* Medium gray #6B7280 */
+  /* Muted - Subtle backgrounds and secondary text */
+  --muted: #F4F4F5; /* surface-subtle: Zinc-100 */
+  --muted-foreground: #71717A; /* text-secondary: Zinc-500 */
 
-  /* Accent - Slightly darker than muted for hover states */
-  --accent: oklch(0.96 0 0); /* Very light gray #F3F4F6 */
-  --accent-foreground: oklch(0.15 0 0); /* Very dark gray */
+  /* Accent - Hover states */
+  --accent: #F4F4F5; /* surface-subtle: Zinc-100 */
+  --accent-foreground: #18181B; /* text-primary: Zinc-900 */
 
-  /* Destructive - Keep red for dangerous actions */
-  --destructive: oklch(0.55 0.22 27); /* Muted red */
+  /* Destructive - Red for errors */
+  --destructive: #EF4444; /* status-error: Red-500 */
+  --destructive-foreground: #FFFFFF; /* White text on red */
 
-  /* Borders and inputs - Light gray */
-  --border: oklch(0.91 0 0); /* Light gray #E5E7EB */
-  --input: oklch(0.91 0 0); /* Light gray #E5E7EB */
-  --ring: oklch(0.5 0 0); /* Medium gray for focus rings */
+  /* Borders and inputs */
+  --border: #E4E4E7; /* border-default: Zinc-200 */
+  --input: #E4E4E7; /* border-default: Zinc-200 */
+  --ring: #84CC16; /* border-focus: Lime-500 for focus rings */
 
-  /* Charts - Neutral grays only */
-  --chart-1: oklch(0.3 0 0); /* Dark gray */
-  --chart-2: oklch(0.45 0 0); /* Medium-dark gray */
-  --chart-3: oklch(0.6 0 0); /* Medium gray */
-  --chart-4: oklch(0.75 0 0); /* Light gray */
-  --chart-5: oklch(0.85 0 0); /* Very light gray */
+  /* Charts - Using lime green as primary chart color */
+  --chart-1: #84CC16; /* Lime-500 - Primary brand */
+  --chart-2: #65A30D; /* Lime-600 - Darker shade */
+  --chart-3: #4D7C0F; /* Lime-700 - Even darker */
+  --chart-4: #71717A; /* Zinc-500 - Secondary gray */
+  --chart-5: #A1A1AA; /* Zinc-400 - Light gray */
 
-  /* Sidebar - Clean white with subtle borders */
-  --sidebar: oklch(1 0 0); /* Pure white */
-  --sidebar-foreground: oklch(0.15 0 0); /* Very dark gray */
-  --sidebar-primary: oklch(0.15 0 0); /* Very dark gray for active items */
-  --sidebar-primary-foreground: oklch(0.98 0 0); /* Off-white */
-  --sidebar-accent: oklch(0.96 0 0); /* Very light gray for hover */
-  --sidebar-accent-foreground: oklch(0.15 0 0); /* Very dark gray */
-  --sidebar-border: oklch(0.91 0 0); /* Light gray */
-  --sidebar-ring: oklch(0.5 0 0); /* Medium gray */
+  /* Sidebar - Clean white with lime accents */
+  --sidebar: #FFFFFF; /* surface-section: Pure white */
+  --sidebar-foreground: #71717A; /* text-secondary: Zinc-500 */
+  --sidebar-primary: #3F6212; /* brand-dark: Lime-800 for active text */
+  --sidebar-primary-foreground: #FFFFFF; /* White */
+  --sidebar-accent: #F4F4F5; /* surface-subtle: Zinc-100 for hover */
+  --sidebar-accent-foreground: #18181B; /* text-primary: Zinc-900 */
+  --sidebar-border: #E4E4E7; /* border-default: Zinc-200 */
+  --sidebar-ring: #84CC16; /* brand-primary: Lime-500 */
+  
+  /* Fresh Health Custom Tokens */
+  --brand-primary: #84CC16; /* Lime-500 */
+  --brand-dark: #3F6212; /* Lime-800 */
+  --brand-light: #ECFCCB; /* Lime-100 */
+  --text-muted: #A1A1AA; /* Zinc-400 */
+  --surface-page: #F8FAFC; /* Slate-50 */
+  --surface-card: #FFFFFF; /* White */
+  --surface-subtle: #F4F4F5; /* Zinc-100 */
+  --status-success: #84CC16; /* Lime-500 */
+  --status-warning: #F59E0B; /* Amber-500 */
+  --status-error: #EF4444; /* Red-500 */
 }
 
 .dark {
+  /* === DARK MODE: CLEAN WHITE & GRAY === */
+  
   /* Backgrounds - Deep blacks and dark grays */
-  --background: oklch(0.08 0 0); /* Soft black #0A0A0A */
-  --foreground: oklch(0.96 0 0); /* Off-white #F5F5F5 */
-  --card: oklch(0.12 0 0); /* Very dark gray #171717 */
-  --card-foreground: oklch(0.96 0 0); /* Off-white */
-  --popover: oklch(0.12 0 0); /* Very dark gray */
-  --popover-foreground: oklch(0.96 0 0); /* Off-white */
+  --background: #09090B; /* Zinc-950 - Deep black */
+  --foreground: #FAFAFA; /* Zinc-50 - Off-white */
+  --card: #18181B; /* Zinc-900 - Very dark gray */
+  --card-foreground: #FAFAFA; /* Zinc-50 - Off-white */
+  --popover: #18181B; /* Zinc-900 - Very dark gray */
+  --popover-foreground: #FAFAFA; /* Zinc-50 - Off-white */
 
-  /* Primary - Light gray for main actions in dark mode */
-  --primary: oklch(0.9 0 0); /* Light gray #E4E4E7 */
-  --primary-foreground: oklch(0.08 0 0); /* Soft black */
+  /* Primary - White for main actions in dark mode (NO LIME GREEN) */
+  --primary: #FAFAFA; /* Zinc-50 - White */
+  --primary-foreground: #18181B; /* Zinc-900 - Dark gray */
 
   /* Secondary - Darker gray backgrounds */
-  --secondary: oklch(0.18 0 0); /* Dark gray #27272A */
-  --secondary-foreground: oklch(0.96 0 0); /* Off-white */
+  --secondary: #27272A; /* Zinc-800 - Dark gray */
+  --secondary-foreground: #FAFAFA; /* Zinc-50 - Off-white */
 
   /* Muted - Subtle backgrounds and text */
-  --muted: oklch(0.18 0 0); /* Dark gray #27272A */
-  --muted-foreground: oklch(0.65 0 0); /* Light-medium gray #A1A1AA */
+  --muted: #27272A; /* Zinc-800 - Dark gray */
+  --muted-foreground: #A1A1AA; /* Zinc-400 - Medium gray */
 
   /* Accent - Slightly lighter than muted for hover states */
-  --accent: oklch(0.18 0 0); /* Dark gray #27272A */
-  --accent-foreground: oklch(0.96 0 0); /* Off-white */
+  --accent: #27272A; /* Zinc-800 - Dark gray */
+  --accent-foreground: #FAFAFA; /* Zinc-50 - Off-white */
 
   /* Destructive - Keep red for dangerous actions */
-  --destructive: oklch(0.65 0.2 27); /* Muted red for dark mode */
+  --destructive: #EF4444; /* Red-500 */
+  --destructive-foreground: #FAFAFA; /* Zinc-50 - Off-white */
 
   /* Borders and inputs - Dark gray */
-  --border: oklch(0.18 0 0); /* Dark gray #27272A */
-  --input: oklch(0.18 0 0); /* Dark gray #27272A */
-  --ring: oklch(0.5 0 0); /* Medium gray for focus rings */
+  --border: #27272A; /* Zinc-800 - Dark gray */
+  --input: #27272A; /* Zinc-800 - Dark gray */
+  --ring: #A1A1AA; /* Zinc-400 - Medium gray for focus rings (NO LIME GREEN) */
 
   /* Charts - Neutral grays only */
-  --chart-1: oklch(0.85 0 0); /* Very light gray */
-  --chart-2: oklch(0.7 0 0); /* Light gray */
-  --chart-3: oklch(0.55 0 0); /* Medium gray */
-  --chart-4: oklch(0.4 0 0); /* Medium-dark gray */
-  --chart-5: oklch(0.25 0 0); /* Dark gray */
+  --chart-1: #FAFAFA; /* Zinc-50 - White */
+  --chart-2: #D4D4D8; /* Zinc-300 - Light gray */
+  --chart-3: #A1A1AA; /* Zinc-400 - Medium gray */
+  --chart-4: #71717A; /* Zinc-500 - Medium-dark gray */
+  --chart-5: #52525B; /* Zinc-600 - Dark gray */
 
-  /* Sidebar - Soft black with subtle borders */
-  --sidebar: oklch(0.08 0 0); /* Soft black */
-  --sidebar-foreground: oklch(0.96 0 0); /* Off-white */
-  --sidebar-primary: oklch(0.9 0 0); /* Light gray for active items */
-  --sidebar-primary-foreground: oklch(0.08 0 0); /* Soft black */
-  --sidebar-accent: oklch(0.18 0 0); /* Dark gray for hover */
-  --sidebar-accent-foreground: oklch(0.96 0 0); /* Off-white */
-  --sidebar-border: oklch(0.18 0 0); /* Dark gray */
-  --sidebar-ring: oklch(0.5 0 0); /* Medium gray */
+  /* Sidebar - Clean dark with white accents */
+  --sidebar: #18181B; /* Zinc-900 - Very dark gray */
+  --sidebar-foreground: #A1A1AA; /* Zinc-400 - Medium gray */
+  --sidebar-primary: #FAFAFA; /* Zinc-50 - White for active text */
+  --sidebar-primary-foreground: #18181B; /* Zinc-900 - Dark gray */
+  --sidebar-accent: #27272A; /* Zinc-800 - Dark gray for hover */
+  --sidebar-accent-foreground: #FAFAFA; /* Zinc-50 - Off-white */
+  --sidebar-border: #27272A; /* Zinc-800 - Dark gray */
+  --sidebar-ring: #A1A1AA; /* Zinc-400 - Medium gray (NO LIME GREEN) */
+  
+  /* Dark Mode Custom Tokens - Clean Gray Palette */
+  --brand-primary: #FAFAFA; /* White instead of lime green */
+  --brand-dark: #18181B; /* Dark gray */
+  --brand-light: #27272A; /* Slightly lighter dark gray */
+  --text-muted: #71717A; /* Zinc-500 */
+  --surface-page: #09090B; /* Zinc-950 */
+  --surface-card: #18181B; /* Zinc-900 */
+  --surface-subtle: #27272A; /* Zinc-800 */
+  --status-success: #10B981; /* Emerald-500 - Green but not lime */
+  --status-warning: #F59E0B; /* Amber-500 */
+  --status-error: #EF4444; /* Red-500 */
 }
 
 @layer base {

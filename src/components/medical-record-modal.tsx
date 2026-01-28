@@ -137,80 +137,58 @@ export function MedicalRecordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        {/* Premium Header */}
-        <div className="relative px-6 pt-6 pb-4 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border-b">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  Prontuário Médico
-                </span>
-                <p className="text-sm font-normal text-muted-foreground mt-0.5">
-                  {clientData?.nome || "Carregando..."}
-                </p>
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-        </div>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Prontuário Médico - {clientData?.nome || "Carregando..."}
+          </DialogTitle>
+        </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-6 pt-4">
-            <TabsList className="grid w-full grid-cols-4 h-12">
-              <TabsTrigger value="patient" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Paciente</span>
-              </TabsTrigger>
-              <TabsTrigger value="soap" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">SOAP</span>
-              </TabsTrigger>
-              <TabsTrigger value="vitals" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Activity className="h-4 w-4" />
-                <span className="hidden sm:inline">Sinais Vitais</span>
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <History className="h-4 w-4" />
-                <span className="hidden sm:inline">Histórico</span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="patient" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Paciente
+            </TabsTrigger>
+            <TabsTrigger value="soap" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              SOAP
+            </TabsTrigger>
+            <TabsTrigger value="vitals" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Sinais Vitais
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              Histórico
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="flex-1 overflow-auto px-6 pb-4">
+          <div className="flex-1 overflow-auto mt-4">
             {/* Aba Paciente */}
-            <TabsContent value="patient" className="space-y-6 m-0 mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nome Completo</Label>
-                  <p className="font-semibold text-lg mt-1">{clientData?.nome || "-"}</p>
+            <TabsContent value="patient" className="space-y-4 m-0">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Nome</Label>
+                  <p className="font-medium">{clientData?.nome}</p>
                 </div>
-                <div className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Telefone</Label>
-                  <p className="font-semibold text-lg mt-1">{clientData?.telefone || "-"}</p>
+                <div>
+                  <Label className="text-muted-foreground">Telefone</Label>
+                  <p className="font-medium">{clientData?.telefone}</p>
                 </div>
                 {clientData?.email && (
-                  <div className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email</Label>
-                    <p className="font-semibold text-lg mt-1">{clientData.email}</p>
-                  </div>
-                )}
-                {clientData?.data_nascimento && (
-                  <div className="p-4 rounded-lg border bg-card hover:shadow-md transition-shadow">
-                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Data de Nascimento</Label>
-                    <p className="font-semibold text-lg mt-1">
-                      {format(new Date(clientData.data_nascimento), "dd/MM/yyyy", { locale: ptBR })}
-                    </p>
+                  <div>
+                    <Label className="text-muted-foreground">Email</Label>
+                    <p className="font-medium">{clientData.email}</p>
                   </div>
                 )}
               </div>
 
               {clientData?.notes && (
-                <div className="p-4 rounded-lg border bg-muted/50">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">Observações Gerais</Label>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                <div>
+                  <Label className="text-muted-foreground">Observações Gerais</Label>
+                  <p className="mt-1 text-sm bg-muted p-3 rounded-md">
                     {clientData.notes}
                   </p>
                 </div>
@@ -218,8 +196,8 @@ export function MedicalRecordModal({
             </TabsContent>
 
             {/* Aba SOAP */}
-            <TabsContent value="soap" className="space-y-6 m-0 mt-6">
-              <div className="space-y-6">
+            <TabsContent value="soap" className="space-y-4 m-0">
+              <div className="space-y-4">
                 {/* Subjetivo */}
                 <div>
                   <Label htmlFor="subjective" className="text-base font-semibold">
@@ -299,7 +277,7 @@ export function MedicalRecordModal({
             </TabsContent>
 
             {/* Aba Sinais Vitais */}
-            <TabsContent value="vitals" className="m-0 mt-6">
+            <TabsContent value="vitals" className="m-0">
               <VitalSignsForm
                 value={formData.vital_signs}
                 onChange={handleVitalSignsChange}
@@ -307,26 +285,19 @@ export function MedicalRecordModal({
             </TabsContent>
 
             {/* Aba Histórico */}
-            <TabsContent value="history" className="space-y-4 m-0 mt-6">
+            <TabsContent value="history" className="space-y-4 m-0">
               {history.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                    <History className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <p className="text-lg font-semibold">Nenhum prontuário anterior</p>
-                  <p className="text-sm text-muted-foreground mt-1">Este é o primeiro atendimento do paciente</p>
+                <div className="text-center py-8 text-muted-foreground">
+                  <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>Nenhum prontuário anterior encontrado</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {history.map((record, index) => (
+                <div className="space-y-4">
+                  {history.map((record) => (
                     <div
                       key={record.id}
-                      className="relative border border-border rounded-xl overflow-hidden hover:shadow-md transition-all duration-200"
+                      className="border border-border rounded-lg overflow-hidden"
                     >
-                      {/* Timeline indicator */}
-                      {index < history.length - 1 && (
-                        <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-border" />
-                      )}
                       {/* Header com resumo */}
                       <div className="p-4 space-y-2">
                         <div className="flex items-center justify-between">
@@ -498,17 +469,15 @@ export function MedicalRecordModal({
         </Tabs>
 
         {/* Footer Actions */}
-        <div className="border-t bg-gradient-to-br from-muted/30 to-transparent px-6 py-4">
-          <div className="flex gap-3 justify-center">
-            <Button variant="outline" onClick={onClose} disabled={saveMutation.isPending}>
-              <X className="h-4 w-4 mr-2" />
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} disabled={saveMutation.isPending}>
-              <Save className="h-4 w-4 mr-2" />
-              {saveMutation.isPending ? "Salvando..." : "Salvar Prontuário"}
-            </Button>
-          </div>
+        <div className="flex items-center justify-end gap-2 pt-4 border-t">
+          <Button variant="outline" onClick={onClose}>
+            <X className="h-4 w-4 mr-2" />
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} disabled={saveMutation.isPending}>
+            <Save className="h-4 w-4 mr-2" />
+            {saveMutation.isPending ? "Salvando..." : "Salvar Prontuário"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

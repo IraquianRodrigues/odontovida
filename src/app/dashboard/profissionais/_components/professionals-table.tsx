@@ -4,10 +4,11 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, ChevronLeft, ChevronRight, Plus, Briefcase, Edit2, Users } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Plus, Briefcase, Edit2, Users, Calendar } from "lucide-react";
 import type { ProfessionalRow } from "@/types/database.types";
 import { ProfessionalDetailsModal } from "@/components/professional-details-modal";
 import { ProfessionalServicesModal } from "@/components/professional-services-modal";
+import { ProfessionalScheduleModal } from "@/components/professional-schedule-modal";
 
 interface ProfessionalsTableProps {
   professionals: ProfessionalRow[];
@@ -56,6 +57,8 @@ export function ProfessionalsTable({
   const [selectedProfessional, setSelectedProfessional] =
     useState<ProfessionalRow | null>(null);
   const [professionalForServices, setProfessionalForServices] =
+    useState<ProfessionalRow | null>(null);
+  const [professionalForSchedule, setProfessionalForSchedule] =
     useState<ProfessionalRow | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -194,24 +197,35 @@ export function ProfessionalsTable({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setProfessionalForServices(professional)}
+                          className="flex-1 gap-2"
+                        >
+                          <Briefcase className="h-3.5 w-3.5" />
+                          Serviços
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedProfessional(professional)}
+                          className="flex-1 gap-2 transition-colors"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                          Editar
+                        </Button>
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setProfessionalForServices(professional)}
-                        className="flex-1 gap-2"
+                        onClick={() => setProfessionalForSchedule(professional)}
+                        className="w-full gap-2"
                       >
-                        <Briefcase className="h-3.5 w-3.5" />
-                        Serviços
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedProfessional(professional)}
-                        className="flex-1 gap-2 transition-colors"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                        Editar
+                        <Calendar className="h-3.5 w-3.5" />
+                        Agenda
                       </Button>
                     </div>
                   </div>
@@ -273,6 +287,11 @@ export function ProfessionalsTable({
       <ProfessionalServicesModal
         professional={professionalForServices}
         onClose={() => setProfessionalForServices(null)}
+      />
+
+      <ProfessionalScheduleModal
+        professional={professionalForSchedule}
+        onClose={() => setProfessionalForSchedule(null)}
       />
     </>
   );

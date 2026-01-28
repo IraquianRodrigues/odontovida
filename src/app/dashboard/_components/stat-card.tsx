@@ -54,11 +54,11 @@ export function StatCard({
           {/* Icon */}
           <div
             className={cn(
-              "mb-4 inline-flex p-3 rounded-xl bg-muted transition-transform duration-300",
+              "mb-4 inline-flex p-3 rounded-xl bg-sidebar-accent transition-transform duration-300",
               "group-hover:scale-105"
             )}
           >
-            <Icon className="h-6 w-6 text-foreground" />
+            <Icon className="h-6 w-6 text-primary" />
           </div>
 
           {/* Title */}

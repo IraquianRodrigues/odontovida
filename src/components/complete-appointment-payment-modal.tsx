@@ -23,7 +23,7 @@ import type { PaymentMethod } from "@/types/financial";
 import type { AppointmentWithRelations } from "@/types/database.types";
 import { useClienteByTelefone } from "@/services/clientes/use-clientes";
 import { useDeleteAppointment } from "@/services/appointments/use-appointments";
-import { formatDateBR } from "@/lib/date-utils";
+import { formatDateBR, getTodayDateString } from "@/lib/date-utils";
 
 interface CompleteAppointmentPaymentModalProps {
   isOpen: boolean;
@@ -89,8 +89,8 @@ export function CompleteAppointmentPaymentModal({
         amount: amount,
         payment_method: paymentMethod,
         status: "pago",
-        due_date: new Date().toISOString().split("T")[0],
-        paid_date: new Date().toISOString().split("T")[0],
+        due_date: getTodayDateString(),
+        paid_date: getTodayDateString(),
       });
 
       if (result.success) {

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { getTodayDateString } from "@/lib/date-utils";
 import type {
   Transaction,
   CreateTransactionInput,
@@ -125,7 +126,7 @@ export class FinancialService {
 
   static async getDailyAppointmentsReceivable(): Promise<number> {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayDateString();
       
       // Get today's appointments with service prices
       const { data: appointments, error } = await supabase
@@ -175,7 +176,7 @@ export class FinancialService {
 
       if (error) throw error;
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayDateString();
 
       // Calculate metrics
       const totalReceivable = transactions
@@ -245,7 +246,7 @@ export class FinancialService {
         .from("transactions")
         .update({
           status: "pago",
-          paid_date: new Date().toISOString().split('T')[0],
+          paid_date: getTodayDateString(),
           payment_method: paymentMethod,
         })
         .eq("id", id)

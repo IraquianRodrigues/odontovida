@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FinancialService } from "@/services/financial.service";
 import { toast } from "sonner";
+import { formatDateBR } from "@/lib/date-utils";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 // import { MercadoPagoPaymentButton } from "@/components/mercadopago-payment-button"; // DESATIVADO TEMPORARIAMENTE
 
 interface FinancialTableProps {
@@ -31,16 +33,14 @@ interface FinancialTableProps {
 
 export function FinancialTable({ transactions, isLoading, onRefresh }: FinancialTableProps) {
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
     }).format(value);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const getStatusBadge = (status: string) => {
@@ -88,11 +88,18 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
     setProcessingId(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta transação?")) return;
+  const openDeleteDialog = (id: string) => {
+    setTransactionToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!transactionToDelete) return;
     
-    setProcessingId(id);
-    const result = await FinancialService.deleteTransaction(id);
+    setProcessingId(transactionToDelete);
+    setDeleteDialogOpen(false);
+    
+    const result = await FinancialService.deleteTransaction(transactionToDelete);
     
     if (result.success) {
       toast.success("Transação excluída!");
@@ -102,6 +109,7 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
     }
     
     setProcessingId(null);
+    setTransactionToDelete(null);
   };
 
   if (isLoading) {
@@ -144,7 +152,7 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
           {transactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell className="font-medium">
-                {formatDate(transaction.due_date)}
+                {formatDateBR(transaction.due_date)}
               </TableCell>
               <TableCell>
                 {transaction.client?.nome || "N/A"}
@@ -169,13 +177,21 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
               </TableCell>
               <TableCell>{getStatusBadge(transaction.status)}</TableCell>
               <TableCell>
-                {/* MERCADO PAGO DESATIVADO TEMPORARIAMENTE */}
-                {/* {transaction.type === "receita" && transaction.status === "pendente" && (
-                  <MercadoPagoPaymentButton 
-                    transaction={transaction} 
-                    onSuccess={onRefresh}
-                  />
-                )} */}
+                {transaction.payment_method && transaction.status === "pago" ? (
+                  <div className="flex items-center gap-1.5">
+                    {transaction.payment_method === "pix" && "📱"}
+                    {transaction.payment_method === "dinheiro" && "💵"}
+                    {transaction.payment_method === "cartao_credito" && "💳"}
+                    {transaction.payment_method === "cartao_debito" && "💳"}
+                    {transaction.payment_method === "boleto" && "📄"}
+                    {transaction.payment_method === "transferencia" && "🏦"}
+                    <span className="text-sm text-muted-foreground capitalize">
+                      {transaction.payment_method.replace("_", " ")}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">-</span>
+                )}
               </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
@@ -200,7 +216,7 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
-                      onClick={() => handleDelete(transaction.id)}
+                      onClick={() => openDeleteDialog(transaction.id)}
                       className="gap-2 text-red-600"
                     >
                       <X className="h-4 w-4" />
@@ -213,6 +229,17 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
           ))}
         </TableBody>
       </Table>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        title="Excluir Transação"
+        description="Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
+      />
     </div>
   );
 }

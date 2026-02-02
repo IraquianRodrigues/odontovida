@@ -40,18 +40,49 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
   });
 
   // Fetch patient data
-  const { data: clientData } = useQuery({
+  const { data: clientData, isLoading: isLoadingClient, isError: isErrorClient, error: clientError } = useQuery({
     queryKey: ["client", patientId],
     queryFn: async () => {
+      console.log("Fetching client with ID:", patientId);
       const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
-      const { data } = await supabase
-        .from("clients")
+      
+      const { data, error } = await supabase
+        .from("clientes")
         .select("*")
         .eq("id", patientId)
         .single();
+      
+      console.log("Query result:", { data, error });
+      
+      if (error) {
+        console.error("Error fetching client:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
+        
+        // Check for specific error codes
+        if (error.code === "PGRST116") {
+          throw new Error(`Paciente com ID ${patientId} não encontrado`);
+        }
+        
+        if (error.code === "42501") {
+          throw new Error("Sem permissão para acessar dados do paciente. Verifique as políticas RLS no Supabase.");
+        }
+        
+        throw new Error(error.message || "Erro desconhecido ao buscar paciente");
+      }
+      
+      if (!data) {
+        throw new Error(`Nenhum dado retornado para o paciente ID ${patientId}`);
+      }
+      
       return data;
     },
+    enabled: !!patientId,
+    retry: 1,
   });
 
   // Fetch patient summary
@@ -118,10 +149,117 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
     saveMutation.mutate();
   };
 
+  // Show loading skeleton while data is being fetched
+  if (isLoadingClient) {
+    return (
+      <div className="fixed inset-0 bg-background z-50">
+        <header className="border-b border-border/50 bg-card shadow-sm">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={onBack}
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-sm hover:bg-muted/50"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Voltar
+                </Button>
+                <div className="h-6 w-px bg-border/50" />
+                <div className="space-y-2">
+                  <div className="h-5 w-48 bg-muted/50 rounded animate-pulse" />
+                  <div className="h-4 w-32 bg-muted/50 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div className="flex h-[calc(100vh-73px)]">
+          <aside className="w-80 border-r border-border/50 bg-card p-6">
+            <div className="space-y-6 animate-pulse">
+              <div className="text-center pb-6 border-b border-border/50">
+                <div className="h-8 w-48 bg-muted/50 rounded mx-auto mb-2" />
+                <div className="h-4 w-32 bg-muted/50 rounded mx-auto" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-20 bg-muted/50 rounded-sm" />
+                <div className="h-20 bg-muted/50 rounded-sm" />
+              </div>
+            </div>
+          </aside>
+          <main className="flex-1 bg-muted/40 p-6">
+            <div className="space-y-4 animate-pulse">
+              <div className="h-12 bg-muted/50 rounded-sm" />
+              <div className="h-32 bg-muted/50 rounded-sm" />
+              <div className="h-32 bg-muted/50 rounded-sm" />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if data fetch failed
+  if (isErrorClient) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="text-center space-y-4 p-8">
+          <div className="p-4 bg-red-50 dark:bg-red-900/30 rounded-sm inline-block mb-4">
+            <FileText className="h-12 w-12 text-red-600 dark:text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground">
+            Erro ao Carregar Prontuário
+          </h2>
+          <p className="text-muted-foreground max-w-md">
+            Não foi possível carregar os dados do paciente. Por favor, tente novamente.
+          </p>
+          {clientError && (
+            <p className="text-sm text-red-600 dark:text-red-400 font-mono">
+              {clientError.message}
+            </p>
+          )}
+          <div className="flex gap-3 justify-center mt-6">
+            <Button onClick={onBack} variant="outline" className="rounded-sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+            <Button onClick={() => window.location.reload()} className="rounded-sm">
+              Tentar Novamente
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If no data after loading, show empty state
+  if (!clientData) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="text-center space-y-4 p-8">
+          <div className="p-4 bg-muted/30 rounded-sm inline-block mb-4">
+            <User className="h-12 w-12 text-muted-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground">
+            Paciente Não Encontrado
+          </h2>
+          <p className="text-muted-foreground max-w-md">
+            Não foi possível encontrar os dados deste paciente.
+          </p>
+          <Button onClick={onBack} variant="outline" className="rounded-sm mt-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-background z-50 animate-in fade-in slide-in-from-right-5 duration-300">
+    <div className="fixed inset-0 bg-background z-50 flex flex-col animate-in fade-in slide-in-from-right-5 duration-300">
       {/* Premium Header */}
-      <header className="border-b border-border/50 bg-card shadow-sm">
+      <header className="flex-shrink-0 border-b border-border/50 bg-card shadow-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -129,7 +267,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                 onClick={onBack}
                 variant="ghost"
                 size="sm"
-                className="rounded-sm hover:bg-muted/50"
+                className="rounded-sm hover:bg-muted/50 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
@@ -139,15 +277,15 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                 <h1 className="text-xl font-bold tracking-tight text-foreground">
                   Prontuário Médico
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  {clientData?.nome || "Carregando..."}
+                <p className="text-sm text-muted-foreground font-medium">
+                  {clientData.nome}
                 </p>
               </div>
             </div>
             <Button
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="rounded-sm"
+              className="rounded-sm shadow-sm hover:shadow-md transition-all"
             >
               {saveMutation.isPending ? (
                 <>
@@ -165,25 +303,25 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
         </div>
       </header>
 
-      {/* Split Layout */}
-      <div className="flex h-[calc(100vh-73px)]">
+      {/* Split Layout - Fixed height with proper scroll */}
+      <div className="flex flex-1 min-h-0">
         {/* Sidebar - Patient Info */}
-        <aside className="w-80 border-r border-border/50 bg-card overflow-y-auto">
+        <aside className="w-80 flex-shrink-0 border-r border-border/50 bg-card overflow-y-auto">
           <div className="p-6 space-y-6">
             {/* Patient Name Header */}
             <div className="text-center pb-6 border-b border-border/50">
-              <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="flex items-center justify-center gap-2 mb-3">
                 <div className="h-1 w-12 bg-primary rounded-full" />
                 <User className="h-5 w-5 text-primary" />
                 <div className="h-1 w-12 bg-primary rounded-full" />
               </div>
               <h2 className="text-2xl font-bold text-foreground tracking-tight">
-                {clientData?.nome}
+                {clientData.nome}
               </h2>
               <p className="text-sm text-muted-foreground mt-2 font-medium">
-                {clientData?.telefone}
+                {clientData.telefone}
               </p>
-              {clientData?.email && (
+              {clientData.email && (
                 <p className="text-xs text-muted-foreground mt-1">
                   {clientData.email}
                 </p>
@@ -192,10 +330,10 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-muted/30 rounded-sm border border-border/50">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="p-1 bg-primary/10 rounded-sm">
-                    <Calendar className="h-3 w-3 text-primary" />
+              <div className="p-4 bg-muted/30 rounded-sm border border-border/50 hover:bg-muted/40 transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 bg-primary/10 rounded-sm">
+                    <Calendar className="h-3.5 w-3.5 text-primary" />
                   </div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                     Consultas
@@ -205,10 +343,10 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                   {summary?.total_appointments || 0}
                 </p>
               </div>
-              <div className="p-3 bg-muted/30 rounded-sm border border-border/50">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="p-1 bg-primary/10 rounded-sm">
-                    <FileText className="h-3 w-3 text-primary" />
+              <div className="p-4 bg-muted/30 rounded-sm border border-border/50 hover:bg-muted/40 transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 bg-primary/10 rounded-sm">
+                    <FileText className="h-3.5 w-3.5 text-primary" />
                   </div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                     Prontuários
@@ -255,27 +393,27 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
         </aside>
 
         {/* Main Content - Tabs */}
-        <main className="flex-1 overflow-hidden flex flex-col bg-muted/40">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <div className="border-b border-border/50 bg-card px-6">
+        <main className="flex-1 flex flex-col bg-muted/40 min-h-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+            <div className="flex-shrink-0 border-b border-border/50 bg-card px-6">
               <TabsList className="h-14 bg-transparent rounded-none border-0">
                 <TabsTrigger
                   value="soap"
-                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
                 >
                   <FileText className="h-4 w-4" />
                   SOAP
                 </TabsTrigger>
                 <TabsTrigger
                   value="vitals"
-                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
                 >
                   <Activity className="h-4 w-4" />
                   Sinais Vitais
                 </TabsTrigger>
                 <TabsTrigger
                   value="history"
-                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
                 >
                   <History className="h-4 w-4" />
                   Histórico
@@ -283,7 +421,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
               </TabsList>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 min-h-0">
               {/* SOAP Tab */}
               <TabsContent value="soap" className="space-y-6 m-0">
                 <div className="space-y-6">
@@ -306,8 +444,8 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                       onChange={(e) =>
                         setFormData({ ...formData, soap_subjective: e.target.value })
                       }
-                      className="rounded-sm border-border/50 focus:border-primary/50 focus:ring-primary/20 
-                                 min-h-[120px] resize-none transition-all duration-300"
+                      className="rounded-sm border-border/50 bg-card focus:border-primary/50 focus:ring-primary/20 
+                                 focus:shadow-sm min-h-[140px] resize-y transition-all duration-300"
                     />
                   </div>
 
@@ -330,8 +468,8 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                       onChange={(e) =>
                         setFormData({ ...formData, soap_objective: e.target.value })
                       }
-                      className="rounded-sm border-border/50 focus:border-primary/50 focus:ring-primary/20 
-                                 min-h-[120px] resize-none transition-all duration-300"
+                      className="rounded-sm border-border/50 bg-card focus:border-primary/50 focus:ring-primary/20 
+                                 focus:shadow-sm min-h-[140px] resize-y transition-all duration-300"
                     />
                   </div>
 
@@ -354,8 +492,8 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                       onChange={(e) =>
                         setFormData({ ...formData, soap_assessment: e.target.value })
                       }
-                      className="rounded-sm border-border/50 focus:border-primary/50 focus:ring-primary/20 
-                                 min-h-[120px] resize-none transition-all duration-300"
+                      className="rounded-sm border-border/50 bg-card focus:border-primary/50 focus:ring-primary/20 
+                                 focus:shadow-sm min-h-[140px] resize-y transition-all duration-300"
                     />
                   </div>
 
@@ -378,8 +516,8 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                       onChange={(e) =>
                         setFormData({ ...formData, soap_plan: e.target.value })
                       }
-                      className="rounded-sm border-border/50 focus:border-primary/50 focus:ring-primary/20 
-                                 min-h-[120px] resize-none transition-all duration-300"
+                      className="rounded-sm border-border/50 bg-card focus:border-primary/50 focus:ring-primary/20 
+                                 focus:shadow-sm min-h-[140px] resize-y transition-all duration-300"
                     />
                   </div>
                 </div>

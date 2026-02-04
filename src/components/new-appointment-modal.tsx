@@ -147,7 +147,9 @@ export function NewAppointmentModal({
       onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Erro ao criar agendamento. Tente novamente.");
+      console.error("Erro detalhado ao criar agendamento:", error);
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      toast.error(`Erro ao criar agendamento: ${errorMessage}`);
     }
   };
 

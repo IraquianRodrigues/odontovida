@@ -269,7 +269,7 @@ export class AppointmentsService {
     start_time: string;
     end_time: string;
   }): Promise<void> {
-    const { error } = await this.supabase
+    const { error, data } = await this.supabase
       .from("appointments")
       .insert({
         customer_name: params.customer_name,
@@ -279,12 +279,25 @@ export class AppointmentsService {
         start_time: params.start_time,
         end_time: params.end_time,
         status: "agendado",
-      });
+      })
+      .select();
 
     if (error) {
-      console.error("Erro ao criar agendamento:", error);
-      throw new Error("Falha ao criar agendamento");
+      // Log detalhado do erro para debug
+      console.error("Erro ao criar agendamento:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        fullError: error
+      });
+      
+      // Mensagem de erro mais específica
+      const errorMessage = error.message || "Falha ao criar agendamento";
+      throw new Error(`Erro ao criar agendamento: ${errorMessage}`);
     }
+
+    console.log("Agendamento criado com sucesso:", data);
   }
 
   /**

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { toast } from "sonner";
 import { useNotifications } from "@/services/notifications/use-notifications";
 import type { UseNotificationsReturn } from "@/services/notifications/use-notifications";
 import type { Notification } from "@/services/notifications/notifications.service";
@@ -37,6 +38,16 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const { data: selectedAppointment, refetch: refetchAppointment } = useAppointment(
     selectedAppointmentId
   );
+
+  // Efeito para verificar se o agendamento selecionado está concluído
+  React.useEffect(() => {
+    if (selectedAppointment && selectedAppointment.status === 'completed') {
+      toast.info("Este agendamento já foi concluído", {
+        description: "Não é possível visualizar detalhes de agendamentos concluídos."
+      });
+      setSelectedAppointmentId(null);
+    }
+  }, [selectedAppointment]);
 
   // Buscar userId do usuário autenticado
   React.useEffect(() => {
@@ -83,8 +94,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     <NotificationContext.Provider value={contextValue}>
       {children}
       
-      {/* Modal de detalhes do agendamento */}
-      {selectedAppointment && (
+      {/* Modal de detalhes do agendamento - Só renderiza se não estiver concluído (para evitar flash) */}
+      {selectedAppointment && selectedAppointment.status !== 'completed' && (
         <AppointmentDetailsModal
           appointment={selectedAppointment}
           onClose={closeAppointmentModal}

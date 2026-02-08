@@ -15,7 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { VitalSignsForm } from "@/components/vital-signs-form";
-import { User, FileText, Activity, History, Save, X, Eye } from "lucide-react";
+import { CriticalAlertsPanel } from "@/components/critical-alerts-panel";
+import { AnamnesisForm } from "@/components/anamnesis-form";
+import { DiagnosisForm } from "@/components/diagnosis-form";
+import { PrescriptionForm } from "@/components/prescription-form";
+import { User, FileText, Activity, History, Save, X, Eye, AlertTriangle, ClipboardList, Stethoscope, Pill } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -36,7 +40,8 @@ export function MedicalRecordModal({
   const { profile } = useUserRole();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("soap");
+  const [activeTab, setActiveTab] = useState("alerts");
+  const [currentRecordId, setCurrentRecordId] = useState<string | null>(recordId || null);
   const [viewingRecord, setViewingRecord] = useState<MedicalRecord | null>(null);
 
   // Form state
@@ -146,10 +151,18 @@ export function MedicalRecordModal({
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-8">
+            <TabsTrigger value="alerts" className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              Alertas
+            </TabsTrigger>
             <TabsTrigger value="patient" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Paciente
+            </TabsTrigger>
+            <TabsTrigger value="anamnesis" className="flex items-center gap-2">
+              <ClipboardList className="h-4 w-4" />
+              Anamnese
             </TabsTrigger>
             <TabsTrigger value="soap" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -157,7 +170,15 @@ export function MedicalRecordModal({
             </TabsTrigger>
             <TabsTrigger value="vitals" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
-              Sinais Vitais
+              Sinais
+            </TabsTrigger>
+            <TabsTrigger value="diagnosis" className="flex items-center gap-2">
+              <Stethoscope className="h-4 w-4" />
+              Diagnóstico
+            </TabsTrigger>
+            <TabsTrigger value="prescription" className="flex items-center gap-2">
+              <Pill className="h-4 w-4" />
+              Prescrição
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
@@ -166,6 +187,11 @@ export function MedicalRecordModal({
           </TabsList>
 
           <div className="flex-1 overflow-auto mt-4">
+            {/* Aba Alertas Críticos */}
+            <TabsContent value="alerts" className="m-0">
+              <CriticalAlertsPanel clientId={patientId} />
+            </TabsContent>
+
             {/* Aba Paciente */}
             <TabsContent value="patient" className="space-y-4 m-0">
               <div className="grid grid-cols-2 gap-4">
@@ -193,6 +219,11 @@ export function MedicalRecordModal({
                   </p>
                 </div>
               )}
+            </TabsContent>
+
+            {/* Aba Anamnese */}
+            <TabsContent value="anamnesis" className="m-0">
+              <AnamnesisForm recordId={currentRecordId} />
             </TabsContent>
 
             {/* Aba SOAP */}
@@ -282,6 +313,16 @@ export function MedicalRecordModal({
                 value={formData.vital_signs}
                 onChange={handleVitalSignsChange}
               />
+            </TabsContent>
+
+            {/* Aba Diagnóstico */}
+            <TabsContent value="diagnosis" className="m-0">
+              <DiagnosisForm recordId={currentRecordId} />
+            </TabsContent>
+
+            {/* Aba Prescrição */}
+            <TabsContent value="prescription" className="m-0">
+              <PrescriptionForm recordId={currentRecordId} />
             </TabsContent>
 
             {/* Aba Histórico */}

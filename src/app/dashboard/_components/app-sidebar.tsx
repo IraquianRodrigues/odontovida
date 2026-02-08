@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Users, UserCog, Briefcase, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X, Activity, CalendarDays, LogOut, User, Settings } from "lucide-react";
+import { Calendar, Users, BriefcaseMedical, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X, IdCard, LogOut, User, Settings, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -9,16 +9,32 @@ import { Button } from "@/components/ui/button";
 import { useUserRole } from "@/hooks/use-user-role";
 import { createClient } from "@/lib/supabase/client";
 
+// Ícone de Dente customizado para Odontograma
+const ToothIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M7 4c-1.5 0-3 1.5-3 4v10c0 1.5 1.5 3 3 3s3-1.5 3-3v-4c0-1.5 1.5-3 3-3s3 1.5 3 3v4c0 1.5 1.5 3 3 3s3-1.5 3-3V8c0-2.5-1.5-4-3-4-1.5 0-2.5 1-3 1.5C9.5 5 8.5 4 7 4z" />
+  </svg>
+);
+
 const navItems = [
   {
     href: "/dashboard",
     label: "Dashboard",
-    icon: Calendar,
+    icon: LayoutGrid, // Alterado para Grid
   },
   {
     href: "/dashboard/agenda",
     label: "Agenda",
-    icon: CalendarDays,
+    icon: Calendar, // Alterado para Calendário padrão
   },
   {
     href: "/dashboard/clientes",
@@ -34,18 +50,18 @@ const navItems = [
   {
     href: "/dashboard/odontograma",
     label: "Odontograma",
-    icon: Activity,
+    icon: ToothIcon, // Ícone customizado de Dente
     requiresDentist: true,
   },
   {
     href: "/dashboard/profissionais",
     label: "Profissionais",
-    icon: UserCog,
+    icon: IdCard, // Alterado para ID Card (Crachá)
   },
   {
     href: "/dashboard/servicos",
     label: "Serviços",
-    icon: Briefcase,
+    icon: BriefcaseMedical, // Alterado para Maleta Médica
   },
   {
     href: "/dashboard/financeiro",

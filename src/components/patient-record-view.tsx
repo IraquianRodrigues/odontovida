@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MedicalRecordsService } from "@/services/medical-records.service";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,19 @@ import {
   Calendar,
   User,
   Save,
-  Loader2
+  Loader2,
+  AlertTriangle,
+  ClipboardList,
+  Stethoscope,
+  Pill
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { VitalSignsForm } from "@/components/vital-signs-form";
+import { CriticalAlertsPanel } from "@/components/critical-alerts-panel";
+import { AnamnesisForm } from "@/components/anamnesis-form";
+import { DiagnosisForm } from "@/components/diagnosis-form";
+import { PrescriptionForm } from "@/components/prescription-form";
 import { toast } from "sonner";
 
 interface PatientRecordViewProps {
@@ -30,7 +38,8 @@ interface PatientRecordViewProps {
 
 export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps) {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("soap");
+  const [activeTab, setActiveTab] = useState("alerts");
+  const [currentRecordId, setCurrentRecordId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     soap_subjective: "",
     soap_objective: "",
@@ -140,6 +149,49 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
       toast.error("Erro ao salvar prontuário");
     },
   });
+
+  // Auto-create medical record on mount if none exists
+  useEffect(() => {
+    const createInitialRecord = async () => {
+      if (currentRecordId || !patientId) return;
+
+      try {
+        // Get professional_id from current user
+        const { createClient: createSupabaseClient } = await import("@/lib/supabase/client");
+        const supabase = createSupabaseClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) return;
+        
+        const { data: professional } = await supabase
+          .from("professionals")
+          .select("id")
+          .eq("email", user.email)
+          .single();
+        
+        if (!professional) return;
+
+        // Create a new medical record
+        const result = await MedicalRecordsService.createMedicalRecord({
+          client_id: patientId,
+          professional_id: professional.id,
+          soap_subjective: "",
+          soap_objective: "",
+          soap_assessment: "",
+          soap_plan: "",
+          vital_signs: {},
+        });
+
+        if (result.success && result.data) {
+          setCurrentRecordId(result.data.id);
+        }
+      } catch (error) {
+        console.error("Error creating initial record:", error);
+      }
+    };
+
+    createInitialRecord();
+  }, [patientId, currentRecordId]);
 
   const handleVitalSignsChange = (vitals: any) => {
     setFormData({ ...formData, vital_signs: vitals });
@@ -335,7 +387,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                   <div className="p-1.5 bg-primary/10 rounded-sm">
                     <Calendar className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold truncate" title="Consultas">
                     Consultas
                   </p>
                 </div>
@@ -348,7 +400,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                   <div className="p-1.5 bg-primary/10 rounded-sm">
                     <FileText className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold truncate" title="Prontuários">
                     Prontuários
                   </p>
                 </div>
@@ -396,7 +448,21 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
         <main className="flex-1 flex flex-col bg-muted/40 min-h-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
             <div className="flex-shrink-0 border-b border-border/50 bg-card px-6">
-              <TabsList className="h-14 bg-transparent rounded-none border-0">
+              <TabsList className="h-14 bg-transparent rounded-none border-0 flex-wrap">
+                <TabsTrigger
+                  value="alerts"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  Alertas
+                </TabsTrigger>
+                <TabsTrigger
+                  value="anamnesis"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  Anamnese
+                </TabsTrigger>
                 <TabsTrigger
                   value="soap"
                   className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
@@ -409,7 +475,21 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                   className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
                 >
                   <Activity className="h-4 w-4" />
-                  Sinais Vitais
+                  Sinais
+                </TabsTrigger>
+                <TabsTrigger
+                  value="diagnosis"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                >
+                  <Stethoscope className="h-4 w-4" />
+                  Diagnóstico
+                </TabsTrigger>
+                <TabsTrigger
+                  value="prescription"
+                  className="flex items-center gap-2 rounded-sm data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                >
+                  <Pill className="h-4 w-4" />
+                  Prescrição
                 </TabsTrigger>
                 <TabsTrigger
                   value="history"
@@ -422,6 +502,16 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 min-h-0">
+              {/* Alerts Tab */}
+              <TabsContent value="alerts" className="m-0">
+                <CriticalAlertsPanel clientId={patientId} />
+              </TabsContent>
+
+              {/* Anamnesis Tab */}
+              <TabsContent value="anamnesis" className="m-0">
+                <AnamnesisForm recordId={currentRecordId} />
+              </TabsContent>
+
               {/* SOAP Tab */}
               <TabsContent value="soap" className="space-y-6 m-0">
                 <div className="space-y-6">
@@ -529,6 +619,16 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                   value={formData.vital_signs}
                   onChange={handleVitalSignsChange}
                 />
+              </TabsContent>
+
+              {/* Diagnosis Tab */}
+              <TabsContent value="diagnosis" className="m-0">
+                <DiagnosisForm recordId={currentRecordId} />
+              </TabsContent>
+
+              {/* Prescription Tab */}
+              <TabsContent value="prescription" className="m-0">
+                <PrescriptionForm recordId={currentRecordId} />
               </TabsContent>
 
               {/* History Tab */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useNotificationContext } from "@/providers/notification-provider";
 import type { Notification } from "@/services/notifications/notifications.service";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ interface NotificationItemProps {
   notification: Notification;
 }
 
-export function NotificationItem({ notification }: NotificationItemProps) {
+export const NotificationItem = memo(function NotificationItem({ notification }: NotificationItemProps) {
   const { markAsRead, deleteNotification, openAppointmentModal } = useNotificationContext();
   const isUnread = !notification.read_at;
 
@@ -113,4 +114,4 @@ export function NotificationItem({ notification }: NotificationItemProps) {
       </div>
     </div>
   );
-}
+});

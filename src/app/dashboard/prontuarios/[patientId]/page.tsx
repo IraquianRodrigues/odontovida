@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MedicalRecordsService } from "@/services/medical-records.service";
+import { MedicalRecordsService } from "@/services/medical-records";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

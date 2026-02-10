@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ClientesTable } from "./clientes-table";
 import { useClientes } from "@/services/clientes/use-clientes";
 import { Card } from "@/components/ui/card";
@@ -7,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
 import { Users, UserCheck, UserX, AlertCircle, UserPlus } from "lucide-react";
 import { StatCard } from "@/app/dashboard/_components/stat-card";
-import { AddClienteModal } from "@/components/add-cliente-modal";
+
+const AddClienteModal = dynamic(
+  () => import("@/components/add-cliente-modal").then(mod => mod.AddClienteModal),
+  { ssr: false }
+);
 
 export default function ClientesContent() {
   const { data: clientes = [], isLoading, error } = useClientes();

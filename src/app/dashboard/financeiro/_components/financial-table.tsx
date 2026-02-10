@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FinancialService } from "@/services/financial.service";
+import { FinancialService } from "@/services/financial";
 import { toast } from "sonner";
 import { formatDateBR } from "@/lib/date-utils";
 import { ConfirmDialog } from "@/components/confirm-dialog";

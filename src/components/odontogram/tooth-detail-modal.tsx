@@ -35,7 +35,7 @@ import {
   RESTORATION_MATERIAL_LABELS,
   TREATMENT_TYPE_LABELS,
 } from "@/types/odontogram";
-import { OdontogramService } from "@/services/odontogram.service";
+import { OdontogramService } from "@/services/odontogram";
 import { toast } from "sonner";
 
 interface ToothDetailModalProps {

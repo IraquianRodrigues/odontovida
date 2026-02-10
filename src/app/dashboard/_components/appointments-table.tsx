@@ -1,28 +1,32 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Search, Loader2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Search, Loader2, RefreshCw } from "lucide-react";
 import type { AppointmentWithRelations } from "@/types/database.types";
-import { formatTimeBR } from "@/lib/date-utils";
-import { AppointmentDetailsModal } from "@/components/appointment-details-modal";
-import { CompleteAppointmentPaymentModal } from "@/components/complete-appointment-payment-modal";
 import { useProfessionals } from "@/services/professionals/use-professionals";
 import {
   useMarkAppointmentAsCompleted,
   useMarkAppointmentAsNotCompleted,
 } from "@/services/appointments/use-appointments";
 import { toast } from "sonner";
+import { AppointmentMobileCard, AppointmentTableRow } from "./appointments-table/appointment-row";
+
+const AppointmentDetailsModal = dynamic(
+  () => import("@/components/appointment-details-modal").then(mod => mod.AppointmentDetailsModal),
+  { ssr: false }
+);
+
+const CompleteAppointmentPaymentModal = dynamic(
+  () => import("@/components/complete-appointment-payment-modal").then(mod => mod.CompleteAppointmentPaymentModal),
+  { ssr: false }
+);
 
 interface AppointmentsTableProps {
   appointments: AppointmentWithRelations[];
@@ -31,46 +35,48 @@ interface AppointmentsTableProps {
   isRefreshing?: boolean;
 }
 
-export function AppointmentsTable({
-  appointments,
-  isLoading = false,
-  onRefresh,
-  isRefreshing = false,
-}: AppointmentsTableProps) {
-  const [selectedAppointment, setSelectedAppointment] =
-    useState<AppointmentWithRelations | null>(null);
-  const [appointmentForPayment, setAppointmentForPayment] =
-    useState<AppointmentWithRelations | null>(null);
+const TABLE_HEADERS = ["Cliente", "Telefone", "Médico", "Procedimento", "Horário Início", "Horário Fim", "Ações"];
+
+function EmptyFilteredState() {
+  return (
+    <div className="p-12 text-center text-muted-foreground">
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-base font-medium">Nenhum agendamento encontrado</p>
+        <p className="text-sm text-muted-foreground/70">Tente ajustar os filtros ou selecionar outra data</p>
+      </div>
+    </div>
+  );
+}
+
+export function AppointmentsTable({ appointments, isLoading = false, onRefresh, isRefreshing = false }: AppointmentsTableProps) {
+  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithRelations | null>(null);
+  const [appointmentForPayment, setAppointmentForPayment] = useState<AppointmentWithRelations | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProfessionalId, setSelectedProfessionalId] =
-    useState<string>("all");
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string>("all");
 
-  const { data: professionals = [], isLoading: isLoadingProfessionals } =
-    useProfessionals();
-
+  const { data: professionals = [], isLoading: isLoadingProfessionals } = useProfessionals();
   const markAsCompletedMutation = useMarkAppointmentAsCompleted();
   const markAsNotCompletedMutation = useMarkAppointmentAsNotCompleted();
 
   const filteredAppointments = useMemo(() => {
     let filtered = appointments;
-
     if (selectedProfessionalId !== "all") {
-      filtered = filtered.filter(
-        (appointment) =>
-          appointment.professional_code.toString() === selectedProfessionalId
-      );
+      filtered = filtered.filter(a => a.professional_code.toString() === selectedProfessionalId);
     }
-
     if (searchQuery.trim()) {
-      filtered = filtered.filter((appointment) =>
-        appointment.customer_name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-      );
+      filtered = filtered.filter(a => a.customer_name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
-
     return filtered;
   }, [appointments, searchQuery, selectedProfessionalId]);
+
+  const handleUncomplete = async (appointmentId: number) => {
+    try {
+      await markAsNotCompletedMutation.mutateAsync(appointmentId);
+      toast.success("Agendamento desmarcado como concluído");
+    } catch (error: any) {
+      toast.error(error?.message || "Erro ao desmarcar agendamento", { duration: 5000 });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -87,12 +93,8 @@ export function AppointmentsTable({
     return (
       <Card className="p-12 border shadow-sm">
         <div className="text-center space-y-2">
-          <p className="text-base font-medium text-muted-foreground">
-            Nenhum agendamento encontrado para esta data
-          </p>
-          <p className="text-sm text-muted-foreground/70">
-            Tente selecionar outra data ou verifique os filtros aplicados
-          </p>
+          <p className="text-base font-medium text-muted-foreground">Nenhum agendamento encontrado para esta data</p>
+          <p className="text-sm text-muted-foreground/70">Tente selecionar outra data ou verifique os filtros aplicados</p>
         </div>
       </Card>
     );
@@ -101,6 +103,7 @@ export function AppointmentsTable({
   return (
     <>
       <div className="bg-card rounded-[32px] shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] overflow-hidden transition-colors dark:shadow-none">
+        {/* Header + Filters */}
         <div className="p-8 space-y-6 border-b border-border">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold text-foreground transition-colors">Agendamentos do Dia</h2>
@@ -119,312 +122,70 @@ export function AppointmentsTable({
               />
             </div>
             <div className="flex gap-2">
-              <Select
-                value={selectedProfessionalId}
-                onValueChange={setSelectedProfessionalId}
-                disabled={isLoadingProfessionals}
-              >
+              <Select value={selectedProfessionalId} onValueChange={setSelectedProfessionalId} disabled={isLoadingProfessionals}>
                 <SelectTrigger className="w-full sm:w-[250px] h-12 bg-muted/50 border-input focus:bg-background focus:ring-2 focus:ring-ring transition-all rounded-2xl font-medium text-foreground">
                   <SelectValue placeholder="Todos os profissionais" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os profissionais</SelectItem>
-                  {professionals.map((professional) => (
-                    <SelectItem
-                      key={professional.id}
-                      value={professional.id.toString()}
-                    >
-                      {professional.name}
-                    </SelectItem>
+                  {professionals.map(p => (
+                    <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Button
-                variant="outline"
-                size="icon"
-                onClick={onRefresh}
-                disabled={isRefreshing || !onRefresh}
-                title="Atualizar agendamentos"
+                variant="outline" size="icon" onClick={onRefresh}
+                disabled={isRefreshing || !onRefresh} title="Atualizar agendamentos"
                 className="h-10 w-10 border-input hover:bg-muted text-muted-foreground"
               >
-                <RefreshCw
-                  className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                />
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Versão Mobile - Cards */}
+        {/* Mobile Cards */}
         <div className="block lg:hidden space-y-3 p-4">
-          {filteredAppointments.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground">
-              <div className="flex flex-col items-center gap-2">
-                <p className="text-base font-medium">Nenhum agendamento encontrado</p>
-                <p className="text-sm text-muted-foreground/70">
-                  Tente ajustar os filtros ou selecionar outra data
-                </p>
-              </div>
-            </div>
-          ) : (
-            filteredAppointments.map((appointment) => {
-              const isCompleted = appointment.completed_at !== null;
-              return (
-                <div
-                  key={appointment.id}
-                  className={`p-4 border rounded-2xl transition-all ${
-                    isCompleted
-                      ? "bg-green-50/30 border-green-100 dark:bg-green-900/20 dark:border-green-900/50"
-                      : "bg-card border-border"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3
-                            className={`font-semibold text-base truncate ${
-                              isCompleted
-                                ? "text-green-700 dark:text-green-400"
-                                : "text-card-foreground"
-                            }`}
-                          >
-                            {appointment.customer_name}
-                          </h3>
-                          {isCompleted && (
-                            <Badge
-                              variant="outline"
-                              className="bg-green-100/50 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-[10px] px-1.5 py-0 h-5"
-                            >
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Concluído
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground font-mono">
-                          {appointment.customer_phone}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Médico</p>
-                        <p className="font-medium text-foreground">
-                          {appointment.professional?.name || "N/A"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Procedimento</p>
-                        <p className="font-medium text-foreground truncate">
-                          {appointment.service?.code || "N/A"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Início</p>
-                        <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted/80 border-0 font-mono font-medium">
-                          {formatTimeBR(appointment.start_time)}
-                        </Badge>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Fim</p>
-                        <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted/80 border-0 font-mono font-medium">
-                          {formatTimeBR(appointment.end_time)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 pt-2">
-                      {appointment.completed_at ? (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              await markAsNotCompletedMutation.mutateAsync(
-                                appointment.id
-                              );
-                              toast.success("Agendamento desmarcado como concluído");
-                            } catch (error: any) {
-                              const errorMessage = error?.message || "Erro ao desmarcar agendamento";
-                              toast.error(errorMessage, {
-                                duration: 5000,
-                              });
-                            }
-                          }}
-                          disabled={markAsNotCompletedMutation.isPending}
-                          className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white h-9 text-xs shadow-none border border-transparent"
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                          Concluído
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setAppointmentForPayment(appointment)}
-                          className="flex-1 h-9 text-xs border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                          Concluir
-                        </Button>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedAppointment(appointment)}
-                        className="flex-1 h-9 text-xs rounded-xl border-input hover:bg-muted hover:text-foreground transition-all font-medium"
-                      >
-                        Ver Detalhes
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
+          {filteredAppointments.length === 0 ? <EmptyFilteredState /> : (
+            filteredAppointments.map(appointment => (
+              <AppointmentMobileCard
+                key={appointment.id}
+                appointment={appointment}
+                onComplete={setAppointmentForPayment}
+                onUncomplete={handleUncomplete}
+                onViewDetails={setSelectedAppointment}
+                isUncompleting={markAsNotCompletedMutation.isPending}
+              />
+            ))
           )}
         </div>
 
-        {/* Versão Desktop - Tabela */}
+        {/* Desktop Table */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Cliente
-                </th>
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Telefone
-                </th>
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Médico
-                </th>
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Procedimento
-                </th>
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Horário Início
-                </th>
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Horário Fim
-                </th>
-                <th className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
-                  Ações
-                </th>
+                {TABLE_HEADERS.map(header => (
+                  <th key={header} className="text-left p-4 font-medium text-xs text-muted-foreground uppercase tracking-wider">
+                    {header}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filteredAppointments.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="p-12 text-center text-muted-foreground"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-base font-medium">Nenhum agendamento encontrado</p>
-                      <p className="text-sm text-muted-foreground/70">
-                        Tente ajustar os filtros ou selecionar outra data
-                      </p>
-                    </div>
-                  </td>
-                </tr>
+                <tr><td colSpan={7}><EmptyFilteredState /></td></tr>
               ) : (
-                filteredAppointments.map((appointment, index) => {
-                  const isCompleted = appointment.completed_at !== null;
-                  return (
-                    <tr
-                      key={appointment.id}
-                      className={`group transition-colors hover:bg-muted/50 ${isCompleted ? "bg-green-50/30 dark:bg-green-900/10" : ""
-                        }`}
-                    >
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`font-medium transition-colors ${isCompleted ? "text-green-700 dark:text-green-400" : "text-foreground group-hover:text-primary"
-                            }`}>
-                            {appointment.customer_name}
-                          </span>
-                          {isCompleted && (
-                            <Badge variant="outline" className="bg-green-100/50 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-[10px] px-1.5 py-0 h-5">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Concluído
-                            </Badge>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm text-muted-foreground font-mono">
-                          {appointment.customer_phone}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm text-foreground font-medium">
-                          {appointment.professional?.name || "N/A"}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm text-foreground">
-                          {appointment.service?.code || "N/A"}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted/80 border-0 font-mono font-medium">
-                          {formatTimeBR(appointment.start_time)}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted/80 border-0 font-mono font-medium">
-                          {formatTimeBR(appointment.end_time)}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          {appointment.completed_at ? (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={async () => {
-                                try {
-                                  await markAsNotCompletedMutation.mutateAsync(
-                                    appointment.id
-                                  );
-                                  toast.success("Agendamento desmarcado como concluído");
-                                } catch (error: any) {
-                                  const errorMessage = error?.message || "Erro ao desmarcar agendamento";
-                                  toast.error(errorMessage, {
-                                    duration: 5000,
-                                  });
-                                }
-                              }}
-                              disabled={markAsNotCompletedMutation.isPending}
-                              className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white h-8 px-3 text-xs shadow-none border border-transparent"
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                              Concluído
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setAppointmentForPayment(appointment)}
-                              className="h-8 px-3 text-xs border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                              Concluir
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedAppointment(appointment)}
-                            className="h-8 px-3 text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          >
-                            Ver Detalhes
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredAppointments.map(appointment => (
+                  <AppointmentTableRow
+                    key={appointment.id}
+                    appointment={appointment}
+                    onComplete={setAppointmentForPayment}
+                    onUncomplete={handleUncomplete}
+                    onViewDetails={setSelectedAppointment}
+                    isUncompleting={markAsNotCompletedMutation.isPending}
+                  />
+                ))
               )}
             </tbody>
           </table>
@@ -434,10 +195,7 @@ export function AppointmentsTable({
       <AppointmentDetailsModal
         appointment={selectedAppointment}
         onClose={() => setSelectedAppointment(null)}
-        onUpdate={() => {
-          setSelectedAppointment(null);
-          onRefresh?.();
-        }}
+        onUpdate={() => { setSelectedAppointment(null); onRefresh?.(); }}
       />
 
       <CompleteAppointmentPaymentModal

@@ -1,12 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useUserRole } from "@/hooks/use-user-role";
 import { PatientList } from "@/components/patient-list";
-import { PatientRecordView } from "@/components/patient-record-view";
 import { Input } from "@/components/ui/input";
-import { Search, ShieldAlert } from "lucide-react";
+import { Search, ShieldAlert, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+
+const PatientRecordView = dynamic(
+  () => import("@/components/patient-record-view").then(mod => mod.PatientRecordView),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    ),
+  }
+);
 
 export default function ProntuariosPage() {
   const { profile, hasMedicalRecordsAccess } = useUserRole();

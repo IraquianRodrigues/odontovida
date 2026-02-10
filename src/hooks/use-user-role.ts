@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { UserProfileService } from "@/services/user-profile.service";
+import { UserProfileService } from "@/services/user-profile";
 import { createClient } from "@/lib/supabase/client";
 
 export type UserRole = 'admin' | 'recepcionista' | 'dentista' | 'medico';

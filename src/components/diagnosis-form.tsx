@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useDiagnosesByRecordId, useCreateDiagnosis, useDeleteDiagnosis } from "@/services/diagnoses/use-diagnoses";
-import type { DiagnosisType } from "@/services/diagnoses.service";
+import type { DiagnosisType } from "@/services/diagnoses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/protected-route";
-import { FinancialService } from "@/services/financial.service";
+import { FinancialService } from "@/services/financial";
 import type { Transaction, FinancialMetrics, TransactionType, TransactionStatus } from "@/types/financial";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

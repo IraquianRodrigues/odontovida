@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { OdontogramService } from "@/services/odontogram.service";
+import { OdontogramService } from "@/services/odontogram";
 import { OdontogramViewer } from "@/components/odontogram/odontogram-viewer";
 import { ToothDetailModal } from "@/components/odontogram/tooth-detail-modal";
 import { Button } from "@/components/ui/button";

@@ -3,7 +3,7 @@ import {
   CriticalAlertsService,
   type CreateCriticalAlertInput,
   type UpdateCriticalAlertInput,
-} from "../critical-alerts.service";
+} from "./critical-alerts.service";
 
 // Query hook to get all alerts for a client
 export function useCriticalAlerts(clientId: number | null) {

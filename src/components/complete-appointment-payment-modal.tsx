@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { FinancialService } from "@/services/financial.service";
+import { FinancialService } from "@/services/financial";
 import { toast } from "sonner";
 import type { PaymentMethod } from "@/types/financial";
 import type { AppointmentWithRelations } from "@/types/database.types";

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MedicalRecordsService, type PatientSummary } from "@/services/medical-records.service";
+import { MedicalRecordsService, type PatientSummary } from "@/services/medical-records";
 import { useUserRole } from "@/hooks/use-user-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

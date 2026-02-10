@@ -3,7 +3,7 @@ import {
   DiagnosesService,
   type CreateDiagnosisInput,
   type UpdateDiagnosisInput,
-} from "../diagnoses.service";
+} from "./diagnoses.service";
 
 // Query hook to get diagnoses by medical record ID
 export function useDiagnosesByRecordId(recordId: string | null) {

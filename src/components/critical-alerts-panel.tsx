@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useActiveCriticalAlerts, useCreateCriticalAlert, useDeactivateCriticalAlert } from "@/services/critical-alerts/use-critical-alerts";
-import type { AlertType, AlertSeverity } from "@/services/critical-alerts.service";
+import type { AlertType, AlertSeverity } from "@/services/critical-alerts";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -20,8 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { FileText, Download } from "lucide-react";
 import { useProfessionals } from "@/services/professionals/use-professionals";
-import { FinancialService } from "@/services/financial.service";
-import { PDFReportService } from "@/services/pdf-report.service";
+import { FinancialService } from "@/services/financial";
+import { PDFReportService } from "@/services/pdf-report";
 import type { TransactionType } from "@/types/financial";
 import { toast } from "sonner";
 

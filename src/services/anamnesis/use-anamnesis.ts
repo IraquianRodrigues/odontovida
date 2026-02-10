@@ -3,7 +3,7 @@ import {
   AnamnesisService,
   type CreateAnamnesisInput,
   type UpdateAnamnesisInput,
-} from "../anamnesis.service";
+} from "./anamnesis.service";
 
 // Query hook to get anamnesis by medical record ID
 export function useAnamnesisByRecordId(recordId: string | null) {

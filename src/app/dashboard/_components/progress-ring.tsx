@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 interface ProgressRingProps {
   progress: number; // 0-100
   size?: number;
@@ -7,7 +9,7 @@ interface ProgressRingProps {
   showPercentage?: boolean;
 }
 
-export function ProgressRing({
+export const ProgressRing = memo(function ProgressRing({
   progress,
   size = 60,
   strokeWidth = 3,
@@ -51,4 +53,4 @@ export function ProgressRing({
       )}
     </div>
   );
-}
+});

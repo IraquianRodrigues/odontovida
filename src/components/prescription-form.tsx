@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Plus, Trash2, Pill, FileText, Printer, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { PrescriptionPDFService } from "@/services/prescription-pdf.service";
+import { PrescriptionPDFService } from "@/services/prescription-pdf";
 import { createClient } from "@/lib/supabase/client";
 
 interface PrescriptionFormProps {

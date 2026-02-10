@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FinancialService } from "@/services/financial.service";
+import { FinancialService } from "@/services/financial";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import type { CreateTransactionInput } from "@/types/financial";

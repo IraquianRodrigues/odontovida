@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProgressRing } from "./progress-ring";
@@ -19,7 +20,7 @@ interface StatCardProps {
   variant?: "default" | "hero" | "compact";
 }
 
-export function StatCard({
+export const StatCard = memo(function StatCard({
   title,
   value,
   icon: Icon,
@@ -159,4 +160,4 @@ export function StatCard({
       </div>
     </div>
   );
-}
+});

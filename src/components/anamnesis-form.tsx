@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAnamnesisByRecordId, useCreateAnamnesis, useUpdateAnamnesis } from "@/services/anamnesis/use-anamnesis";
-import type { SmokingStatus, YesNo } from "@/services/anamnesis.service";
+import type { SmokingStatus, YesNo } from "@/services/anamnesis";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

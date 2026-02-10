@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { formatDateFullBR } from "@/lib/date-utils";
 import { AppointmentsTable } from "./appointments-table";
 import { DatePickerButton } from "./date-picker-button";
@@ -9,7 +10,11 @@ import { Card } from "@/components/ui/card";
 import { Calendar, Clock, Users, CheckCircle2 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { FloatingActionButton } from "@/components/floating-action-button";
-import { NewAppointmentModal } from "@/components/new-appointment-modal";
+
+const NewAppointmentModal = dynamic(
+  () => import("@/components/new-appointment-modal").then(mod => mod.NewAppointmentModal),
+  { ssr: false }
+);
 
 export default function DashboardContent() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -95,23 +100,7 @@ export default function DashboardContent() {
             />
 
             {/* Additional info card - spans 2 columns on larger screens */}
-            <div className="sm:col-span-2 p-6 bg-card border border-border/50 rounded-sm shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.04)]">
-              <style jsx>{`
-                @keyframes fadeIn {
-                  from {
-                    opacity: 0;
-                    transform: translateY(10px);
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0);
-                  }
-                }
-                div {
-                  animation: fadeIn 0.6s ease-out 0.3s forwards;
-                  opacity: 0;
-                }
-              `}</style>
+            <div className="sm:col-span-2 p-6 bg-card border border-border/50 rounded-sm shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-bottom-2 duration-600 delay-300 fill-mode-backwards">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/5 rounded-sm">
                   <Users className="h-6 w-6 text-primary" />

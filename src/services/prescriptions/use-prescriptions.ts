@@ -3,7 +3,7 @@ import {
   PrescriptionsService,
   type CreatePrescriptionInput,
   type UpdatePrescriptionInput,
-} from "../prescriptions.service";
+} from "./prescriptions.service";
 
 // Query hook to get prescriptions by medical record ID
 export function usePrescriptionsByRecordId(recordId: string | null) {

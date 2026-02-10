@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { MercadoPagoService } from '@/services/mercadopago.service';
+import { MercadoPagoService } from '@/services/mercadopago';
 import type { CreatePreferenceRequest } from '@/types/mercadopago';
 
 export async function POST(request: NextRequest) {

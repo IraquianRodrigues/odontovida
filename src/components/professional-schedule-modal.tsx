@@ -177,8 +177,8 @@ export function ProfessionalScheduleModal({
 
                     {/* Time inputs or "Não trabalha" message */}
                     {daySchedule.is_available ? (
-                      <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                        <div className="space-y-1">
+                      <div className="flex flex-col sm:flex-row gap-4 flex-1 min-w-0">
+                        <div className="space-y-1 flex-1 min-w-0">
                           <Label
                             htmlFor={`start-${day.value}`}
                             className="text-xs text-muted-foreground"
@@ -196,11 +196,11 @@ export function ProfessionalScheduleModal({
                                 e.target.value
                               )
                             }
-                            className="w-32"
+                            className="w-full"
                           />
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="space-y-1 flex-1 min-w-0">
                           <Label
                             htmlFor={`end-${day.value}`}
                             className="text-xs text-muted-foreground"
@@ -218,7 +218,7 @@ export function ProfessionalScheduleModal({
                                 e.target.value
                               )
                             }
-                            className="w-32"
+                            className="w-full"
                           />
                         </div>
                       </div>

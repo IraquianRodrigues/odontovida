@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,27 +20,28 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FinancialService } from "@/services/financial";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import type { CreateTransactionInput } from "@/types/financial";
+import { Loader2 } from "lucide-react";
+import type { Transaction, UpdateTransactionInput, TransactionType, TransactionStatus, PaymentMethod } from "@/types/financial";
 
-interface AddTransactionModalProps {
+interface EditTransactionModalProps {
   isOpen: boolean;
+  transaction: Transaction | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-interface Client {
-  id: string;
-  name: string;
-}
-
-export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransactionModalProps) {
+export function EditTransactionModal({ isOpen, transaction, onClose, onSuccess }: EditTransactionModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [generatePaymentLink, setGeneratePaymentLink] = useState(false);
-  const [formData, setFormData] = useState<CreateTransactionInput>({
-    client_id: "",
+  const [formData, setFormData] = useState<{
+    type: TransactionType;
+    category: string;
+    description: string;
+    amount: number;
+    payment_method: PaymentMethod;
+    status: TransactionStatus;
+    due_date: string;
+  }>({
     type: "receita",
     category: "",
     description: "",
@@ -50,37 +52,29 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
   });
 
   useEffect(() => {
-    if (isOpen) {
-      loadClients();
+    if (transaction && isOpen) {
+      setFormData({
+        type: transaction.type,
+        category: transaction.category || "",
+        description: transaction.description || "",
+        amount: transaction.amount,
+        payment_method: (transaction.payment_method as PaymentMethod) || "dinheiro",
+        status: transaction.status,
+        due_date: transaction.due_date?.split("T")[0] || new Date().toISOString().split("T")[0],
+      });
     }
-  }, [isOpen]);
-
-  const loadClients = async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("clientes")
-      .select("id, nome")
-      .order("nome");
-    
-    if (data) {
-      setClients(data.map(c => ({ id: c.id.toString(), name: c.nome })));
-    }
-  };
+  }, [transaction, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validar cliente apenas para receitas
-    if (formData.type === "receita" && !formData.client_id) {
-      toast.error("Selecione um cliente");
-      return;
-    }
-    
+
+    if (!transaction) return;
+
     if (!formData.category) {
       toast.error("Informe a categoria");
       return;
     }
-    
+
     if (formData.amount <= 0) {
       toast.error("Informe um valor válido");
       return;
@@ -88,122 +82,72 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
     setIsSubmitting(true);
 
-    // Para despesas, usar um ID genérico ou remover o client_id
-    const transactionData = formData.type === "despesa" 
-      ? { ...formData, client_id: undefined }
-      : formData;
+    const updateData: UpdateTransactionInput = {
+      category: formData.category,
+      description: formData.description || undefined,
+      amount: formData.amount,
+      status: formData.status,
+      due_date: formData.due_date,
+    };
 
-    const result = await FinancialService.createTransaction(transactionData as CreateTransactionInput);
+    if (formData.status === "pago") {
+      updateData.payment_method = formData.payment_method;
+      if (!transaction.paid_date) {
+        updateData.paid_date = new Date().toISOString().split("T")[0];
+      }
+    }
+
+    const result = await FinancialService.updateTransaction(transaction.id, updateData);
 
     if (result.success) {
-      toast.success("Transação criada com sucesso!");
-      
-      // MERCADO PAGO DESATIVADO TEMPORARIAMENTE
-      // Se deve gerar link de pagamento e é uma receita pendente
-      /* if (generatePaymentLink && formData.type === "receita" && formData.status === "pendente" && result.data?.id) {
-        try {
-          const paymentResponse = await fetch("/api/mercadopago/create-preference", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ transaction_id: result.data.id }),
-          });
-          
-          const paymentData = await paymentResponse.json();
-          
-          if (paymentData.success && paymentData.init_point) {
-            toast.success("Link de pagamento gerado!");
-            // Copiar link para clipboard
-            navigator.clipboard.writeText(paymentData.init_point);
-            toast.info("Link copiado para área de transferência!");
-          }
-        } catch (error) {
-          console.error("Erro ao gerar link:", error);
-          toast.error("Transação criada, mas erro ao gerar link de pagamento");
-        }
-      } */
-      
+      toast.success("Transação atualizada com sucesso!");
       onSuccess();
-      resetForm();
+      onClose();
     } else {
-      toast.error(result.error || "Erro ao criar transação");
+      toast.error(result.error || "Erro ao atualizar transação");
     }
 
     setIsSubmitting(false);
   };
 
-  const resetForm = () => {
-    setFormData({
-      client_id: "",
-      type: "receita",
-      category: "",
-      description: "",
-      amount: 0,
-      payment_method: "dinheiro",
-      status: "pendente",
-      due_date: new Date().toISOString().split("T")[0],
-    });
-    setGeneratePaymentLink(false);
-  };
-
-  const handleClose = () => {
-    resetForm();
-    onClose();
-  };
+  if (!transaction) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nova Transação</DialogTitle>
+          <DialogTitle>Editar Transação</DialogTitle>
+          <DialogDescription>
+            Altere os campos desejados e clique em salvar
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* Tipo */}
+          {/* Tipo (somente leitura) */}
           <div className="space-y-2">
-            <Label htmlFor="type">Tipo *</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value: any) =>
-                setFormData({ ...formData, type: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="receita">Receita</SelectItem>
-                <SelectItem value="despesa">Despesa</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Tipo</Label>
+            <Input
+              value={formData.type === "receita" ? "Receita" : "Despesa"}
+              disabled
+              className="bg-muted"
+            />
           </div>
 
-          {/* Cliente - Apenas para Receitas */}
-          {formData.type === "receita" && (
+          {/* Cliente (somente leitura) */}
+          {transaction.client && (
             <div className="space-y-2">
-              <Label htmlFor="client">Cliente *</Label>
-              <Select
-                value={formData.client_id}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, client_id: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Cliente</Label>
+              <Input
+                value={transaction.client.nome}
+                disabled
+                className="bg-muted"
+              />
             </div>
           )}
 
           {/* Categoria */}
           <div className="space-y-2">
-            <Label htmlFor="category">Categoria *</Label>
+            <Label htmlFor="edit-category">Categoria *</Label>
             {formData.type === "despesa" ? (
               <Select
                 value={formData.category}
@@ -232,7 +176,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
               </Select>
             ) : (
               <Input
-                id="category"
+                id="edit-category"
                 value={formData.category}
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value })
@@ -245,9 +189,9 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
           {/* Descrição */}
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="edit-description">Descrição</Label>
             <Textarea
-              id="description"
+              id="edit-description"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -259,9 +203,9 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
           {/* Valor */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Valor (R$) *</Label>
+            <Label htmlFor="edit-amount">Valor (R$) *</Label>
             <Input
-              id="amount"
+              id="edit-amount"
               type="number"
               step="0.01"
               min="0"
@@ -276,9 +220,9 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
           {/* Data de Vencimento */}
           <div className="space-y-2">
-            <Label htmlFor="due_date">Data de Vencimento *</Label>
+            <Label htmlFor="edit-due-date">Data de Vencimento *</Label>
             <Input
-              id="due_date"
+              id="edit-due-date"
               type="date"
               value={formData.due_date}
               onChange={(e) =>
@@ -290,7 +234,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
 
           {/* Status */}
           <div className="space-y-2">
-            <Label htmlFor="status">Status *</Label>
+            <Label htmlFor="edit-status">Status *</Label>
             <Select
               value={formData.status}
               onValueChange={(value: any) =>
@@ -311,7 +255,7 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
           {/* Método de Pagamento (se pago) */}
           {formData.status === "pago" && (
             <div className="space-y-2">
-              <Label htmlFor="payment_method">Método de Pagamento *</Label>
+              <Label htmlFor="edit-payment-method">Método de Pagamento *</Label>
               <Select
                 value={formData.payment_method}
                 onValueChange={(value: any) =>
@@ -333,29 +277,12 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
             </div>
           )}
 
-          {/* MERCADO PAGO DESATIVADO TEMPORARIAMENTE */}
-          {/* Gerar Link de Pagamento - Apenas para Receitas Pendentes */}
-          {/* {formData.type === "receita" && formData.status === "pendente" && (
-            <div className="flex items-center space-x-2 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <input
-                type="checkbox"
-                id="generatePaymentLink"
-                checked={generatePaymentLink}
-                onChange={(e) => setGeneratePaymentLink(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <Label htmlFor="generatePaymentLink" className="text-sm cursor-pointer">
-                Gerar link de pagamento do Mercado Pago automaticamente
-              </Label>
-            </div>
-          )} */}
-
           {/* Buttons */}
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={handleClose}
+              onClick={onClose}
               className="flex-1"
               disabled={isSubmitting}
             >
@@ -363,10 +290,17 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              className="flex-1 gap-2"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Salvando..." : "Salvar Transação"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                "Salvar Alterações"
+              )}
             </Button>
           </div>
         </form>

@@ -122,6 +122,20 @@ export class FinancialService {
     }
   }
 
+  static async deleteTransactions(ids: string[]) {
+    try {
+      const { error } = await supabase
+        .from("transactions")
+        .delete()
+        .in("id", ids);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
   // ==================== METRICS ====================
 
   static async getDailyAppointmentsReceivable(): Promise<number> {

@@ -163,7 +163,7 @@ export function NewAppointmentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[95vh] p-0 flex flex-col overflow-hidden">
         {/* Header com gradiente */}
         <div className="relative px-6 pt-6 pb-4 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border-b">
           <DialogHeader>

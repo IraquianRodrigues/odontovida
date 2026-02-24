@@ -9,24 +9,24 @@ export type UserRole = 'admin' | 'recepcionista' | 'dentista' | 'medico';
 export function useUserRole() {
   const supabase = createClient();
 
-  // Get current session
-  const { data: sessionData } = useQuery({
-    queryKey: ['session'],
+  // Get current user (validated server-side)
+  const { data: userData } = useQuery({
+    queryKey: ['current-user'],
     queryFn: async () => {
-      const { data } = await supabase.auth.getSession();
-      return data.session;
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
     },
   });
 
   // Get user profile with role
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['user-profile', sessionData?.user?.id],
+    queryKey: ['user-profile', userData?.id],
     queryFn: async () => {
       const result = await UserProfileService.getCurrentUserProfile();
       if (!result.success) return null;
       return result.data;
     },
-    enabled: !!sessionData?.user?.id,
+    enabled: !!userData?.id,
   });
 
   const role: UserRole = profile?.role || 'recepcionista';

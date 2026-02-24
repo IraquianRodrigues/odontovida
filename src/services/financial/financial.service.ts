@@ -7,8 +7,6 @@ import type {
   FinancialMetrics,
 } from "@/types/financial";
 
-const supabase = createClient();
-
 export class FinancialService {
   // ==================== TRANSACTIONS ====================
   
@@ -21,6 +19,7 @@ export class FinancialService {
     endDate?: string;
   }) {
     try {
+      const supabase = createClient();
       let query = supabase
         .from("transactions")
         .select(`
@@ -60,6 +59,7 @@ export class FinancialService {
 
   static async getTransactionById(id: string) {
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("transactions")
         .select(`
@@ -79,6 +79,7 @@ export class FinancialService {
 
   static async createTransaction(input: CreateTransactionInput) {
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("transactions")
         .insert([input])
@@ -94,6 +95,7 @@ export class FinancialService {
 
   static async updateTransaction(id: string, input: UpdateTransactionInput) {
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("transactions")
         .update(input)
@@ -110,6 +112,7 @@ export class FinancialService {
 
   static async deleteTransaction(id: string) {
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("transactions")
         .delete()
@@ -124,6 +127,7 @@ export class FinancialService {
 
   static async deleteTransactions(ids: string[]) {
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("transactions")
         .delete()
@@ -140,6 +144,7 @@ export class FinancialService {
 
   static async getDailyAppointmentsReceivable(): Promise<number> {
     try {
+      const supabase = createClient();
       const today = getTodayDateString();
       
       // Get today's appointments with service prices
@@ -164,7 +169,7 @@ export class FinancialService {
       }
 
       // Calculate total from service prices
-      const total = appointments.reduce((sum, appointment: any) => {
+      const total = appointments.reduce((sum: number, appointment: any) => {
         const service = appointment.services;
         const price = service?.price || 0;
         return sum + parseFloat(price.toString());
@@ -179,6 +184,7 @@ export class FinancialService {
 
   static async getFinancialMetrics(): Promise<{ success: boolean; data?: FinancialMetrics; error?: string }> {
     try {
+      const supabase = createClient();
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
       const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -194,40 +200,40 @@ export class FinancialService {
 
       // Calculate metrics
       const totalReceivable = transactions
-        ?.filter(t => t.type === 'receita' && t.status === 'pendente')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        ?.filter((t: any) => t.type === 'receita' && t.status === 'pendente')
+        .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const totalReceived = transactions
-        ?.filter(t => t.type === 'receita' && t.status === 'pago')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        ?.filter((t: any) => t.type === 'receita' && t.status === 'pago')
+        .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const totalOverdue = transactions
-        ?.filter(t => t.type === 'receita' && t.status === 'pendente' && t.due_date < today)
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        ?.filter((t: any) => t.type === 'receita' && t.status === 'pendente' && t.due_date < today)
+        .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const totalPending = transactions
-        ?.filter(t => t.type === 'receita' && t.status === 'pendente')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        ?.filter((t: any) => t.type === 'receita' && t.status === 'pendente')
+        .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const monthlyRevenue = transactions
-        ?.filter(t => 
+        ?.filter((t: any) => 
           t.type === 'receita' && 
           t.status === 'pago' && 
           t.paid_date && 
           t.paid_date >= firstDayOfMonth && 
           t.paid_date <= lastDayOfMonth
         )
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const monthlyExpenses = transactions
-        ?.filter(t => 
+        ?.filter((t: any) => 
           t.type === 'despesa' && 
           t.status === 'pago' && 
           t.paid_date && 
           t.paid_date >= firstDayOfMonth && 
           t.paid_date <= lastDayOfMonth
         )
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+        .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const netProfit = monthlyRevenue - monthlyExpenses;
 
@@ -256,6 +262,7 @@ export class FinancialService {
 
   static async markAsPaid(id: string, paymentMethod: string) {
     try {
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("transactions")
         .update({

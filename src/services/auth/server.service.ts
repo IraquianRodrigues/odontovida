@@ -30,16 +30,17 @@ export class AuthServerService {
 
   /**
    * Obtém a sessão do usuário (Server Component)
+   * Usa getUser() para validação server-side do token
    */
   static async getSession() {
     try {
       const supabase = await createServerClient();
 
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      return session;
+      return user;
     } catch (error) {
       return null;
     }

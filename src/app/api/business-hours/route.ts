@@ -5,6 +5,12 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
+    // Verificar autenticação
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Get business hours
     const { data: businessHours, error: hoursError } = await supabase
       .from("business_hours")

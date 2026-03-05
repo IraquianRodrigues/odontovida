@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 const supabase = createClient();
 
@@ -26,8 +27,8 @@ export class UserProfileService {
 
       if (error) throw error;
       return { success: true, data: data as UserProfile };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -41,8 +42,8 @@ export class UserProfileService {
 
       if (error) throw error;
       return { success: true, data: data as UserProfile[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -58,8 +59,8 @@ export class UserProfileService {
 
       if (error) throw error;
       return { success: true, data: data as UserProfile };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 }

@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 const supabase = createClient();
 
@@ -49,8 +50,8 @@ export class PrescriptionsService {
 
       if (error) throw error;
       return { success: true, data: data as Prescription[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -65,8 +66,8 @@ export class PrescriptionsService {
 
       if (error) throw error;
       return { success: true, data: data as Prescription };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -81,8 +82,8 @@ export class PrescriptionsService {
 
       if (error) throw error;
       return { success: true, data: data as Prescription };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -98,8 +99,8 @@ export class PrescriptionsService {
 
       if (error) throw error;
       return { success: true, data: data as Prescription };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -113,8 +114,8 @@ export class PrescriptionsService {
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 }

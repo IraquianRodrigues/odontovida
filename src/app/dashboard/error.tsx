@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +14,7 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Dashboard error:", error);
+    logger.error("Dashboard error:", error);
   }, [error]);
 
   return (

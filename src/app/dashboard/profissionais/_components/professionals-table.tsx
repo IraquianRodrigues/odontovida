@@ -1,14 +1,25 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2, ChevronLeft, ChevronRight, Plus, Briefcase, Edit2, Users, Calendar } from "lucide-react";
 import type { ProfessionalRow } from "@/types/database.types";
-import { ProfessionalDetailsModal } from "@/components/professional-details-modal";
-import { ProfessionalServicesModal } from "@/components/professional-services-modal";
-import { ProfessionalScheduleModal } from "@/components/professional-schedule-modal";
+
+const ProfessionalDetailsModal = dynamic(
+  () => import("@/components/professional-details-modal").then(mod => mod.ProfessionalDetailsModal),
+  { ssr: false }
+);
+const ProfessionalServicesModal = dynamic(
+  () => import("@/components/professional-services-modal").then(mod => mod.ProfessionalServicesModal),
+  { ssr: false }
+);
+const ProfessionalScheduleModal = dynamic(
+  () => import("@/components/professional-schedule-modal").then(mod => mod.ProfessionalScheduleModal),
+  { ssr: false }
+);
 
 interface ProfessionalsTableProps {
   professionals: ProfessionalRow[];

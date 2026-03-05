@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MedicalRecordsService } from "@/services/medical-records";
@@ -19,12 +20,19 @@ import {
   Calendar,
   Phone,
   Mail,
-  Cake
+  Cake,
+  ClipboardList
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/get-error-message";
+
+const TreatmentPlanTab = dynamic(
+  () => import("@/components/treatment-plan/treatment-plan-tab").then(mod => mod.TreatmentPlanTab),
+  { ssr: false }
+);
 
 export default function MedicalRecordPage() {
   const params = useParams();
@@ -100,10 +108,10 @@ export default function MedicalRecordPage() {
         vital_signs: {},
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Erro ao salvar",
-        description: error.message || "Não foi possível salvar o prontuário.",
+        description: getErrorMessage(error) || "Não foi possível salvar o prontuário.",
         variant: "destructive",
       });
     },
@@ -111,10 +119,27 @@ export default function MedicalRecordPage() {
 
   const history = historyData?.data || [];
 
+  // Fetch professional ID for treatment plan
+  const { data: professionalData } = useQuery({
+    queryKey: ["professional-for-treatment", profile?.email],
+    queryFn: async () => {
+      if (!profile?.email) return null;
+      const supabase = (await import("@/lib/supabase/client")).createClient();
+      const { data } = await supabase
+        .from("professionals")
+        .select("id")
+        .eq("email", profile.email)
+        .single();
+      return data;
+    },
+    enabled: !!profile?.email,
+  });
+
   const sections = [
     { id: "patient", label: "Paciente", icon: User },
     { id: "soap", label: "SOAP", icon: FileText },
     { id: "vitals", label: "Sinais Vitais", icon: Activity },
+    { id: "treatment", label: "Plano de Tratamento", icon: ClipboardList },
     { id: "history", label: "Histórico", icon: History },
   ];
 
@@ -323,6 +348,15 @@ export default function MedicalRecordPage() {
                     onChange={(vital_signs) => setFormData({ ...formData, vital_signs })}
                   />
                 </div>
+              )}
+
+              {/* Plano de Tratamento */}
+              {activeSection === "treatment" && (
+                <TreatmentPlanTab
+                  patientId={patientId}
+                  patientName={clientData?.nome || "Paciente"}
+                  professionalId={professionalData?.id || null}
+                />
               )}
 
               {/* Histórico */}

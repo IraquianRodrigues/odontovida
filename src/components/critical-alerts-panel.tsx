@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertTriangle, Plus, X, AlertCircle, Info, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 interface CriticalAlertsPanelProps {
   clientId: number;
@@ -52,10 +53,10 @@ export function CriticalAlertsPanel({ clientId }: CriticalAlertsPanelProps) {
         notes: "",
       });
       setShowForm(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao criar alerta",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -68,10 +69,10 @@ export function CriticalAlertsPanel({ clientId }: CriticalAlertsPanelProps) {
         title: "Alerta desativado",
         description: "O alerta foi desativado com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao desativar alerta",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     }

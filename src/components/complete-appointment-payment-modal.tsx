@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -74,11 +75,6 @@ export function CompleteAppointmentPaymentModal({
 
 
     try {
-      // Debug: ver dados do appointment
-      console.log('📋 Appointment:', appointment);
-      console.log('👨‍⚕️ Professional ID:', appointment.professional_id);
-      console.log('👨‍⚕️ Professional Code:', appointment.professional_code);
-      
       // Criar transação financeira
       const result = await FinancialService.createTransaction({
         client_id: cliente.id.toString(),
@@ -99,7 +95,7 @@ export function CompleteAppointmentPaymentModal({
           await deleteAppointmentMutation.mutateAsync(appointment.id);
           toast.success("Pagamento registrado e agendamento concluído!");
         } catch (deleteError) {
-          console.error('Erro ao deletar agendamento após pagamento:', deleteError);
+          logger.error('Erro ao deletar agendamento após pagamento:', deleteError);
           toast.warning('Pagamento registrado, mas o agendamento não foi removido. Por favor, remova manualmente.');
         }
         
@@ -109,7 +105,7 @@ export function CompleteAppointmentPaymentModal({
         toast.error(result.error || "Erro ao registrar pagamento");
       }
     } catch (error) {
-      console.error('Erro ao processar pagamento:', error);
+      logger.error('Erro ao processar pagamento:', error);
       toast.error("Erro inesperado ao registrar pagamento");
     }
 

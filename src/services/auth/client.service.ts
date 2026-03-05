@@ -1,4 +1,5 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
+﻿import { createClient as createBrowserClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type { User } from "@supabase/supabase-js";
 
 // Tipos para autenticação
@@ -50,7 +51,7 @@ export class AuthClientService {
         user: data.user,
       };
     } catch (error) {
-      console.error("System Login Error:", error);
+      logger.error("System Login Error:", error);
       return {
         success: false,
         error: `Erro de sistema: ${error instanceof Error ? error.message : String(error)}`,

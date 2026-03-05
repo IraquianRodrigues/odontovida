@@ -1,6 +1,7 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
-const supabase = createClient();
+const getSupabase = () => createClient();
 
 export type DiagnosisType = "primary" | "secondary" | "differential";
 
@@ -37,7 +38,7 @@ export class DiagnosesService {
   // Get all diagnoses for a medical record
   static async getDiagnosesByRecordId(recordId: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("diagnoses")
         .select("*")
         .eq("medical_record_id", recordId)
@@ -46,15 +47,15 @@ export class DiagnosesService {
 
       if (error) throw error;
       return { success: true, data: data as Diagnosis[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get a single diagnosis by ID
   static async getDiagnosisById(id: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("diagnoses")
         .select("*")
         .eq("id", id)
@@ -62,15 +63,15 @@ export class DiagnosesService {
 
       if (error) throw error;
       return { success: true, data: data as Diagnosis };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Create a new diagnosis
   static async createDiagnosis(input: CreateDiagnosisInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("diagnoses")
         .insert([input])
         .select()
@@ -78,15 +79,15 @@ export class DiagnosesService {
 
       if (error) throw error;
       return { success: true, data: data as Diagnosis };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Update an existing diagnosis
   static async updateDiagnosis(id: string, input: UpdateDiagnosisInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("diagnoses")
         .update(input)
         .eq("id", id)
@@ -95,23 +96,23 @@ export class DiagnosesService {
 
       if (error) throw error;
       return { success: true, data: data as Diagnosis };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Delete a diagnosis
   static async deleteDiagnosis(id: string) {
     try {
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from("diagnoses")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 

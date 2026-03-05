@@ -1,12 +1,22 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { OdontogramService } from "@/services/odontogram";
-import { OdontogramViewer } from "@/components/odontogram/odontogram-viewer";
-import { ToothDetailModal } from "@/components/odontogram/tooth-detail-modal";
+import { Loader2, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const OdontogramViewer = dynamic(
+  () => import("@/components/odontogram/odontogram-viewer").then(mod => mod.OdontogramViewer),
+  { ssr: false, loading: () => <div className="flex justify-center py-16"><Loader2 className="h-12 w-12 animate-spin text-muted-foreground" /></div> }
+);
+const ToothDetailModal = dynamic(
+  () => import("@/components/odontogram/tooth-detail-modal").then(mod => mod.ToothDetailModal),
+  { ssr: false }
+);
 import {
   Select,
   SelectContent,
@@ -15,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Loader2, Activity } from "lucide-react";
 import type { ToothRecordWithDetails } from "@/types/odontogram";
 import { useUserRole } from "@/hooks/use-user-role";
 import { useRouter } from "next/navigation";
@@ -84,7 +93,7 @@ export default function OdontogramaPage() {
       if (!isNumericCode) {
         // Professional has non-numeric code (e.g., "dr-jorge")
         // Cannot match with appointments.professional_code (INTEGER)
-        console.warn(`Professional code "${professional.code}" is not numeric, cannot match appointments`);
+        logger.warn(`Professional code "${professional.code}" is not numeric, cannot match appointments`);
         return [];
       }
 

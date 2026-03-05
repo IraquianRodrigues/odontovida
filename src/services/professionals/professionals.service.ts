@@ -1,8 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type { ProfessionalRow } from "@/types/database.types";
 
 export class ProfessionalsService {
-  private supabase = createClient();
+  private get supabase() { return createClient(); }
 
   /**
    * Busca todos os profissionais
@@ -14,7 +15,7 @@ export class ProfessionalsService {
       .order("name", { ascending: true });
 
     if (error) {
-      console.error("Erro ao buscar profissionais:", error);
+      logger.error("Erro ao buscar profissionais:", error);
       throw new Error("Falha ao buscar profissionais");
     }
 
@@ -32,7 +33,7 @@ export class ProfessionalsService {
       .single();
 
     if (error) {
-      console.error("Erro ao buscar profissional:", error);
+      logger.error("Erro ao buscar profissional:", error);
       throw new Error("Falha ao buscar profissional");
     }
 
@@ -50,7 +51,7 @@ export class ProfessionalsService {
       .single();
 
     if (error) {
-      console.error("Erro ao buscar profissional:", error);
+      logger.error("Erro ao buscar profissional:", error);
       return null;
     }
 
@@ -71,7 +72,7 @@ export class ProfessionalsService {
       .single();
 
     if (error) {
-      console.error("Erro ao criar profissional:", error);
+      logger.error("Erro ao criar profissional:", error);
       throw new Error("Falha ao criar profissional");
     }
 
@@ -93,7 +94,7 @@ export class ProfessionalsService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar profissional:", error);
+      logger.error("Erro ao atualizar profissional:", error);
       throw new Error("Falha ao atualizar profissional");
     }
 
@@ -110,7 +111,7 @@ export class ProfessionalsService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao deletar profissional:", error);
+      logger.error("Erro ao deletar profissional:", error);
       throw new Error("Falha ao deletar profissional");
     }
   }

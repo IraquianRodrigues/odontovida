@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -142,14 +143,12 @@ export function WeeklyHoursEditor() {
                     <Label htmlFor={`open-${day.value}`} className="text-xs text-muted-foreground">
                       Abertura
                     </Label>
-                    <Input
+                    <TimeSelect
                       id={`open-${day.value}`}
-                      type="time"
                       value={dayHours.open_time}
-                      onChange={(e) =>
-                        handleTimeChange(day.value, "open_time", e.target.value)
+                      onChange={(value) =>
+                        handleTimeChange(day.value, "open_time", value)
                       }
-                      className="w-full sm:w-32"
                     />
                   </div>
 
@@ -157,14 +156,12 @@ export function WeeklyHoursEditor() {
                     <Label htmlFor={`close-${day.value}`} className="text-xs text-muted-foreground">
                       Fechamento
                     </Label>
-                    <Input
+                    <TimeSelect
                       id={`close-${day.value}`}
-                      type="time"
                       value={dayHours.close_time}
-                      onChange={(e) =>
-                        handleTimeChange(day.value, "close_time", e.target.value)
+                      onChange={(value) =>
+                        handleTimeChange(day.value, "close_time", value)
                       }
-                      className="w-full sm:w-32"
                     />
                   </div>
                 </div>

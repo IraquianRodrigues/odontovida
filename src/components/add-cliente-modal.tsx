@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -171,7 +172,7 @@ export function AddClienteModal({ isOpen, onClose }: AddClienteModalProps) {
       toast.success("Cliente cadastrado com sucesso!");
       onClose();
     } catch (error) {
-      console.error("Erro ao criar cliente:", error);
+      logger.error("Erro ao criar cliente:", error);
       toast.error(
         error instanceof Error
           ? error.message

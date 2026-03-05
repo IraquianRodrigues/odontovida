@@ -17,6 +17,7 @@ import { SoapForm } from "@/components/patient-record/soap-form";
 import { RecordHistoryExpandable } from "@/components/patient-record/record-history-expandable";
 import { User, FileText, Activity, History, Save, X, AlertTriangle, ClipboardList, Stethoscope, Pill } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 interface MedicalRecordModalProps {
   patientId: number;
@@ -85,8 +86,8 @@ export function MedicalRecordModal({ patientId, isOpen, onClose, recordId }: Med
       queryClient.invalidateQueries({ queryKey: ["professional-patients"] });
       onClose();
     },
-    onError: (error: any) => {
-      toast({ title: "Erro ao salvar", description: error.message || "Não foi possível salvar o prontuário.", variant: "destructive" });
+    onError: (error: unknown) => {
+      toast({ title: "Erro ao salvar", description: getErrorMessage(error) || "Não foi possível salvar o prontuário.", variant: "destructive" });
     },
   });
 

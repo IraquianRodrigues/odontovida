@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { ProtectedRoute } from "@/components/protected-route";
 import { FinancialService } from "@/services/financial";
 import type { Transaction, FinancialMetrics, TransactionType, TransactionStatus } from "@/types/financial";
@@ -9,9 +10,17 @@ import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp, TrendingDown, Clock, DollarSign, AlertCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { FinancialTable } from "./_components/financial-table";
-import { AddTransactionModal } from "./_components/add-transaction-modal";
 import { FinancialFilters } from "./_components/financial-filters";
-import { FinancialReportModal } from "./_components/financial-report-modal";
+
+const AddTransactionModal = dynamic(
+  () => import("./_components/add-transaction-modal").then(mod => mod.AddTransactionModal),
+  { ssr: false }
+);
+
+const FinancialReportModal = dynamic(
+  () => import("./_components/financial-report-modal").then(mod => mod.FinancialReportModal),
+  { ssr: false }
+);
 
 export default function FinanceiroPage() {
   const [metrics, setMetrics] = useState<FinancialMetrics | null>(null);

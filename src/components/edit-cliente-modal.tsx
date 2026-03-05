@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -184,7 +185,7 @@ export function EditClienteModal({ isOpen, onClose, cliente }: EditClienteModalP
       toast.success("Cliente atualizado com sucesso!");
       onClose();
     } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
+      logger.error("Erro ao atualizar cliente:", error);
       toast.error(
         error instanceof Error
           ? error.message

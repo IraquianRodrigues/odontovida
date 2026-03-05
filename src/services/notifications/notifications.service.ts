@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 export interface Notification {
   id: string;
@@ -43,7 +44,7 @@ export class NotificationsService {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Erro ao buscar notificações:", error);
+      logger.error("Erro ao buscar notificações:", error);
       throw new Error("Falha ao buscar notificações");
     }
 
@@ -61,7 +62,7 @@ export class NotificationsService {
       .is("read_at", null);
 
     if (error) {
-      console.error("Erro ao contar notificações não lidas:", error);
+      logger.error("Erro ao contar notificações não lidas:", error);
       return 0;
     }
 
@@ -78,7 +79,7 @@ export class NotificationsService {
       .eq("id", notificationId);
 
     if (error) {
-      console.error("Erro ao marcar notificação como lida:", error);
+      logger.error("Erro ao marcar notificação como lida:", error);
       throw new Error("Falha ao marcar notificação como lida");
     }
   }
@@ -94,7 +95,7 @@ export class NotificationsService {
       .is("read_at", null);
 
     if (error) {
-      console.error("Erro ao marcar todas as notificações como lidas:", error);
+      logger.error("Erro ao marcar todas as notificações como lidas:", error);
       throw new Error("Falha ao marcar todas as notificações como lidas");
     }
   }
@@ -109,7 +110,7 @@ export class NotificationsService {
       .eq("id", notificationId);
 
     if (error) {
-      console.error("Erro ao deletar notificação:", error);
+      logger.error("Erro ao deletar notificação:", error);
       throw new Error("Falha ao deletar notificação");
     }
   }
@@ -125,7 +126,7 @@ export class NotificationsService {
       .not("read_at", "is", null);
 
     if (error) {
-      console.error("Erro ao deletar notificações lidas:", error);
+      logger.error("Erro ao deletar notificações lidas:", error);
       throw new Error("Falha ao deletar notificações lidas");
     }
   }

@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ClienteRow } from "@/types/database.types";
-import { ClienteDetailsModal } from "@/components/cliente-details-modal";
+
+const ClienteDetailsModal = dynamic(
+  () => import("@/components/cliente-details-modal").then(mod => mod.ClienteDetailsModal),
+  { ssr: false }
+);
 
 interface ClientesTableProps {
   clientes: ClienteRow[];

@@ -1,6 +1,7 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
-const supabase = createClient();
+const getSupabase = () => createClient();
 
 export type AlertType = "allergy" | "medication" | "condition" | "restriction";
 export type AlertSeverity = "low" | "moderate" | "high" | "critical";
@@ -38,7 +39,7 @@ export class CriticalAlertsService {
   // Get all alerts for a client
   static async getAlertsByClient(clientId: number) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .select("*")
         .eq("client_id", clientId)
@@ -47,15 +48,15 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get only active alerts for a client
   static async getActiveAlertsByClient(clientId: number) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .select("*")
         .eq("client_id", clientId)
@@ -65,15 +66,15 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get a single alert by ID
   static async getAlertById(id: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .select("*")
         .eq("id", id)
@@ -81,15 +82,15 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Create a new alert
   static async createAlert(input: CreateCriticalAlertInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .insert([input])
         .select()
@@ -97,15 +98,15 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Update an existing alert
   static async updateAlert(id: string, input: UpdateCriticalAlertInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .update(input)
         .eq("id", id)
@@ -114,15 +115,15 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Deactivate an alert (soft delete)
   static async deactivateAlert(id: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .update({ is_active: false })
         .eq("id", id)
@@ -131,15 +132,15 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Reactivate an alert
   static async reactivateAlert(id: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("critical_alerts")
         .update({ is_active: true })
         .eq("id", id)
@@ -148,23 +149,23 @@ export class CriticalAlertsService {
 
       if (error) throw error;
       return { success: true, data: data as CriticalAlert };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Delete an alert (hard delete - use with caution)
   static async deleteAlert(id: string) {
     try {
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from("critical_alerts")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 }

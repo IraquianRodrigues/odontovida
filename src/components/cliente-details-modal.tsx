@@ -19,6 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLatestMedicalRecord, useCreateMedicalRecord, useUpdateMedicalRecord, useMedicalRecords } from "@/services/medical-records/use-medical-records";
 import { createClient } from "@/lib/supabase/client";
 import { User, Activity } from "lucide-react";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 import { ClienteHeader } from "./cliente-details/cliente-header";
 import { ClienteStatsCards, type ClienteStats } from "./cliente-details/cliente-stats-cards";
@@ -143,8 +144,8 @@ export function ClienteDetailsModal({ cliente, onClose }: ClienteDetailsModalPro
       await deleteClienteMutation.mutateAsync(clienteAtual.id);
       toast.success("Cliente excluído com sucesso");
       onClose();
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao excluir cliente");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error) || "Erro ao excluir cliente");
     }
   };
 

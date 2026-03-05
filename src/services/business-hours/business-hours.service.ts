@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
 import type {
   BusinessHoursRow,
   BusinessBreakRow,
@@ -6,14 +6,14 @@ import type {
   BusinessBlockedSlotRow,
 } from "@/types/database.types";
 
-const supabase = createClient();
+const getSupabase = () => createClient();
 
 // ============================================
 // BUSINESS HOURS (Horários de Funcionamento)
 // ============================================
 
 export async function getBusinessHours(): Promise<BusinessHoursRow[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_hours")
     .select("*")
     .order("day_of_week", { ascending: true });
@@ -30,7 +30,7 @@ export async function updateBusinessHours(
     close_time: string;
   }
 ): Promise<BusinessHoursRow> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_hours")
     .upsert(
       {
@@ -53,7 +53,7 @@ export async function updateBusinessHours(
 // ============================================
 
 export async function getBreaks(): Promise<BusinessBreakRow[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_breaks")
     .select("*")
     .eq("is_active", true)
@@ -70,7 +70,7 @@ export async function createBreak(breakData: {
   break_end: string;
   description?: string;
 }): Promise<BusinessBreakRow> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_breaks")
     .insert({
       ...breakData,
@@ -93,7 +93,7 @@ export async function updateBreak(
     is_active?: boolean;
   }
 ): Promise<BusinessBreakRow> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_breaks")
     .update(breakData)
     .eq("id", id)
@@ -105,7 +105,7 @@ export async function updateBreak(
 }
 
 export async function deleteBreak(id: number): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("business_breaks")
     .update({ is_active: false })
     .eq("id", id);
@@ -118,7 +118,7 @@ export async function deleteBreak(id: number): Promise<void> {
 // ============================================
 
 export async function getHolidays(): Promise<BusinessHolidayRow[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_holidays")
     .select("*")
     .order("date", { ascending: true });
@@ -132,7 +132,7 @@ export async function createHoliday(holidayData: {
   name: string;
   is_recurring?: boolean;
 }): Promise<BusinessHolidayRow> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_holidays")
     .insert({
       ...holidayData,
@@ -146,7 +146,7 @@ export async function createHoliday(holidayData: {
 }
 
 export async function deleteHoliday(id: number): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("business_holidays")
     .delete()
     .eq("id", id);
@@ -159,7 +159,7 @@ export async function deleteHoliday(id: number): Promise<void> {
 // ============================================
 
 export async function getBlockedSlots(): Promise<BusinessBlockedSlotRow[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_blocked_slots")
     .select("*")
     .order("start_time", { ascending: true });
@@ -173,7 +173,7 @@ export async function createBlockedSlot(slotData: {
   end_time: string;
   reason?: string;
 }): Promise<BusinessBlockedSlotRow> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("business_blocked_slots")
     .insert(slotData)
     .select()
@@ -184,7 +184,7 @@ export async function createBlockedSlot(slotData: {
 }
 
 export async function deleteBlockedSlot(id: number): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("business_blocked_slots")
     .delete()
     .eq("id", id);
@@ -207,7 +207,7 @@ export async function isTimeSlotAvailable(
   const dateString = dateTime.toISOString().split("T")[0]; // YYYY-MM-DD
 
   // 1. Verificar se o estabelecimento está aberto neste dia
-  const { data: businessHours } = await supabase
+  const { data: businessHours } = await getSupabase()
     .from("business_hours")
     .select("*")
     .eq("day_of_week", dayOfWeek)
@@ -231,7 +231,7 @@ export async function isTimeSlotAvailable(
   }
 
   // 2. Verificar se está em um intervalo
-  const { data: breaks } = await supabase
+  const { data: breaks } = await getSupabase()
     .from("business_breaks")
     .select("*")
     .eq("day_of_week", dayOfWeek)
@@ -252,7 +252,7 @@ export async function isTimeSlotAvailable(
   }
 
   // 3. Verificar se é feriado
-  const { data: holidays } = await supabase
+  const { data: holidays } = await getSupabase()
     .from("business_holidays")
     .select("*")
     .eq("date", dateString);
@@ -266,7 +266,7 @@ export async function isTimeSlotAvailable(
 
   // 4. Verificar se está em um slot bloqueado
   const isoDateTime = dateTime.toISOString();
-  const { data: blockedSlots } = await supabase
+  const { data: blockedSlots } = await getSupabase()
     .from("business_blocked_slots")
     .select("*")
     .lte("start_time", isoDateTime)
@@ -294,7 +294,7 @@ export async function getAvailableSlots(
   const dateString = date.toISOString().split("T")[0];
 
   // Buscar horário de funcionamento
-  const { data: businessHours } = await supabase
+  const { data: businessHours } = await getSupabase()
     .from("business_hours")
     .select("*")
     .eq("day_of_week", dayOfWeek)
@@ -305,14 +305,14 @@ export async function getAvailableSlots(
   }
 
   // Buscar intervalos
-  const { data: breaks } = await supabase
+  const { data: breaks } = await getSupabase()
     .from("business_breaks")
     .select("*")
     .eq("day_of_week", dayOfWeek)
     .eq("is_active", true);
 
   // Verificar se é feriado
-  const { data: holidays } = await supabase
+  const { data: holidays } = await getSupabase()
     .from("business_holidays")
     .select("*")
     .eq("date", dateString);

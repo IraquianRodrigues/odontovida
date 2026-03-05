@@ -46,7 +46,7 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
     enabled: !!profile?.id,
   });
 
-  const patients = patientsData?.data || [];
+  const patients: PatientSummary[] = patientsData?.data || [];
 
   // Filtrar pacientes baseado na busca usando useMemo
   const filteredPatients = useMemo(() => {

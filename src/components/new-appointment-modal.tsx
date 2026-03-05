@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -147,7 +149,7 @@ export function NewAppointmentModal({
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Erro detalhado ao criar agendamento:", error);
+      logger.error("Erro detalhado ao criar agendamento:", error);
       const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
       toast.error(`Erro ao criar agendamento: ${errorMessage}`);
     }
@@ -305,12 +307,12 @@ export function NewAppointmentModal({
                   <Clock className="h-4 w-4 text-primary" />
                   Hora *
                 </Label>
-                <Input
+                <TimeSelect
                   id="appointment-time"
-                  type="time"
                   value={appointmentTime}
-                  onChange={(e) => setAppointmentTime(e.target.value)}
-                  required
+                  onChange={(value) => setAppointmentTime(value)}
+                  minHour={8}
+                  maxHour={17}
                 />
               </div>
             </div>

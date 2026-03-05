@@ -16,6 +16,7 @@ import {
   useMarkAppointmentAsNotCompleted,
 } from "@/services/appointments/use-appointments";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/get-error-message";
 import { AppointmentMobileCard, AppointmentTableRow } from "./appointments-table/appointment-row";
 
 const AppointmentDetailsModal = dynamic(
@@ -73,8 +74,8 @@ export function AppointmentsTable({ appointments, isLoading = false, onRefresh, 
     try {
       await markAsNotCompletedMutation.mutateAsync(appointmentId);
       toast.success("Agendamento desmarcado como concluído");
-    } catch (error: any) {
-      toast.error(error?.message || "Erro ao desmarcar agendamento", { duration: 5000 });
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error) || "Erro ao desmarcar agendamento", { duration: 5000 });
     }
   };
 

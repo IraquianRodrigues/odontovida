@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
 import type { ProfessionalScheduleRow } from "@/types/database.types";
 
 const supabase = createClient();

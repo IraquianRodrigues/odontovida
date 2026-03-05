@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Plus, Trash2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 interface DiagnosisFormProps {
   recordId: string | null;
@@ -63,10 +64,10 @@ export function DiagnosisForm({ recordId }: DiagnosisFormProps) {
         clinical_justification: "",
       });
       setShowForm(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao salvar diagnóstico",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -81,10 +82,10 @@ export function DiagnosisForm({ recordId }: DiagnosisFormProps) {
         title: "Diagnóstico removido",
         description: "O diagnóstico foi removido com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao remover diagnóstico",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     }

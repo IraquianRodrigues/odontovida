@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import {
   Dialog,
@@ -80,7 +81,7 @@ export function FinancialReportModal({
           : undefined;
 
       // Gerar PDF
-      PDFReportService.generateFinancialReport({
+      await PDFReportService.generateFinancialReport({
         transactions,
         filters: {
           type: selectedType,
@@ -97,7 +98,7 @@ export function FinancialReportModal({
       toast.success("Relatório gerado com sucesso!");
       onClose();
     } catch (error) {
-      console.error("Erro ao gerar relatório:", error);
+      logger.error("Erro ao gerar relatório:", error);
       toast.error("Erro ao gerar relatório");
     } finally {
       setIsGenerating(false);

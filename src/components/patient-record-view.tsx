@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MedicalRecordsService } from "@/services/medical-records";
+import { MedicalRecordsService, type VitalSigns } from "@/services/medical-records";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -36,7 +37,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
     soap_objective: "",
     soap_assessment: "",
     soap_plan: "",
-    vital_signs: {} as any,
+    vital_signs: {} as VitalSigns,
   });
 
   const { data: clientData, isLoading: isLoadingClient, isError: isErrorClient, error: clientError } = useQuery({
@@ -105,7 +106,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
         });
         if (result.success && result.data) setCurrentRecordId(result.data.id);
       } catch (error) {
-        console.error("Error creating initial record:", error);
+        logger.error("Error creating initial record:", error);
       }
     };
     createInitialRecord();
@@ -183,7 +184,7 @@ export function PatientRecordView({ patientId, onBack }: PatientRecordViewProps)
                 <SoapForm formData={formData} onFieldChange={handleSoapFieldChange} />
               </TabsContent>
               <TabsContent value="vitals" className="m-0">
-                <VitalSignsForm value={formData.vital_signs} onChange={(vitals: any) => setFormData(prev => ({ ...prev, vital_signs: vitals }))} />
+                <VitalSignsForm value={formData.vital_signs} onChange={(vitals: VitalSigns) => setFormData(prev => ({ ...prev, vital_signs: vitals }))} />
               </TabsContent>
               <TabsContent value="diagnosis" className="m-0">
                 <DiagnosisForm recordId={currentRecordId} />

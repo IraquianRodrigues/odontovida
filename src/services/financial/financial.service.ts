@@ -1,5 +1,7 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import { getTodayDateString } from "@/lib/date-utils";
+import { getErrorMessage } from "@/lib/get-error-message";
 import type {
   Transaction,
   CreateTransactionInput,
@@ -52,8 +54,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true, data: data as Transaction[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -72,8 +74,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true, data: data as Transaction };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -88,8 +90,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true, data };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -105,8 +107,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true, data };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -120,8 +122,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -135,8 +137,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -160,7 +162,7 @@ export class FinancialService {
         .lt("start_time", `${today}T23:59:59`);
 
       if (error) {
-        console.error("Error fetching daily appointments:", error);
+        logger.error("Error fetching daily appointments:", error);
         return 0;
       }
 
@@ -176,8 +178,8 @@ export class FinancialService {
       }, 0);
 
       return total;
-    } catch (error: any) {
-      console.error("Error calculating daily appointments receivable:", error);
+    } catch (error: unknown) {
+      logger.error("Error calculating daily appointments receivable:", error);
       return 0;
     }
   }
@@ -200,7 +202,7 @@ export class FinancialService {
 
       // Calculate metrics
       const totalReceivable = transactions
-        ?.filter((t: any) => t.type === 'receita' && t.status === 'pendente')
+        ?.filter((t: any) => t.type === 'receita' && (t.status === 'pendente' || t.status === 'atrasado'))
         .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const totalReceived = transactions
@@ -212,7 +214,7 @@ export class FinancialService {
         .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const totalPending = transactions
-        ?.filter((t: any) => t.type === 'receita' && t.status === 'pendente')
+        ?.filter((t: any) => t.type === 'receita' && t.status === 'pendente' && t.due_date >= today)
         .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const monthlyRevenue = transactions
@@ -253,8 +255,8 @@ export class FinancialService {
           dailyAppointmentsReceivable,
         },
       };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -276,8 +278,8 @@ export class FinancialService {
 
       if (error) throw error;
       return { success: true, data };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { useNotifications } from "@/services/notifications/use-notifications";
 import type { UseNotificationsReturn } from "@/services/notifications/use-notifications";

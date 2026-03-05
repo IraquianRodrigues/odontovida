@@ -1,13 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Coffee, Calendar, Ban } from "lucide-react";
 import { WeeklyHoursEditor } from "@/app/dashboard/configuracoes/_components/weekly-hours-editor";
-import { BreaksManager } from "@/app/dashboard/configuracoes/_components/breaks-manager";
-import { HolidaysManager } from "@/app/dashboard/configuracoes/_components/holidays-manager";
-import { BlockedSlotsManager } from "@/app/dashboard/configuracoes/_components/blocked-slots-manager";
+
+const BreaksManager = dynamic(
+  () => import("@/app/dashboard/configuracoes/_components/breaks-manager").then(mod => mod.BreaksManager),
+  { ssr: false }
+);
+const HolidaysManager = dynamic(
+  () => import("@/app/dashboard/configuracoes/_components/holidays-manager").then(mod => mod.HolidaysManager),
+  { ssr: false }
+);
+const BlockedSlotsManager = dynamic(
+  () => import("@/app/dashboard/configuracoes/_components/blocked-slots-manager").then(mod => mod.BlockedSlotsManager),
+  { ssr: false }
+);
 
 export default function ConfiguracoesPage() {
   const [activeTab, setActiveTab] = useState("horarios");

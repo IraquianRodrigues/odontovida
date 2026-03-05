@@ -3,6 +3,16 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "recharts",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-select",
+      "@radix-ui/react-popover",
+    ],
+  },
   async headers() {
     return [
       {

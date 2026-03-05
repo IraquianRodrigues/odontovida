@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type {
   AppointmentWithRelations,
   ServiceRow,
@@ -12,7 +13,7 @@ export interface GetAppointmentsParams {
 }
 
 export class AppointmentsService {
-  private supabase = createClient();
+  private get supabase() { return createClient(); }
 
   /**
    * Busca appointments com filtro opcional por data
@@ -56,11 +57,11 @@ export class AppointmentsService {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Erro ao buscar appointments:", error);
+      logger.error("Erro ao buscar appointments:", error);
       throw new Error("Falha ao buscar agendamentos");
     }
 
-    return (data as any[]).map((item) => ({
+    return (data as Record<string, unknown>[]).map((item) => ({
       ...item,
       service: Array.isArray(item.service) ? item.service[0] : item.service,
       professional: Array.isArray(item.professional)
@@ -88,7 +89,7 @@ export class AppointmentsService {
       .single();
 
     if (error) {
-      console.error("Erro ao buscar appointment:", error);
+      logger.error("Erro ao buscar appointment:", error);
       throw new Error("Falha ao buscar agendamento");
     }
 
@@ -120,7 +121,7 @@ export class AppointmentsService {
       .order("start_time", { ascending: false });
 
     if (error) {
-      console.error("Erro ao buscar histórico do cliente:", error);
+      logger.error("Erro ao buscar histórico do cliente:", error);
       return [];
     }
 
@@ -155,7 +156,7 @@ export class AppointmentsService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao atualizar appointment:", error);
+      logger.error("Erro ao atualizar appointment:", error);
       throw new Error("Falha ao atualizar agendamento");
     }
   }
@@ -171,7 +172,7 @@ export class AppointmentsService {
       .select();
 
     if (error) {
-      console.error("Erro ao marcar appointment como concluído:", error);
+      logger.error("Erro ao marcar appointment como concluído:", error);
 
       // Verificar se o erro é devido à coluna não existir
       if (error.code === "42703" || error.message?.includes("column") || error.message?.includes("completed_at")) {
@@ -197,7 +198,7 @@ export class AppointmentsService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao atualizar status:", error);
+      logger.error("Erro ao atualizar status:", error);
 
       // Check for missing column error (Postgres code 42703)
       if (error.code === '42703' || error.message?.includes("column") || error.details?.includes("status")) {
@@ -227,7 +228,7 @@ export class AppointmentsService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao desmarcar appointment como concluído:", error);
+      logger.error("Erro ao desmarcar appointment como concluído:", error);
 
       // Verificar se o erro é devido à coluna não existir
       if (error.code === "42703" || error.message?.includes("column") || error.message?.includes("completed_at")) {
@@ -253,7 +254,7 @@ export class AppointmentsService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao deletar appointment:", error);
+      logger.error("Erro ao deletar appointment:", error);
       throw new Error("Falha ao deletar agendamento");
     }
   }
@@ -284,7 +285,7 @@ export class AppointmentsService {
 
     if (error) {
       // Log detalhado do erro para debug
-      console.error("Erro ao criar agendamento:", {
+      logger.error("Erro ao criar agendamento:", {
         code: error.code,
         message: error.message,
         details: error.details,
@@ -297,7 +298,7 @@ export class AppointmentsService {
       throw new Error(`Erro ao criar agendamento: ${errorMessage}`);
     }
 
-    console.log("Agendamento criado com sucesso:", data);
+
   }
 
   /**
@@ -314,7 +315,7 @@ export class AppointmentsService {
       .eq("is_active", true);
 
     if (error) {
-      console.error("Erro ao buscar serviços disponíveis:", error);
+      logger.error("Erro ao buscar serviços disponíveis:", error);
       throw new Error("Falha ao buscar serviços disponíveis");
     }
 
@@ -323,10 +324,10 @@ export class AppointmentsService {
     }
 
     return data
-      .map((item: any) =>
+      .map((item: Record<string, unknown>) =>
         Array.isArray(item.service) ? item.service[0] : item.service
       )
-      .filter((service: any) => service !== null) as ServiceRow[];
+      .filter((service: unknown) => service !== null) as ServiceRow[];
   }
 
   /**
@@ -343,7 +344,7 @@ export class AppointmentsService {
       .eq("is_active", true);
 
     if (error) {
-      console.error("Erro ao buscar profissionais disponíveis:", error);
+      logger.error("Erro ao buscar profissionais disponíveis:", error);
       throw new Error("Falha ao buscar profissionais disponíveis");
     }
 
@@ -352,12 +353,12 @@ export class AppointmentsService {
     }
 
     return data
-      .map((item: any) =>
+      .map((item: Record<string, unknown>) =>
         Array.isArray(item.professional)
           ? item.professional[0]
           : item.professional
       )
-      .filter((professional: any) => professional !== null) as ProfessionalRow[];
+      .filter((professional: unknown) => professional !== null) as ProfessionalRow[];
   }
 
   /**
@@ -381,7 +382,7 @@ export class AppointmentsService {
         // Not found - não há configuração específica
         return null;
       }
-      console.error("Erro ao buscar duração customizada:", error);
+      logger.error("Erro ao buscar duração customizada:", error);
       return null;
     }
 

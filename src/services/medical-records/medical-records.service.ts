@@ -1,7 +1,8 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 import type { ProfessionalRow } from "@/types/database.types";
 
-const supabase = createClient();
+const getSupabase = () => createClient();
 
 export interface VitalSigns {
   blood_pressure_systolic?: number;
@@ -89,7 +90,7 @@ export class MedicalRecordsService {
   // Get all medical records for a client
   static async getMedicalRecords(clientId: number) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("medical_records")
         .select(`
           *,
@@ -100,15 +101,15 @@ export class MedicalRecordsService {
 
       if (error) throw error;
       return { success: true, data: data as MedicalRecord[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get medical records by professional (for doctors to see their patients)
   static async getMedicalRecordsByProfessional(professionalId: number) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("medical_records")
         .select(`
           *,
@@ -119,15 +120,15 @@ export class MedicalRecordsService {
 
       if (error) throw error;
       return { success: true, data: data as MedicalRecord[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get patients by professional (unique patients from appointments)
   static async getPatientsByProfessional(professionalId: number) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("professional_patients")
         .select("*")
         .eq("professional_id", professionalId)
@@ -135,8 +136,8 @@ export class MedicalRecordsService {
 
       if (error) throw error;
       return { success: true, data: data as PatientSummary[] };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
@@ -144,7 +145,7 @@ export class MedicalRecordsService {
   static async getAllPatients() {
     try {
       // Get all unique clients who have appointments
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("clientes")
         .select(`
           id,
@@ -157,14 +158,14 @@ export class MedicalRecordsService {
 
       // For each client, get appointment and record counts
       const patientsWithStats = await Promise.all(
-        (data || []).map(async (client) => {
-          const { data: appointments } = await supabase
+        (data || []).map(async (client: { id: number; nome: string; telefone: string }) => {
+          const { data: appointments } = await getSupabase()
             .from("appointments")
             .select("start_time")
             .eq("customer_phone", client.telefone)
             .order("start_time", { ascending: false });
 
-          const { data: records } = await supabase
+          const { data: records } = await getSupabase()
             .from("medical_records")
             .select("id")
             .eq("client_id", client.id);
@@ -182,15 +183,15 @@ export class MedicalRecordsService {
       );
 
       return { success: true, data: patientsWithStats };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get patient summary (single patient stats)
   static async getPatientSummary(clientId: number) {
     try {
-      const { data: client } = await supabase
+      const { data: client } = await getSupabase()
         .from("clientes")
         .select("id, nome, telefone")
         .eq("id", clientId)
@@ -200,13 +201,13 @@ export class MedicalRecordsService {
         return { success: false, error: "Patient not found" };
       }
 
-      const { data: appointments } = await supabase
+      const { data: appointments } = await getSupabase()
         .from("appointments")
         .select("start_time")
         .eq("customer_phone", client.telefone)
         .order("start_time", { ascending: false });
 
-      const { data: records } = await supabase
+      const { data: records } = await getSupabase()
         .from("medical_records")
         .select("id")
         .eq("client_id", client.id);
@@ -222,15 +223,15 @@ export class MedicalRecordsService {
       };
 
       return { success: true, data: summary };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get latest medical record for a client
   static async getLatestMedicalRecord(clientId: number, professionalId?: number) {
     try {
-      let query = supabase
+      const supabase = getSupabase(); let query = supabase
         .from("medical_records")
         .select(`
           *,
@@ -248,15 +249,15 @@ export class MedicalRecordsService {
 
       if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows
       return { success: true, data: data as MedicalRecord | null };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get a single medical record by ID
   static async getMedicalRecordById(id: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("medical_records")
         .select(`
           *,
@@ -267,15 +268,15 @@ export class MedicalRecordsService {
 
       if (error) throw error;
       return { success: true, data: data as MedicalRecord };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Create a new medical record
   static async createMedicalRecord(input: CreateMedicalRecordInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("medical_records")
         .insert([input])
         .select(`
@@ -286,15 +287,15 @@ export class MedicalRecordsService {
 
       if (error) throw error;
       return { success: true, data: data as MedicalRecord };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Update an existing medical record
   static async updateMedicalRecord(id: string, input: UpdateMedicalRecordInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("medical_records")
         .update(input)
         .eq("id", id)
@@ -306,23 +307,23 @@ export class MedicalRecordsService {
 
       if (error) throw error;
       return { success: true, data: data as MedicalRecord };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Delete a medical record
   static async deleteMedicalRecord(id: string) {
     try {
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from("medical_records")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 }

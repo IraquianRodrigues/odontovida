@@ -1,4 +1,4 @@
-import jsPDF from "jspdf";
+﻿import type jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -47,7 +47,8 @@ export class PrescriptionPDFService {
     patient: PatientData,
     clinic?: ClinicData
   ): Promise<Blob> {
-    const doc = new jsPDF({
+    const { default: JsPDF } = await import("jspdf");
+    const doc = new JsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",

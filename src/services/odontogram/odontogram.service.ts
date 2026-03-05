@@ -1,4 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
+﻿import { createClient } from '@/lib/supabase/client';
+import { logger } from "@/lib/logger";
+import { getErrorMessage } from '@/lib/get-error-message';
 import type {
   Odontogram,
   OdontogramWithTeeth,
@@ -26,11 +28,11 @@ export class OdontogramService {
       // Check authentication
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
-        console.error('Auth error:', authError);
+        logger.error('Auth error:', authError);
         throw new Error('User not authenticated');
       }
 
-      console.log('Fetching odontogram for patient:', patientId, 'User:', user.id);
+
 
       // Check if odontogram exists (simplified query without relations)
       const { data: existing, error: fetchError } = await supabase
@@ -39,10 +41,10 @@ export class OdontogramService {
         .eq('patient_id', patientId)
         .maybeSingle();
 
-      console.log('Fetch result:', { existing, fetchError });
+
 
       if (fetchError) {
-        console.error('Fetch error details:', {
+        logger.error('Fetch error details:', {
           message: fetchError.message,
           code: fetchError.code,
           details: fetchError.details,
@@ -55,7 +57,7 @@ export class OdontogramService {
 
       // Create if doesn't exist
       if (!odontogram) {
-        console.log('Creating new odontogram for patient:', patientId);
+
         
         const { data: newOdontogram, error: createError } = await supabase
           .from('odontograms')
@@ -66,17 +68,17 @@ export class OdontogramService {
           .select()
           .single();
 
-        console.log('Create result:', { newOdontogram, createError });
+
 
         if (createError) {
-          console.error('Create error details:', {
+          logger.error('Create error details:', {
             message: createError.message,
             code: createError.code,
             details: createError.details,
             hint: createError.hint,
           });
-          console.error('Create error (stringified):', JSON.stringify(createError, null, 2));
-          console.error('Create error (full object):', createError);
+          logger.error('Create error (stringified):', JSON.stringify(createError, null, 2));
+          logger.error('Create error (full object):', createError);
           throw new Error(createError.message || JSON.stringify(createError) || 'Failed to create odontogram');
         }
         odontogram = newOdontogram;
@@ -90,17 +92,17 @@ export class OdontogramService {
         .single();
 
       // Fetch all teeth with details
-      console.log('Fetching teeth for odontogram:', odontogram.id);
+
       const { data: teeth, error: teethError } = await supabase
         .from('tooth_records')
         .select('*')
         .eq('odontogram_id', odontogram.id)
         .order('tooth_number');
 
-      console.log('Teeth result:', { count: teeth?.length, teethError });
+
 
       if (teethError) {
-        console.error('Teeth error:', teethError);
+        logger.error('Teeth error:', teethError);
         throw teethError;
       }
 
@@ -134,19 +136,20 @@ export class OdontogramService {
           teeth: teethWithDetails,
         } as OdontogramWithTeeth,
       };
-    } catch (error: any) {
-      console.error('Error fetching odontogram:', error);
-      console.error('Error details:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
-        name: error?.name,
-        stack: error?.stack,
+    } catch (error: unknown) {
+      logger.error('Error fetching odontogram:', error);
+      const err = error as Record<string, unknown>;
+      logger.error('Error details:', {
+        message: err?.message,
+        code: err?.code,
+        details: err?.details,
+        hint: err?.hint,
+        name: err?.name,
+        stack: err?.stack,
       });
       return {
         success: false,
-        error: error?.message || error?.toString() || 'Failed to fetch odontogram',
+        error: getErrorMessage(error) || error?.toString() || 'Failed to fetch odontogram',
       };
     }
   }
@@ -169,11 +172,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true, data };
-    } catch (error: any) {
-      console.error('Error creating odontogram:', error);
+    } catch (error: unknown) {
+      logger.error('Error creating odontogram:', error);
       return {
         success: false,
-        error: error.message || 'Failed to create odontogram',
+        error: getErrorMessage(error) || 'Failed to create odontogram',
       };
     }
   }
@@ -200,11 +203,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true, data };
-    } catch (error: any) {
-      console.error('Error updating tooth status:', error);
+    } catch (error: unknown) {
+      logger.error('Error updating tooth status:', error);
       return {
         success: false,
-        error: error.message || 'Failed to update tooth status',
+        error: getErrorMessage(error) || 'Failed to update tooth status',
       };
     }
   }
@@ -239,11 +242,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true, data };
-    } catch (error: any) {
-      console.error('Error adding surface condition:', error);
+    } catch (error: unknown) {
+      logger.error('Error adding surface condition:', error);
       return {
         success: false,
-        error: error.message || 'Failed to add surface condition',
+        error: getErrorMessage(error) || 'Failed to add surface condition',
       };
     }
   }
@@ -265,11 +268,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true };
-    } catch (error: any) {
-      console.error('Error removing surface condition:', error);
+    } catch (error: unknown) {
+      logger.error('Error removing surface condition:', error);
       return {
         success: false,
-        error: error.message || 'Failed to remove surface condition',
+        error: getErrorMessage(error) || 'Failed to remove surface condition',
       };
     }
   }
@@ -304,11 +307,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true, data };
-    } catch (error: any) {
-      console.error('Error adding treatment history:', error);
+    } catch (error: unknown) {
+      logger.error('Error adding treatment history:', error);
       return {
         success: false,
-        error: error.message || 'Failed to add treatment history',
+        error: getErrorMessage(error) || 'Failed to add treatment history',
       };
     }
   }
@@ -335,11 +338,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true, data: data as ToothRecordWithDetails };
-    } catch (error: any) {
-      console.error('Error fetching tooth details:', error);
+    } catch (error: unknown) {
+      logger.error('Error fetching tooth details:', error);
       return {
         success: false,
-        error: error.message || 'Failed to fetch tooth details',
+        error: getErrorMessage(error) || 'Failed to fetch tooth details',
       };
     }
   }
@@ -362,11 +365,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true, data: data || [] };
-    } catch (error: any) {
-      console.error('Error fetching tooth history:', error);
+    } catch (error: unknown) {
+      logger.error('Error fetching tooth history:', error);
       return {
         success: false,
-        error: error.message || 'Failed to fetch tooth history',
+        error: getErrorMessage(error) || 'Failed to fetch tooth history',
       };
     }
   }
@@ -388,11 +391,11 @@ export class OdontogramService {
       if (error) throw error;
 
       return { success: true };
-    } catch (error: any) {
-      console.error('Error deleting treatment history:', error);
+    } catch (error: unknown) {
+      logger.error('Error deleting treatment history:', error);
       return {
         success: false,
-        error: error.message || 'Failed to delete treatment history',
+        error: getErrorMessage(error) || 'Failed to delete treatment history',
       };
     }
   }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -187,21 +188,19 @@ export function BreaksManager() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start">Início</Label>
-                <Input
+                <TimeSelect
                   id="start"
-                  type="time"
                   value={breakStart}
-                  onChange={(e) => setBreakStart(e.target.value)}
+                  onChange={(value) => setBreakStart(value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="end">Fim</Label>
-                <Input
+                <TimeSelect
                   id="end"
-                  type="time"
                   value={breakEnd}
-                  onChange={(e) => setBreakEnd(e.target.value)}
+                  onChange={(value) => setBreakEnd(value)}
                 />
               </div>
             </div>

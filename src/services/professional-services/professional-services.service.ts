@@ -1,11 +1,12 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type {
   ProfessionalServiceRow,
   ProfessionalServiceWithRelations,
 } from "@/types/database.types";
 
 export class ProfessionalServicesService {
-  private supabase = createClient();
+  private get supabase() { return createClient(); }
 
   /**
    * Busca todos os serviços de um profissional
@@ -26,11 +27,11 @@ export class ProfessionalServicesService {
       .order("service_id", { ascending: true });
 
     if (error) {
-      console.error("Erro ao buscar serviços do profissional:", error);
+      logger.error("Erro ao buscar serviços do profissional:", error);
       throw new Error("Falha ao buscar serviços do profissional");
     }
 
-    return (data as any[]).map((item) => ({
+    return (data as Record<string, unknown>[]).map((item) => ({
       ...item,
       professional: Array.isArray(item.professional)
         ? item.professional[0]
@@ -66,7 +67,7 @@ export class ProfessionalServicesService {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Erro ao buscar profissionais do serviço:", error);
+      logger.error("Erro ao buscar profissionais do serviço:", error);
       throw new Error("Falha ao buscar profissionais do serviço");
     }
 
@@ -104,7 +105,7 @@ export class ProfessionalServicesService {
         // Not found
         return null;
       }
-      console.error("Erro ao buscar associação:", error);
+      logger.error("Erro ao buscar associação:", error);
       throw new Error("Falha ao buscar associação");
     }
 
@@ -140,7 +141,7 @@ export class ProfessionalServicesService {
       .single();
 
     if (error) {
-      console.error("Erro ao criar associação:", error);
+      logger.error("Erro ao criar associação:", error);
       // Passa a mensagem de erro original para ajudar no debug
       throw new Error(error.message || "Falha ao criar associação");
     }
@@ -166,7 +167,7 @@ export class ProfessionalServicesService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar associação:", error);
+      logger.error("Erro ao atualizar associação:", error);
       throw new Error("Falha ao atualizar associação");
     }
 
@@ -193,7 +194,7 @@ export class ProfessionalServicesService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao deletar associação:", error);
+      logger.error("Erro ao deletar associação:", error);
       throw new Error("Falha ao deletar associação");
     }
   }

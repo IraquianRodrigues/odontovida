@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
@@ -185,18 +186,16 @@ export function ProfessionalScheduleModal({
                           >
                             Início
                           </Label>
-                          <Input
+                          <TimeSelect
                             id={`start-${day.value}`}
-                            type="time"
                             value={daySchedule.start_time}
-                            onChange={(e) =>
+                            onChange={(value) =>
                               handleTimeChange(
                                 day.value,
                                 "start_time",
-                                e.target.value
+                                value
                               )
                             }
-                            className="w-full"
                           />
                         </div>
 
@@ -207,18 +206,16 @@ export function ProfessionalScheduleModal({
                           >
                             Fim
                           </Label>
-                          <Input
+                          <TimeSelect
                             id={`end-${day.value}`}
-                            type="time"
                             value={daySchedule.end_time}
-                            onChange={(e) =>
+                            onChange={(value) =>
                               handleTimeChange(
                                 day.value,
                                 "end_time",
-                                e.target.value
+                                value
                               )
                             }
-                            className="w-full"
                           />
                         </div>
                       </div>

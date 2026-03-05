@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MedicalRecordsService } from "./medical-records.service";
 import type { CreateMedicalRecordInput, UpdateMedicalRecordInput } from "./medical-records.service";
 

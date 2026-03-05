@@ -1,4 +1,4 @@
-import { createClient as createServerClient } from "@/lib/supabase/server";
+﻿import { createClient as createServerClient } from "@/lib/supabase/server";
 import type { User } from "@supabase/supabase-js";
 
 // Serviço de autenticação para Server Components

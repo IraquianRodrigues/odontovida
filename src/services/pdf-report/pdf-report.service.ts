@@ -1,5 +1,4 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+﻿import type jsPDF from "jspdf";
 import type { Transaction } from "@/types/financial";
 
 interface ReportFilters {
@@ -19,8 +18,10 @@ interface ReportData {
 }
 
 export class PDFReportService {
-  static generateFinancialReport(data: ReportData) {
-    const doc = new jsPDF();
+  static async generateFinancialReport(data: ReportData) {
+    const { default: JsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+    const doc = new JsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     
@@ -290,7 +291,7 @@ export class PDFReportService {
     });
     
     // ==================== RODAPÉ PREMIUM ====================
-    const pageCount = (doc as any).internal.getNumberOfPages();
+    const pageCount = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       

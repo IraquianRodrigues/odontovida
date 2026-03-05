@@ -1,8 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type { ServiceRow } from "@/types/database.types";
 
 export class ServicesService {
-  private supabase = createClient();
+  private get supabase() { return createClient(); }
 
   /**
    * Busca todos os serviços
@@ -14,7 +15,7 @@ export class ServicesService {
       .order("code", { ascending: true });
 
     if (error) {
-      console.error("Erro ao buscar serviços:", error);
+      logger.error("Erro ao buscar serviços:", error);
       throw new Error("Falha ao buscar serviços");
     }
 
@@ -32,7 +33,7 @@ export class ServicesService {
       .single();
 
     if (error) {
-      console.error("Erro ao buscar serviço:", error);
+      logger.error("Erro ao buscar serviço:", error);
       throw new Error("Falha ao buscar serviço");
     }
 
@@ -50,7 +51,7 @@ export class ServicesService {
       .single();
 
     if (error) {
-      console.error("Erro ao buscar serviço:", error);
+      logger.error("Erro ao buscar serviço:", error);
       return null;
     }
 
@@ -76,7 +77,7 @@ export class ServicesService {
       .single();
 
     if (error) {
-      console.error("Erro ao criar serviço:", error);
+      logger.error("Erro ao criar serviço:", error);
       throw new Error("Falha ao criar serviço");
     }
 
@@ -104,7 +105,7 @@ export class ServicesService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar serviço:", error);
+      logger.error("Erro ao atualizar serviço:", error);
       throw new Error("Falha ao atualizar serviço");
     }
 
@@ -118,7 +119,7 @@ export class ServicesService {
     const { error } = await this.supabase.from("services").delete().eq("id", id);
 
     if (error) {
-      console.error("Erro ao deletar serviço:", error);
+      logger.error("Erro ao deletar serviço:", error);
       throw new Error("Falha ao deletar serviço");
     }
   }

@@ -1,8 +1,9 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type { ClienteRow } from "@/types/database.types";
 
 export class ClientesService {
-  private supabase = createClient();
+  private get supabase() { return createClient(); }
 
   /**
    * Busca todos os clientes
@@ -14,7 +15,7 @@ export class ClientesService {
       .order("nome", { ascending: true });
 
     if (error) {
-      console.error("Erro ao buscar clientes:", error);
+      logger.error("Erro ao buscar clientes:", error);
       throw new Error("Falha ao buscar clientes");
     }
 
@@ -36,7 +37,7 @@ export class ClientesService {
         // Código para "não encontrado"
         return null;
       }
-      console.error("Erro ao buscar cliente:", error);
+      logger.error("Erro ao buscar cliente:", error);
       throw new Error("Falha ao buscar cliente");
     }
 
@@ -66,7 +67,7 @@ export class ClientesService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar trava do cliente:", error);
+      logger.error("Erro ao atualizar trava do cliente:", error);
       throw new Error("Falha ao atualizar trava do cliente");
     }
 
@@ -88,7 +89,7 @@ export class ClientesService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar anotações do cliente:", error);
+      logger.error("Erro ao atualizar anotações do cliente:", error);
 
       // Check for missing column error (Postgres code 42703)
       if (error.code === '42703' || error.message?.includes("column") || error.details?.includes("notes")) {
@@ -123,7 +124,7 @@ export class ClientesService {
       .single();
 
     if (error) {
-      console.error("Erro ao criar cliente:", error);
+      logger.error("Erro ao criar cliente:", error);
       
       // Check for duplicate phone number
       if (error.code === "23505") {
@@ -151,7 +152,7 @@ export class ClientesService {
       .single();
 
     if (error) {
-      console.error("Erro ao atualizar cliente:", error);
+      logger.error("Erro ao atualizar cliente:", error);
       
       // Check for duplicate phone number
       if (error.code === "23505") {
@@ -174,7 +175,7 @@ export class ClientesService {
       .eq("id", id);
 
     if (error) {
-      console.error("Erro ao deletar cliente:", error);
+      logger.error("Erro ao deletar cliente:", error);
       
       // Check for foreign key constraint violations
       if (error.code === "23503") {

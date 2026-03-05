@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { usePrescriptionsByRecordId, useCreatePrescription, useDeletePrescription } from "@/services/prescriptions/use-prescriptions";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Plus, Trash2, Pill, FileText, Printer, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PrescriptionPDFService } from "@/services/prescription-pdf";
 import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
 interface PrescriptionFormProps {
   recordId: string | null;
@@ -67,10 +69,10 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
         notes: "",
       });
       setShowForm(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao salvar prescrição",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -85,10 +87,10 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
         title: "Prescrição removida",
         description: "A prescrição foi removida com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao remover prescrição",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -105,9 +107,7 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
     }
 
     setIsGeneratingPDF(true);
-    console.log("🔵 Iniciando geração de PDF...");
-    console.log("🔵 Record ID:", recordId);
-    console.log("🔵 Número de prescrições:", prescriptions.length);
+
 
     try {
       // Get current user
@@ -115,10 +115,10 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) throw new Error("Usuário não autenticado");
-      console.log("✅ Usuário autenticado:", user.email);
+
 
       // Get medical record first
-      console.log("🔵 Buscando medical record...");
+
       const { data: medicalRecord, error: recordError } = await supabase
         .from("medical_records")
         .select("*")
@@ -126,13 +126,11 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
         .single();
 
       if (recordError || !medicalRecord) {
-        console.error("❌ Erro ao buscar medical record:", recordError);
+        logger.error("❌ Erro ao buscar medical record:", recordError);
         throw new Error("Prontuário médico não encontrado");
       }
 
-      console.log("✅ Medical record encontrado:", medicalRecord.id);
-      console.log("🔵 Client ID:", medicalRecord.client_id);
-      console.log("🔵 Professional ID:", medicalRecord.professional_id);
+
 
       // Get client data
       const { data: client, error: clientError } = await supabase
@@ -142,17 +140,16 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
         .single();
 
       if (clientError || !client) {
-        console.error("❌ Erro ao buscar cliente:", clientError);
+        logger.error("❌ Erro ao buscar cliente:", clientError);
         throw new Error("Dados do paciente não encontrados");
       }
 
-      console.log("✅ Cliente encontrado:", client.nome);
+
 
       // Get professional data
       let professional = null;
       
       if (medicalRecord.professional_id) {
-        console.log("🔵 Buscando profissional por ID:", medicalRecord.professional_id);
         const { data: prof, error: professionalError } = await supabase
           .from("professionals")
           .select("name, registration_number, specialty")
@@ -161,15 +158,14 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
 
         if (!professionalError && prof) {
           professional = prof;
-          console.log("✅ Profissional encontrado por ID:", professional.name);
         } else {
-          console.warn("⚠️ Profissional não encontrado por ID, tentando pelo email...");
+          logger.warn("⚠️ Profissional não encontrado por ID, tentando pelo email...");
         }
       }
 
       // Fallback: get professional by email
       if (!professional) {
-        console.log("🔵 Buscando profissional pelo email:", user.email);
+
         
         const { data: prof, error: professionalError } = await supabase
           .from("professionals")
@@ -179,9 +175,8 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
 
         if (!professionalError && prof) {
           professional = prof;
-          console.log("✅ Profissional encontrado por email:", professional.name);
         } else {
-          console.warn("⚠️ Profissional não encontrado por email, usando dados do usuário...");
+          logger.warn("⚠️ Profissional não encontrado por email, usando dados do usuário...");
           
           // Last resort: get from user profile
           const { data: userProfile } = await supabase
@@ -195,7 +190,7 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
             registration_number: "CRM/CRO: Não informado",
             specialty: null,
           };
-          console.log("⚠️ Usando dados do perfil:", professional.name);
+
         }
       }
 
@@ -205,7 +200,7 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
         ? new Date().getFullYear() - new Date(birthdate).getFullYear()
         : undefined;
 
-      console.log("🔵 Gerando PDF com", prescriptions.length, "prescrições...");
+
 
       // Generate PDF
       const pdfBlob = await PrescriptionPDFService.generatePrescriptionPDF(
@@ -231,34 +226,33 @@ export function PrescriptionForm({ recordId }: PrescriptionFormProps) {
         }
       );
 
-      console.log("✅ PDF gerado! Blob size:", pdfBlob.size, "bytes");
+
 
       // Download or print
       if (action === "download") {
-        console.log("⬇️ Iniciando download...");
+
         PrescriptionPDFService.downloadPDF(pdfBlob, client.nome);
         toast({
           title: "PDF gerado",
           description: "A receita foi baixada com sucesso.",
         });
       } else {
-        console.log("🖨️ Iniciando impressão...");
+
         PrescriptionPDFService.printPDF(pdfBlob);
         toast({
           title: "Imprimindo",
           description: "A receita está sendo impressa.",
         });
       }
-    } catch (error: any) {
-      console.error("❌ Erro ao gerar PDF:", error);
+    } catch (error: unknown) {
+      logger.error("❌ Erro ao gerar PDF:", error);
       toast({
         title: "Erro ao gerar PDF",
-        description: error.message,
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     } finally {
       setIsGeneratingPDF(false);
-      console.log("🔵 Processo finalizado");
     }
   };
 

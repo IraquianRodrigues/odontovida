@@ -1,6 +1,7 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
+import { getErrorMessage } from "@/lib/get-error-message";
 
-const supabase = createClient();
+const getSupabase = () => createClient();
 
 export type SmokingStatus = "yes" | "no" | "former";
 export type YesNo = "yes" | "no";
@@ -73,7 +74,7 @@ export class AnamnesisService {
   // Get anamnesis by medical record ID
   static async getAnamnesisById(id: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("anamnesis")
         .select("*")
         .eq("id", id)
@@ -81,15 +82,15 @@ export class AnamnesisService {
 
       if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows
       return { success: true, data: data as Anamnesis | null };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Get anamnesis by medical record ID
   static async getAnamnesisbyRecordId(recordId: string) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("anamnesis")
         .select("*")
         .eq("medical_record_id", recordId)
@@ -97,15 +98,15 @@ export class AnamnesisService {
 
       if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows
       return { success: true, data: data as Anamnesis | null };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Create a new anamnesis
   static async createAnamnesis(input: CreateAnamnesisInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("anamnesis")
         .insert([input])
         .select()
@@ -113,15 +114,15 @@ export class AnamnesisService {
 
       if (error) throw error;
       return { success: true, data: data as Anamnesis };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Update an existing anamnesis
   static async updateAnamnesis(id: string, input: UpdateAnamnesisInput) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from("anamnesis")
         .update(input)
         .eq("id", id)
@@ -130,23 +131,23 @@ export class AnamnesisService {
 
       if (error) throw error;
       return { success: true, data: data as Anamnesis };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 
   // Delete an anamnesis
   static async deleteAnamnesis(id: string) {
     try {
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from("anamnesis")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   }
 }

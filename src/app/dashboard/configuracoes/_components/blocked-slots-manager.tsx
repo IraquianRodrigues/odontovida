@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -179,10 +180,9 @@ export function BlockedSlotsManager() {
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
-                <Input
-                  type="time"
+                <TimeSelect
                   value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
+                  onChange={(value) => setStartTime(value)}
                 />
               </div>
             </div>
@@ -195,10 +195,9 @@ export function BlockedSlotsManager() {
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
-                <Input
-                  type="time"
+                <TimeSelect
                   value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
+                  onChange={(value) => setEndTime(value)}
                 />
               </div>
             </div>

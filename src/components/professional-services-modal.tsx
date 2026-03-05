@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -25,6 +26,7 @@ import {
 import { Briefcase, Clock, Plus, Check, X, Loader2 } from "lucide-react";
 import type { ProfessionalRow, ServiceRow, ProfessionalServiceWithRelations } from "@/types/database.types";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/get-error-message";
 import { useServices } from "@/services/services/use-services";
 import {
   useServicesByProfessional,
@@ -193,9 +195,9 @@ export function ProfessionalServicesModal({
       toast.success("Serviço adicionado ao profissional!");
       setSelectedServiceId(null);
       setCustomDuration("");
-    } catch (error: any) {
-      console.error("Erro ao adicionar serviço:", error);
-      const errorMessage = error?.message || "Erro desconhecido";
+    } catch (error: unknown) {
+      logger.error("Erro ao adicionar serviço:", error);
+      const errorMessage = getErrorMessage(error);
       toast.error(
         `Erro ao adicionar serviço: ${errorMessage}. Verifique se a tabela professional_services existe no banco.`
       );

@@ -218,23 +218,19 @@ export class FinancialService {
         .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const monthlyRevenue = transactions
-        ?.filter((t: any) => 
-          t.type === 'receita' && 
-          t.status === 'pago' && 
-          t.paid_date && 
-          t.paid_date >= firstDayOfMonth && 
-          t.paid_date <= lastDayOfMonth
-        )
+        ?.filter((t: any) => {
+          if (t.type !== 'receita' || t.status !== 'pago') return false;
+          const effectiveDate = t.paid_date || t.due_date;
+          return effectiveDate && effectiveDate >= firstDayOfMonth && effectiveDate <= lastDayOfMonth;
+        })
         .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const monthlyExpenses = transactions
-        ?.filter((t: any) => 
-          t.type === 'despesa' && 
-          t.status === 'pago' && 
-          t.paid_date && 
-          t.paid_date >= firstDayOfMonth && 
-          t.paid_date <= lastDayOfMonth
-        )
+        ?.filter((t: any) => {
+          if (t.type !== 'despesa' || t.status !== 'pago') return false;
+          const effectiveDate = t.paid_date || t.due_date;
+          return effectiveDate && effectiveDate >= firstDayOfMonth && effectiveDate <= lastDayOfMonth;
+        })
         .reduce((sum: number, t: any) => sum + parseFloat(t.amount), 0) || 0;
 
       const netProfit = monthlyRevenue - monthlyExpenses;

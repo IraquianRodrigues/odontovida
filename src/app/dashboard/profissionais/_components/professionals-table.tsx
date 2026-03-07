@@ -174,8 +174,7 @@ export function ProfessionalsTable({
                   key={professional.id}
                   className="group relative overflow-hidden border hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
                   style={{
-                    animationDelay: `${index * 60}ms`,
-                    animation: "fadeSlideUp 0.4s ease-out both",
+                    animation: `fadeSlideUp 0.4s ease-out ${index * 60}ms both`,
                   }}
                 >
                   {/* Colored left accent bar on hover */}

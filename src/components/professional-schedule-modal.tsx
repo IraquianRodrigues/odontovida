@@ -161,10 +161,10 @@ export function ProfessionalScheduleModal({
                 return (
                   <div
                     key={day.value}
-                    className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg bg-card"
+                    className="p-4 border rounded-lg bg-card"
                   >
                     {/* Day name with toggle */}
-                    <div className="flex items-center gap-3 sm:w-48">
+                    <div className="flex items-center gap-3 mb-3">
                       <Switch
                         checked={daySchedule.is_available}
                         onCheckedChange={(checked) =>
@@ -178,8 +178,8 @@ export function ProfessionalScheduleModal({
 
                     {/* Time inputs or "Não trabalha" message */}
                     {daySchedule.is_available ? (
-                      <div className="flex flex-col sm:flex-row gap-4 flex-1 min-w-0">
-                        <div className="space-y-1 flex-1 min-w-0">
+                      <div className="grid grid-cols-2 gap-4 pl-10">
+                        <div className="space-y-1">
                           <Label
                             htmlFor={`start-${day.value}`}
                             className="text-xs text-muted-foreground"
@@ -199,7 +199,7 @@ export function ProfessionalScheduleModal({
                           />
                         </div>
 
-                        <div className="space-y-1 flex-1 min-w-0">
+                        <div className="space-y-1">
                           <Label
                             htmlFor={`end-${day.value}`}
                             className="text-xs text-muted-foreground"
@@ -220,7 +220,7 @@ export function ProfessionalScheduleModal({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 text-sm text-muted-foreground">
+                      <div className="pl-10 text-sm text-muted-foreground">
                         Não trabalha
                       </div>
                     )}

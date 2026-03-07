@@ -88,9 +88,14 @@ export function AddTransactionModal({ isOpen, onClose, onSuccess }: AddTransacti
     setIsSubmitting(true);
 
     // Para despesas, usar um ID genérico ou remover o client_id
-    const transactionData = formData.type === "despesa" 
+    const baseData = formData.type === "despesa" 
       ? { ...formData, client_id: undefined }
       : formData;
+
+    // Se o status já é "pago", definir paid_date como hoje
+    const transactionData = baseData.status === "pago"
+      ? { ...baseData, paid_date: new Date().toISOString().split("T")[0] }
+      : baseData;
 
     const result = await FinancialService.createTransaction(transactionData as CreateTransactionInput);
 

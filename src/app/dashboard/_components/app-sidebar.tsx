@@ -171,8 +171,7 @@ export function AppSidebar() {
       <aside
         className={cn(
           "fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out flex flex-col",
-          // Clean background with border
-          "bg-background border-r border-border",
+          "bg-sidebar text-sidebar-foreground border-r border-sidebar-border",
           "shadow-sm",
           // Desktop
           "hidden md:flex",
@@ -228,7 +227,7 @@ export function AppSidebar() {
                   "animate-in fade-in slide-in-from-left-2",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-primary shadow-sm scale-[1.02]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent hover:scale-[1.01]",
+                    : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:scale-[1.01]",
                   isCollapsed && "md:justify-center md:px-2"
                 )}
               >
@@ -274,14 +273,14 @@ export function AppSidebar() {
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm">
                   {profile?.full_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-sidebar shadow-sm" />
               </div>
               <button
                 onClick={handleLogout}
                 className="w-full p-2 rounded-lg hover:bg-accent transition-all duration-200 group hover:scale-105"
                 title="Sair"
               >
-                <LogOut className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <LogOut className="h-4 w-4 text-sidebar-foreground group-hover:text-sidebar-accent-foreground transition-colors" />
               </button>
             </div>
           ) : (
@@ -291,7 +290,7 @@ export function AppSidebar() {
                   <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
                     {profile?.full_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm animate-pulse" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-sidebar shadow-sm animate-pulse" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">
@@ -304,7 +303,7 @@ export function AppSidebar() {
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 group hover:scale-[1.02]"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent transition-all duration-200 group hover:scale-[1.02]"
               >
                 <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />
                 <span>Sair</span>
@@ -316,7 +315,7 @@ export function AppSidebar() {
         {/* Collapse Toggle Button */}
         <button
           onClick={toggleCollapsed}
-          className="hidden md:flex absolute -right-3 top-20 z-50 h-7 w-7 rounded-full bg-foreground text-background shadow-md hover:shadow-lg transition-all duration-300 items-center justify-center hover:scale-110 border-2 border-background"
+          className="hidden md:flex absolute -right-3 top-20 z-50 h-7 w-7 rounded-full bg-sidebar text-sidebar-accent-foreground shadow-md hover:shadow-lg transition-all duration-300 items-center justify-center hover:scale-110 border-2 border-sidebar-border"
           title={isCollapsed ? "Expandir sidebar" : "Minimizar sidebar"}
         >
           {isCollapsed ? (

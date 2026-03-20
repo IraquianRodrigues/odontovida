@@ -1,13 +1,13 @@
-﻿"use client";
+"use client";
 
 import { logger } from "@/lib/logger";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { OdontogramService } from "@/services/odontogram";
-import { Loader2, Activity } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2, Activity, AlertCircle, Sparkles, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const OdontogramViewer = dynamic(
   () => import("@/components/odontogram/odontogram-viewer").then(mod => mod.OdontogramViewer),
@@ -170,6 +170,22 @@ export default function OdontogramaPage() {
     refetchOdontogram();
   };
 
+  const clinicalSummary = useMemo(() => {
+    if (!odontogram?.teeth?.length) return null;
+    const teeth = odontogram.teeth;
+    const withConditions = teeth.filter((tooth) => tooth.surface_conditions.length > 0).length;
+    const cavity = teeth.filter((tooth) => tooth.status === "cavity").length;
+    const extractionNeeded = teeth.filter((tooth) => tooth.status === "extraction_needed").length;
+    const healthy = teeth.filter((tooth) => tooth.status === "healthy").length;
+    return {
+      total: teeth.length,
+      withConditions,
+      cavity,
+      extractionNeeded,
+      healthy,
+    };
+  }, [odontogram]);
+
   if (roleLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -183,33 +199,71 @@ export default function OdontogramaPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <div className="bg-foreground rounded-xl p-3 flex items-center justify-center shadow-lg">
-              <Activity className="h-6 w-6 text-background" />
+    <div className="container mx-auto p-6 lg:p-8 space-y-8">
+      <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-card via-card to-primary/5 p-6 lg:p-8 shadow-sm">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-3">
+            <h1 className="text-3xl font-bold flex items-center gap-3 tracking-tight">
+              <div className="bg-foreground rounded-2xl p-3.5 flex items-center justify-center shadow-lg">
+                <Activity className="h-6 w-6 text-background" />
+              </div>
+              <span>Odontograma</span>
+            </h1>
+            <p className="text-muted-foreground">
+              Visão clínica para acompanhamento dentário e evolução por dente
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary" className="gap-1.5">
+                <Sparkles className="h-3 w-3" />
+                Visual Premium
+              </Badge>
+              <Badge variant="outline" className="gap-1.5">
+                <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                Acesso Controlado
+              </Badge>
+              {selectedPatientId && odontogram?.updated_at && (
+                <Badge variant="outline">
+                  Atualizado em {new Date(odontogram.updated_at).toLocaleDateString("pt-BR")}
+                </Badge>
+              )}
             </div>
-            Odontograma
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Sistema de registro e visualização dentária
-          </p>
+          </div>
+          {clinicalSummary && (
+            <div className="grid grid-cols-2 gap-3 min-w-[280px]">
+              <div className="rounded-xl border border-border/60 bg-background/70 p-3">
+                <p className="text-xs text-muted-foreground">Dentes avaliados</p>
+                <p className="text-xl font-bold tabular-nums">{clinicalSummary.total}</p>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/70 p-3">
+                <p className="text-xs text-muted-foreground">Condições registradas</p>
+                <p className="text-xl font-bold tabular-nums">{clinicalSummary.withConditions}</p>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/70 p-3">
+                <p className="text-xs text-muted-foreground">Cárie ativa</p>
+                <p className="text-xl font-bold tabular-nums text-amber-600">{clinicalSummary.cavity}</p>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/70 p-3">
+                <p className="text-xs text-muted-foreground">Extração necessária</p>
+                <p className="text-xl font-bold tabular-nums text-red-600">{clinicalSummary.extractionNeeded}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Patient Selector */}
-      <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
-        <div className="max-w-md">
-          <Label htmlFor="patient-select" className="text-base font-semibold mb-3 block">
+      <div className="bg-card border border-border/60 rounded-2xl p-6 shadow-sm">
+        <div className="max-w-lg space-y-3">
+          <Label htmlFor="patient-select" className="text-base font-semibold block">
             Selecione o Paciente
           </Label>
+          <p className="text-sm text-muted-foreground">
+            Escolha um paciente para carregar o mapa dentário e histórico clínico.
+          </p>
           <Select
             value={selectedPatientId?.toString() || ""}
             onValueChange={(value) => setSelectedPatientId(parseInt(value))}
           >
-            <SelectTrigger id="patient-select" className="w-full">
+            <SelectTrigger id="patient-select" className="w-full h-11 rounded-xl">
               <SelectValue placeholder="Escolha um paciente..." />
             </SelectTrigger>
             <SelectContent>
@@ -233,50 +287,59 @@ export default function OdontogramaPage() {
         </div>
       </div>
 
-      {/* Odontogram Display */}
       {selectedPatientId && (
-        <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
+        <div className="bg-card border border-border/60 rounded-2xl p-6 shadow-sm">
           {odontogramLoading ? (
-            <div className="flex flex-col items-center justify-center py-16">
+            <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mb-4" />
               <p className="text-muted-foreground">Carregando odontograma...</p>
             </div>
           ) : odontogram ? (
             <>
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold">
-                  Paciente: {odontogram.patient?.nome}
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Clique em um dente para visualizar detalhes e registrar informações
-                </p>
+              <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold tracking-tight">
+                    Paciente: {odontogram.patient?.nome}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Clique em um dente para visualizar detalhes e registrar informações
+                  </p>
+                </div>
+                {clinicalSummary && (
+                  <Badge variant="outline" className="h-fit px-3 py-1.5">
+                    {clinicalSummary.healthy} dentes saudáveis
+                  </Badge>
+                )}
               </div>
-              
               <OdontogramViewer
                 teeth={odontogram.teeth}
                 onToothClick={handleToothClick}
               />
             </>
           ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              Erro ao carregar odontograma
+            <div className="text-center py-20">
+              <AlertCircle className="h-14 w-14 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-1">Falha ao carregar odontograma</h3>
+              <p className="text-muted-foreground">
+                Tente novamente em instantes ou selecione outro paciente.
+              </p>
             </div>
           )}
         </div>
       )}
 
-      {/* Empty State */}
       {!selectedPatientId && (
-        <div className="bg-muted/30 border-2 border-dashed border-border rounded-lg p-12 text-center">
-          <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-semibold mb-2">Nenhum paciente selecionado</h3>
+        <div className="bg-muted/30 border border-dashed border-border rounded-2xl p-14 text-center">
+          <div className="mx-auto mb-5 h-20 w-20 rounded-2xl bg-background border border-border flex items-center justify-center shadow-sm">
+            <AlertTriangle className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Nenhum paciente selecionado</h3>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Selecione um paciente acima para visualizar e editar o odontograma
+            Selecione um paciente para visualizar e editar o odontograma com indicadores clínicos.
           </p>
         </div>
       )}
 
-      {/* Tooth Detail Modal */}
       <ToothDetailModal
         tooth={selectedTooth}
         isOpen={isModalOpen}

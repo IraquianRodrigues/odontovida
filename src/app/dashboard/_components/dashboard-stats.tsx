@@ -76,7 +76,7 @@ export function DashboardStats({ currentDate }: DashboardStatsProps) {
 
     if (isLoading) {
         return <div className="grid gap-6 sm:grid-cols-4 animate-pulse">
-            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 rounded-3xl" />)}
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-muted rounded-3xl" />)}
         </div>;
     }
 
@@ -85,21 +85,21 @@ export function DashboardStats({ currentDate }: DashboardStatsProps) {
             {/* Cards de Métricas */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Receita Total */}
-                <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                <div className="p-6 bg-card text-card-foreground rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <DollarSign className="w-24 h-24 text-green-600 -rotate-12 transform translate-x-4 -translate-y-4" />
+                        <DollarSign className="w-24 h-24 text-primary -rotate-12 transform translate-x-4 -translate-y-4" />
                     </div>
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-green-50 rounded-xl">
-                                <DollarSign className="w-5 h-5 text-green-600" />
+                            <div className="p-2 bg-primary/10 rounded-xl">
+                                <DollarSign className="w-5 h-5 text-primary" />
                             </div>
-                            <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Faturamento (Mês)</span>
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Faturamento (Mês)</span>
                         </div>
-                        <h3 className="text-3xl font-bold text-gray-900 tracking-tight">
+                        <h3 className="text-3xl font-bold text-foreground tracking-tight">
                             {formatCurrency(stats.totalRevenue)}
                         </h3>
-                        <p className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1">
+                        <p className="text-xs text-primary font-medium mt-1 flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" />
                             Baseado em atendimentos concluídos
                         </p>
@@ -107,36 +107,36 @@ export function DashboardStats({ currentDate }: DashboardStatsProps) {
                 </div>
 
                 {/* Total Agendamentos */}
-                <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                <div className="p-6 bg-card text-card-foreground rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-blue-50 rounded-xl">
-                                <CalendarClock className="w-5 h-5 text-blue-600" />
+                            <div className="p-2 bg-secondary rounded-xl">
+                                <CalendarClock className="w-5 h-5 text-foreground" />
                             </div>
-                            <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Total Agendamentos</span>
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Total Agendamentos</span>
                         </div>
-                        <h3 className="text-3xl font-bold text-gray-900 tracking-tight">
+                        <h3 className="text-3xl font-bold text-foreground tracking-tight">
                             {stats.totalAppointments}
                         </h3>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                             {stats.completedCount} concluídos / {stats.totalAppointments - stats.completedCount} pendentes
                         </p>
                     </div>
                 </div>
 
                 {/* Ticket Médio */}
-                <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                <div className="p-6 bg-card text-card-foreground rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-purple-50 rounded-xl">
-                                <TrendingUp className="w-5 h-5 text-purple-600" />
+                            <div className="p-2 bg-primary/10 rounded-xl">
+                                <TrendingUp className="w-5 h-5 text-primary" />
                             </div>
-                            <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Ticket Médio</span>
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Ticket Médio</span>
                         </div>
-                        <h3 className="text-3xl font-bold text-gray-900 tracking-tight">
+                        <h3 className="text-3xl font-bold text-foreground tracking-tight">
                             {formatCurrency(stats.averageTicket)}
                         </h3>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                             Média por atendimento
                         </p>
                     </div>
@@ -144,35 +144,35 @@ export function DashboardStats({ currentDate }: DashboardStatsProps) {
             </div>
 
             {/* Gráfico de Receita */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] h-[300px]">
+            <div className="bg-card p-6 rounded-3xl border border-border shadow-[0_2px_20px_-4px_rgba(0,0,0,0.02)] h-[300px]">
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-semibold text-gray-800">Evolução de Faturamento</h3>
+                    <h3 className="font-semibold text-foreground">Evolução de Faturamento</h3>
                 </div>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={stats.chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                         <XAxis
                             dataKey="day"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                             tickMargin={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                             tickFormatter={(value) => `R$ ${value}`}
                         />
                         <Tooltip
-                            cursor={{ fill: '#F3F4F6' }}
-                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                            cursor={{ fill: 'var(--muted)' }}
+                            contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--card)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                             formatter={(value: any) => [formatCurrency(Number(value || 0)), 'Receita']}
                             labelFormatter={(label) => `Dia ${label}`}
                         />
                         <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
                             {stats.chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.revenue > 0 ? '#4F46E5' : '#E5E7EB'} />
+                                <Cell key={`cell-${index}`} fill={entry.revenue > 0 ? 'var(--primary)' : 'var(--border)'} />
                             ))}
                         </Bar>
                     </BarChart>

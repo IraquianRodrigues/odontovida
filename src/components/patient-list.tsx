@@ -7,7 +7,7 @@ import { useUserRole } from "@/hooks/use-user-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, FileText, User } from "lucide-react";
+import { Calendar, FileText, User, ArrowUpRight } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -111,19 +111,17 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
       {filteredPatients.map((patient) => (
         <Card
           key={patient.client_id}
-          className="group cursor-pointer overflow-hidden rounded-sm border-border/50
-                     shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.04),0_8px_16px_rgba(0,0,0,0.04)]
-                     hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_8px_16px_rgba(0,0,0,0.06),0_16px_32px_rgba(0,0,0,0.08)]
-                     hover:border-primary/20
+          className="group cursor-pointer overflow-hidden rounded-2xl border-border/60 bg-card
+                     shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_18px_rgba(0,0,0,0.04)]
+                     hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_10px_24px_rgba(0,0,0,0.08)]
+                     hover:border-primary/30
                      transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]
                      hover:-translate-y-1 hover:scale-[1.01]"
           onClick={() => onPatientClick(patient.client_id)}
         >
           <CardContent className="p-0">
-            {/* Header com Avatar e Nome */}
-            <div className="p-6 pb-4 border-b border-border/50 bg-gradient-to-br from-background to-muted/20">
+            <div className="p-6 pb-4 border-b border-border/50 bg-gradient-to-br from-background via-background to-primary/5">
               <div className="flex items-start gap-4">
-                {/* Avatar Premium */}
                 <Avatar className="h-14 w-14 ring-2 ring-border/50 group-hover:ring-primary/30 transition-all duration-300">
                   <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg rounded-sm">
                     {patient.client_name
@@ -137,23 +135,26 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
 
                 {/* Patient Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-lg truncate text-foreground group-hover:text-primary transition-colors">
-                    {patient.client_name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground font-medium">
-                    {patient.client_phone}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-bold text-lg truncate text-foreground group-hover:text-primary transition-colors">
+                      {patient.client_name}
+                    </h3>
+                    {patient.total_records > 0 && (
+                      <Badge variant="outline" className="text-[10px] rounded-md border-primary/30 bg-primary/5 text-primary">
+                        Em acompanhamento
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground font-medium">{patient.client_phone}</p>
                 </div>
               </div>
             </div>
 
-            {/* Stats Section Premium */}
             <div className="p-6 pt-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                {/* Consultas Card */}
-                <div className="flex items-center gap-2.5 p-3 rounded-sm bg-muted/30 border border-border/50 
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-muted/30 border border-border/50 
                                 hover:bg-muted/50 transition-colors group/stat">
-                  <div className="p-1.5 rounded-sm bg-primary/10">
+                  <div className="p-1.5 rounded-md bg-primary/10">
                     <Calendar className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -166,10 +167,9 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
                   </div>
                 </div>
                 
-                {/* Prontuários Card */}
-                <div className="flex items-center gap-2.5 p-3 rounded-sm bg-muted/30 border border-border/50 
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-muted/30 border border-border/50 
                                 hover:bg-muted/50 transition-colors group/stat">
-                  <div className="p-1.5 rounded-sm bg-primary/10">
+                  <div className="p-1.5 rounded-md bg-primary/10">
                     <FileText className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -183,12 +183,11 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
                 </div>
               </div>
 
-              {/* Last Appointment Badge Premium */}
               {patient.last_appointment && (
                 <div className="pt-2">
                   <Badge 
                     variant="outline" 
-                    className="w-full justify-center text-xs font-medium py-2 rounded-sm 
+                    className="w-full justify-center text-xs font-medium py-2 rounded-md 
                                border-border/50 bg-muted/20 hover:bg-muted/30 transition-colors"
                   >
                     Último atendimento:{" "}
@@ -200,6 +199,13 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
                   </Badge>
                 </div>
               )}
+
+              <div className="pt-1">
+                <div className="w-full flex items-center justify-center gap-2 rounded-xl border border-border/50 bg-background py-2 text-sm font-medium text-foreground group-hover:border-primary/30 group-hover:text-primary transition-all">
+                  Abrir prontuário
+                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -29,6 +29,7 @@ export interface Database {
           code: string;
           duration_minutes: number;
           price: number | null;
+          description: string | null;
         };
         Insert: Omit<
           Database["public"]["Tables"]["services"]["Row"],
@@ -214,6 +215,7 @@ export interface AppointmentWithRelations extends AppointmentRow {
     code: string;
     duration_minutes: number;
     price: number | null;
+    description?: string | null;
   };
 }
 

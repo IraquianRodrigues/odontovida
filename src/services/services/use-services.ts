@@ -1,4 +1,4 @@
-﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { servicesService } from "./services.service";
 
 /**
@@ -48,7 +48,12 @@ export function useCreateService() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { code: string; duration_minutes: number; price?: number | null }) =>
+    mutationFn: (params: {
+      code: string;
+      duration_minutes: number;
+      price?: number | null;
+      description?: string | null;
+    }) =>
       servicesService.createService(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
@@ -68,6 +73,7 @@ export function useUpdateService() {
       code: string;
       duration_minutes: number;
       price?: number | null;
+      description?: string | null;
     }) => servicesService.updateService(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });

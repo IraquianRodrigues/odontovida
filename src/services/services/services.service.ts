@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import type { ServiceRow } from "@/types/database.types";
 
@@ -65,6 +65,7 @@ export class ServicesService {
     code: string;
     duration_minutes: number;
     price?: number | null;
+    description?: string | null;
   }): Promise<ServiceRow> {
     const { data, error } = await this.supabase
       .from("services")
@@ -72,6 +73,7 @@ export class ServicesService {
         code: params.code,
         duration_minutes: params.duration_minutes,
         price: params.price ?? null,
+        description: params.description?.trim() ? params.description.trim() : null,
       })
       .select()
       .single();
@@ -92,6 +94,7 @@ export class ServicesService {
     code: string;
     duration_minutes: number;
     price?: number | null;
+    description?: string | null;
   }): Promise<ServiceRow> {
     const { data, error } = await this.supabase
       .from("services")
@@ -99,6 +102,7 @@ export class ServicesService {
         code: params.code,
         duration_minutes: params.duration_minutes,
         price: params.price ?? null,
+        description: params.description?.trim() ? params.description.trim() : null,
       })
       .eq("id", params.id)
       .select()

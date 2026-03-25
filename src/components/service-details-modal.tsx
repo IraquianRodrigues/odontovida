@@ -23,8 +23,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-import { Briefcase, Trash2, Clock, Banknote } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Briefcase, Trash2, Clock, Banknote, FileText } from "lucide-react";
 import type { ServiceRow } from "@/types/database.types";
 import { formatDateTimeBR } from "@/lib/date-utils";
 import { toast } from "sonner";
@@ -48,6 +48,7 @@ export function ServiceDetailsModal({
   const [code, setCode] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
   const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const createMutation = useCreateService();
@@ -59,10 +60,12 @@ export function ServiceDetailsModal({
       setCode(service.code);
       setDurationMinutes(service.duration_minutes.toString());
       setPrice(service.price ? service.price.toString() : "");
+      setDescription(service.description || "");
     } else if (isCreating) {
       setCode("");
       setDurationMinutes("");
       setPrice("");
+      setDescription("");
     }
   }, [service, isCreating]);
 
@@ -94,6 +97,7 @@ export function ServiceDetailsModal({
           code: code.trim(),
           duration_minutes: duration,
           price: priceValue,
+          description,
         });
         toast.success("Serviço criado com sucesso!");
       } else if (service) {
@@ -102,6 +106,7 @@ export function ServiceDetailsModal({
           code: code.trim(),
           duration_minutes: duration,
           price: priceValue,
+          description,
         });
         toast.success("Serviço atualizado com sucesso!");
       }
@@ -217,6 +222,24 @@ export function ServiceDetailsModal({
                   />
                   <p className="text-xs text-muted-foreground">
                     Valor base do serviço (opcional)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Descrição (opcional)
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Descreva o serviço para uso interno, IA e automações (n8n)..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    disabled={isPending}
+                    className="min-h-24 w-full resize-y"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Esse campo pode ser consumido pela IA via Supabase e fluxos no n8n.
                   </p>
                 </div>
               </div>

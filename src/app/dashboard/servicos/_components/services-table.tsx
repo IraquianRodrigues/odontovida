@@ -29,8 +29,10 @@ export function ServicesTable({
   const filteredServices = useMemo(() => {
     if (!searchQuery.trim()) return services;
 
+    const normalizedQuery = searchQuery.toLowerCase();
     return services.filter((service) =>
-      service.code.toLowerCase().includes(searchQuery.toLowerCase())
+      service.code.toLowerCase().includes(normalizedQuery) ||
+      (service.description || "").toLowerCase().includes(normalizedQuery)
     );
   }, [services, searchQuery]);
 
@@ -75,7 +77,7 @@ export function ServicesTable({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por código do serviço..."
+              placeholder="Buscar por código ou descrição..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -135,6 +137,11 @@ export function ServicesTable({
                       <h3 className="text-xl font-bold font-mono text-foreground group-hover:text-primary transition-colors">
                         {service.code}
                       </h3>
+                      {service.description && (
+                        <p className="mt-2 text-sm text-muted-foreground line-clamp-2 min-h-10">
+                          {service.description}
+                        </p>
+                      )}
                     </div>
 
                     {/* Duration and Price */}

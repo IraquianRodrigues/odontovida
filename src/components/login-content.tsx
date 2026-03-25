@@ -49,18 +49,18 @@ export function LoginContent() {
           borderRadius: "50%",
           border: "1px solid rgba(255,255,255,0.04)",
           background:
-            "radial-gradient(ellipse at 40% 40%, rgba(34,197,94,0.04) 0%, transparent 70%)",
+            "radial-gradient(ellipse at 40% 40%, rgba(229,120,153,0.09) 0%, transparent 70%)",
         }}
       />
 
       <div className="relative z-10 flex min-h-[100dvh] items-center justify-center px-6 py-12">
-        <div className="grid w-full max-w-[1120px] gap-16 lg:grid-cols-2 lg:gap-20">
-          {/* ───────── Left — Branding ───────── */}
-          <div className="flex flex-col justify-center max-lg:items-center max-lg:text-center">
+        <div className="grid w-full max-w-[1120px] lg:grid-cols-2 lg:gap-20">
+          {/* ───────── Left — Branding (hidden on mobile) ───────── */}
+          <div className="hidden flex-col justify-center lg:flex">
             {/* Status badge */}
-            <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
-              <span className="text-xs font-medium tracking-wide text-emerald-300">
+            <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-rose-300/30 bg-rose-400/10 px-3.5 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-rose-300 shadow-[0_0_6px_rgba(244,114,182,0.55)]" />
+              <span className="text-xs font-medium tracking-wide text-rose-200">
                 SISTEMA ONLINE
               </span>
             </div>
@@ -70,7 +70,7 @@ export function LoginContent() {
               Gerencie sua clínica
               <br />
               com{" "}
-              <span className="text-emerald-400">inteligência.</span>
+              <span className="text-rose-300">inteligência.</span>
             </h1>
 
             <p className="mt-5 max-w-md text-[15px] leading-relaxed text-white/45">
@@ -124,7 +124,7 @@ export function LoginContent() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 rounded-lg border-white/[0.08] bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:border-emerald-400/50 focus-visible:ring-1 focus-visible:ring-emerald-400/25 transition-colors"
+                      className="h-11 rounded-lg border-white/[0.08] bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:border-rose-300/55 focus-visible:ring-1 focus-visible:ring-rose-300/30 transition-colors"
                     />
                   </div>
 
@@ -139,7 +139,7 @@ export function LoginContent() {
                       </Label>
                       <a
                         href="#"
-                        className="text-xs font-medium text-emerald-400 transition-colors hover:text-emerald-300"
+                        className="text-xs font-medium text-rose-300 transition-colors hover:text-rose-200"
                       >
                         Esqueceu a senha?
                       </a>
@@ -152,7 +152,7 @@ export function LoginContent() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 rounded-lg border-white/[0.08] bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:border-emerald-400/50 focus-visible:ring-1 focus-visible:ring-emerald-400/25 transition-colors"
+                      className="h-11 rounded-lg border-white/[0.08] bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:border-rose-300/55 focus-visible:ring-1 focus-visible:ring-rose-300/30 transition-colors"
                     />
                   </div>
 
@@ -160,7 +160,7 @@ export function LoginContent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="mt-2 h-12 w-full rounded-lg bg-emerald-500 text-sm font-semibold text-white shadow-none transition-all duration-200 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-50"
+                    className="mt-2 h-12 w-full rounded-lg bg-rose-500 text-sm font-semibold text-white shadow-none transition-all duration-200 hover:bg-rose-400 active:scale-[0.98] disabled:opacity-50"
                   >
                     {isLoading ? (
                       <>
@@ -202,7 +202,7 @@ function FeatureCard({
 }) {
   return (
     <div className="space-y-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-400/15 text-rose-300">
         {icon}
       </div>
       <div>

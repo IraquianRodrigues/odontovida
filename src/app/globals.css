@@ -49,118 +49,118 @@
   /* === AURORA MEDICAL PALETTE === */
   
   /* Backgrounds */
-  --background: #F1F7FB;
-  --foreground: #0F172A;
+  --background: #FFFFFF;
+  --foreground: #2D1A22;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #2D1A22;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover-foreground: #2D1A22;
 
   /* Primary */
-  --primary: #0EA5A8;
-  --primary-foreground: #ECFEFF;
+  --primary: #D98AA7;
+  --primary-foreground: #3A1F2B;
 
   /* Secondary */
-  --secondary: #E6F0F7;
-  --secondary-foreground: #0F172A;
+  --secondary: #F4F4F5;
+  --secondary-foreground: #2D1A22;
 
   /* Muted */
-  --muted: #EDF3F8;
-  --muted-foreground: #4B5D73;
+  --muted: #F6F6F7;
+  --muted-foreground: #8B6675;
 
   /* Accent */
-  --accent: #E1EEF7;
-  --accent-foreground: #0F172A;
+  --accent: #EFEFF2;
+  --accent-foreground: #2D1A22;
 
   /* Destructive - Red for errors */
   --destructive: #EF4444; /* status-error: Red-500 */
   --destructive-foreground: #FFFFFF; /* White text on red */
 
   /* Borders and inputs */
-  --border: #CDDCEB;
-  --input: #CDDCEB;
-  --ring: #22D3EE;
+  --border: #E4E4E7;
+  --input: #E4E4E7;
+  --ring: #E7A5BD;
 
   /* Charts */
-  --chart-1: #06B6D4;
-  --chart-2: #14B8A6;
-  --chart-3: #0EA5A8;
-  --chart-4: #3B82F6;
-  --chart-5: #64748B;
+  --chart-1: #E7A5BD;
+  --chart-2: #D98AA7;
+  --chart-3: #C56B88;
+  --chart-4: #A74D6D;
+  --chart-5: #8C5D6E;
 
   /* Sidebar */
-  --sidebar: #F5F9FD;
-  --sidebar-foreground: #46607A;
-  --sidebar-primary: #0E7490;
-  --sidebar-primary-foreground: #F0FDFA;
-  --sidebar-accent: #E1EEF7;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #D1E0EE;
-  --sidebar-ring: #22D3EE;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #8B6675;
+  --sidebar-primary: #B85D7A;
+  --sidebar-primary-foreground: #FFF8FB;
+  --sidebar-accent: #F4F4F5;
+  --sidebar-accent-foreground: #2D1A22;
+  --sidebar-border: #E4E4E7;
+  --sidebar-ring: #E7A5BD;
   
-  --brand-primary: #06B6D4;
-  --brand-dark: #0E7490;
-  --brand-light: #CFFAFE;
-  --text-muted: #4B5D73;
-  --surface-page: #F1F7FB;
+  --brand-primary: #E7A5BD;
+  --brand-dark: #6E3148;
+  --brand-light: #F8EFF3;
+  --text-muted: #8B6675;
+  --surface-page: #FFFFFF;
   --surface-card: #FFFFFF;
-  --surface-subtle: #EDF3F8;
-  --status-success: #14B8A6;
+  --surface-subtle: #F6F6F7;
+  --status-success: #E7A5BD;
   --status-warning: #F59E0B;
   --status-error: #EF4444;
 }
 
 .dark {
-  --background: #07090F;
-  --foreground: #E6F7FF;
-  --card: #101823;
-  --card-foreground: #E6F7FF;
-  --popover: #101823;
-  --popover-foreground: #E6F7FF;
+  --background: #09070A;
+  --foreground: #FBEFF4;
+  --card: #141016;
+  --card-foreground: #FBEFF4;
+  --popover: #141016;
+  --popover-foreground: #FBEFF4;
 
-  --primary: #5EEAD4;
-  --primary-foreground: #082F2F;
+  --primary: #E7A5BD;
+  --primary-foreground: #3A1C28;
 
-  --secondary: #162333;
-  --secondary-foreground: #D7EDF8;
+  --secondary: #2A1B23;
+  --secondary-foreground: #F6DEE8;
 
-  --muted: #162333;
-  --muted-foreground: #8AA4B8;
+  --muted: #2A1B23;
+  --muted-foreground: #C69DAE;
 
-  --accent: #1B2B3E;
-  --accent-foreground: #E6F7FF;
+  --accent: #33202A;
+  --accent-foreground: #FBEFF4;
 
   /* Destructive - Keep red for dangerous actions */
   --destructive: #EF4444; /* Red-500 */
   --destructive-foreground: #FAFAFA; /* Zinc-50 - Off-white */
 
-  --border: #24384F;
-  --input: #24384F;
-  --ring: #67E8F9;
+  --border: #4A2E3A;
+  --input: #4A2E3A;
+  --ring: #E7A5BD;
 
-  --chart-1: #67E8F9;
-  --chart-2: #5EEAD4;
-  --chart-3: #22D3EE;
-  --chart-4: #60A5FA;
-  --chart-5: #64748B;
+  --chart-1: #E7A5BD;
+  --chart-2: #D98AA7;
+  --chart-3: #C56B88;
+  --chart-4: #A74D6D;
+  --chart-5: #8C5D6E;
 
-  --sidebar: #0B1220;
-  --sidebar-foreground: #98B3C8;
-  --sidebar-primary: #67E8F9;
-  --sidebar-primary-foreground: #082F49;
-  --sidebar-accent: #162333;
-  --sidebar-accent-foreground: #E6F7FF;
-  --sidebar-border: #24384F;
-  --sidebar-ring: #67E8F9;
+  --sidebar: #110C12;
+  --sidebar-foreground: #C69DAE;
+  --sidebar-primary: #E7A5BD;
+  --sidebar-primary-foreground: #3A1C28;
+  --sidebar-accent: #2A1B23;
+  --sidebar-accent-foreground: #FBEFF4;
+  --sidebar-border: #4A2E3A;
+  --sidebar-ring: #E7A5BD;
   
-  --brand-primary: #67E8F9;
-  --brand-dark: #0B1220;
-  --brand-light: #162333;
-  --text-muted: #8AA4B8;
-  --surface-page: #07090F;
-  --surface-card: #101823;
-  --surface-subtle: #162333;
-  --status-success: #5EEAD4;
+  --brand-primary: #E7A5BD;
+  --brand-dark: #6E3148;
+  --brand-light: #2A1B23;
+  --text-muted: #C69DAE;
+  --surface-page: #09070A;
+  --surface-card: #141016;
+  --surface-subtle: #2A1B23;
+  --status-success: #E7A5BD;
   --status-warning: #F59E0B;
   --status-error: #EF4444;
 }

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { LogOut, Calendar } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { AuthClientService } from "@/services/auth/client.service";
@@ -13,7 +13,7 @@ import { NotificationBell } from "@/components/notification-bell";
 export function AppHeader() {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const clinicName = process.env.NEXT_PUBLIC_CLINIC_NAME || "Clínica Médica";
+
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -38,15 +38,7 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border shadow-sm transition-colors duration-300">
       <div className="h-16 px-4 pl-16 md:pl-6 flex items-center justify-between">
-        {/* Page Title - will be dynamic based on route */}
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold text-foreground">
-              {clinicName}
-            </h2>
-          </div>
-        </div>
+        <div />
 
         {/* User/Action Section */}
         <div className="flex gap-2 items-center">

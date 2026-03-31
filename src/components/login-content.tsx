@@ -1,21 +1,37 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, ArrowRight, ShieldCheck, LayoutDashboard, Zap } from "lucide-react";
+import {
+  Loader2,
+  ArrowRight,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  LayoutDashboard,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AuthClientService } from "@/services/auth/client.service";
 
 export function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const clinicName = process.env.NEXT_PUBLIC_CLINIC_NAME || "OdontoVida";
+
+  useEffect(() => {
+    setMounted(true);
+    emailRef.current?.focus();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +47,7 @@ export function LoginContent() {
       } else {
         toast.error(result.error || "Erro ao realizar login");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro inesperado ao realizar login");
     } finally {
       setIsLoading(false);
@@ -39,153 +55,460 @@ export function LoginContent() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[#0b0f14] text-white">
+    <div className="login-page">
       {/* Background arc decoration */}
+      <div className="login-page__arc" aria-hidden />
+
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-[60%] -translate-y-1/2"
-        style={{
-          width: "min(900px, 70vw)",
-          height: "min(900px, 70vw)",
-          borderRadius: "50%",
-          border: "1px solid rgba(255,255,255,0.04)",
-          background:
-            "radial-gradient(ellipse at 40% 40%, rgba(229,120,153,0.09) 0%, transparent 70%)",
-        }}
-      />
-
-      <div className="relative z-10 flex min-h-[100dvh] items-center justify-center px-6 py-12">
-        <div className="grid w-full max-w-[1120px] lg:grid-cols-2 lg:gap-20">
-          {/* ───────── Left — Branding (hidden on mobile) ───────── */}
-          <div className="hidden flex-col justify-center lg:flex">
-            {/* Status badge */}
-            <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-rose-300/30 bg-rose-400/10 px-3.5 py-1.5">
-              <span className="h-2 w-2 rounded-full bg-rose-300 shadow-[0_0_6px_rgba(244,114,182,0.55)]" />
-              <span className="text-xs font-medium tracking-wide text-rose-200">
-                SISTEMA ONLINE
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl font-bold leading-[1.15] tracking-tight sm:text-[3rem]">
-              Gerencie sua clínica
-              <br />
-              com{" "}
-              <span className="text-rose-300">inteligência.</span>
-            </h1>
-
-            <p className="mt-5 max-w-md text-[15px] leading-relaxed text-white/45">
-              A plataforma definitiva para centralizar agendamentos,
-              prontuários e finanças da sua clínica em um único lugar.
-            </p>
-
-            {/* Feature cards */}
-            <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-5">
-              <FeatureCard
-                icon={<LayoutDashboard className="h-5 w-5" />}
-                title="Dashboard Central"
-                description="Visão 360° de toda sua operação de atendimento e gestão."
-              />
-              <FeatureCard
-                icon={<Zap className="h-5 w-5" />}
-                title="Automação Real"
-                description="Agendamentos inteligentes que otimizam sua rotina."
-              />
-            </div>
+        className={`login-page__container ${mounted ? "login-page__container--visible" : ""}`}
+      >
+        {/* ───────── Left — Branding ───────── */}
+        <div className="login-left">
+          {/* Status badge */}
+          <div className="login-badge">
+            <span className="login-badge__dot" />
+            <span className="login-badge__text">SISTEMA ONLINE</span>
           </div>
 
-          {/* ───────── Right — Login Form ───────── */}
-          <div className="flex items-center justify-center lg:justify-end">
-            <div className="w-full max-w-[420px]">
-              <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-8 backdrop-blur-sm sm:p-10">
-                {/* Header */}
-                <div className="mb-8">
-                  <h2 className="text-[1.55rem] font-semibold tracking-tight">
-                    Acesse sua conta
-                  </h2>
-                  <p className="mt-1.5 text-sm text-white/40">
-                    Entre com suas credenciais para continuar
-                  </p>
-                </div>
+          {/* Headline */}
+          <h1 className="login-headline">
+            Gerencie sua clínica
+            <br />
+            com <span className="login-headline__accent">inteligência.</span>
+          </h1>
 
-                <form onSubmit={handleLogin} className="space-y-5">
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email"
-                      className="text-xs font-medium text-white/55"
-                    >
-                      Email Corporativo
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="nome@empresa.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-11 rounded-lg border-white/[0.08] bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:border-rose-300/55 focus-visible:ring-1 focus-visible:ring-rose-300/30 transition-colors"
-                    />
-                  </div>
+          <p className="login-description">
+            A plataforma definitiva para centralizar agendamentos, prontuários e
+            finanças da sua clínica em um único lugar.
+          </p>
 
-                  {/* Password */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label
-                        htmlFor="password"
-                        className="text-xs font-medium text-white/55"
-                      >
-                        Senha
-                      </Label>
-                      <a
-                        href="#"
-                        className="text-xs font-medium text-rose-300 transition-colors hover:text-rose-200"
-                      >
-                        Esqueceu a senha?
-                      </a>
-                    </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-11 rounded-lg border-white/[0.08] bg-white/[0.05] text-sm text-white placeholder:text-white/25 focus-visible:border-rose-300/55 focus-visible:ring-1 focus-visible:ring-rose-300/30 transition-colors"
-                    />
-                  </div>
+          {/* Feature cards */}
+          <div className="login-features">
+            <FeatureCard
+              icon={<LayoutDashboard className="h-5 w-5" />}
+              title="Dashboard Central"
+              description="Visão 360° de toda sua operação de atendimento e gestão."
+            />
+            <FeatureCard
+              icon={<Zap className="h-5 w-5" />}
+              title="Automação Real"
+              description="Agendamentos inteligentes que otimizam sua rotina."
+            />
+          </div>
+        </div>
 
-                  {/* Submit */}
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="mt-2 h-12 w-full rounded-lg bg-rose-500 text-sm font-semibold text-white shadow-none transition-all duration-200 hover:bg-rose-400 active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Entrando...
-                      </>
-                    ) : (
-                      <>
-                        Acessar Plataforma
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                </form>
-
-                {/* Security footer */}
-                <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-white/25">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Ambiente seguro e criptografado de ponta a ponta.
-                </p>
-              </div>
+        {/* ───────── Right — Login Form ───────── */}
+        <div className="login-right">
+          <div className="login-form-wrapper">
+            {/* Header */}
+            <div className="login-form-header">
+              <h2 className="login-form-header__title">Acesse sua conta</h2>
+              <p className="login-form-header__sub">
+                Entre com suas credenciais para continuar
+              </p>
             </div>
+
+            <form onSubmit={handleLogin} className="login-form">
+              {/* Email */}
+              <div className="login-field">
+                <Label htmlFor="login-email" className="login-field__label">
+                  Email Corporativo
+                </Label>
+                <Input
+                  ref={emailRef}
+                  id="login-email"
+                  type="email"
+                  placeholder="nome@empresa.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  autoComplete="email"
+                  className="login-field__input"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="login-field">
+                <div className="login-field__row">
+                  <Label
+                    htmlFor="login-password"
+                    className="login-field__label"
+                  >
+                    Senha
+                  </Label>
+                  <a href="#" className="login-field__forgot" tabIndex={-1}>
+                    Esqueceu a senha?
+                  </a>
+                </div>
+                <div className="login-field__pw-wrap">
+                  <Input
+                    id="login-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    autoComplete="current-password"
+                    className="login-field__input"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="login-field__eye"
+                    aria-label={
+                      showPassword ? "Esconder senha" : "Mostrar senha"
+                    }
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="login-submit"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  <>
+                    Acessar Plataforma
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {/* Security footer */}
+            <p className="login-trust">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Ambiente seguro e criptografado de ponta a ponta.
+            </p>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        /* ======== PAGE ======== */
+        .login-page {
+          position: relative;
+          min-height: 100dvh;
+          overflow: hidden;
+          background: #0a0e13;
+          color: #ffffff;
+        }
+
+        /* ======== ARC DECORATION ======== */
+        .login-page__arc {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-60%, -50%);
+          width: min(850px, 65vw);
+          height: min(850px, 65vw);
+          border-radius: 50%;
+          border: 1px solid rgba(231, 165, 189, 0.06);
+          background: radial-gradient(
+            ellipse at 40% 40%,
+            rgba(231, 165, 189, 0.04) 0%,
+            transparent 70%
+          );
+          pointer-events: none;
+        }
+
+        /* ======== CONTAINER ======== */
+        .login-page__container {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100dvh;
+          padding: 3rem 2.5rem;
+          max-width: 1140px;
+          margin: 0 auto;
+          gap: 5rem;
+          opacity: 0;
+          transform: translateY(10px);
+          transition:
+            opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .login-page__container--visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* ======== LEFT SIDE — BRANDING ======== */
+        .login-left {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        /* Badge */
+        .login-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          width: fit-content;
+          padding: 0.375rem 0.875rem;
+          border-radius: 9999px;
+          border: 1px solid rgba(231, 165, 189, 0.25);
+          background: rgba(231, 165, 189, 0.08);
+          margin-bottom: 2rem;
+        }
+
+        .login-badge__dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #E7A5BD;
+          box-shadow: 0 0 8px rgba(231, 165, 189, 0.5);
+        }
+
+        .login-badge__text {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          color: #E7A5BD;
+        }
+
+        /* Headline */
+        .login-headline {
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 700;
+          line-height: 1.15;
+          letter-spacing: -0.025em;
+          margin: 0;
+        }
+
+        .login-headline__accent {
+          color: #E7A5BD;
+        }
+
+        /* Description */
+        .login-description {
+          margin-top: 1.25rem;
+          max-width: 420px;
+          font-size: 0.9375rem;
+          line-height: 1.65;
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Feature cards grid */
+        .login-features {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          margin-top: 3rem;
+        }
+
+        /* ======== RIGHT SIDE — FORM ======== */
+        .login-right {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          flex-shrink: 0;
+          width: 100%;
+          max-width: 420px;
+        }
+
+        .login-form-wrapper {
+          width: 100%;
+        }
+
+        /* Form header */
+        .login-form-header {
+          margin-bottom: 1.75rem;
+        }
+
+        .login-form-header__title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          margin: 0;
+        }
+
+        .login-form-header__sub {
+          margin-top: 0.375rem;
+          font-size: 0.875rem;
+          color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* ======== FORM ======== */
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+        }
+
+        /* Fields */
+        .login-field {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        :global(.login-field__label) {
+          font-size: 0.8125rem !important;
+          font-weight: 500 !important;
+          color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .login-field__row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .login-field__forgot {
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: #E7A5BD;
+          text-decoration: none;
+          transition: color 0.15s ease;
+        }
+
+        .login-field__forgot:hover {
+          color: #D98AA7;
+        }
+
+        :global(.login-field__input) {
+          height: 46px !important;
+          border-radius: 8px !important;
+          border-color: rgba(255, 255, 255, 0.08) !important;
+          background: rgba(255, 255, 255, 0.05) !important;
+          font-size: 0.9375rem !important;
+          color: #ffffff !important;
+          padding-left: 0.875rem !important;
+          padding-right: 0.875rem !important;
+          transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease !important;
+        }
+
+        :global(.login-field__input::placeholder) {
+          color: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        :global(.login-field__input:focus-visible) {
+          border-color: rgba(231, 165, 189, 0.5) !important;
+          box-shadow: 0 0 0 3px rgba(231, 165, 189, 0.1) !important;
+          background: rgba(255, 255, 255, 0.07) !important;
+          outline: none !important;
+        }
+
+        /* Password */
+        .login-field__pw-wrap {
+          position: relative;
+        }
+
+        .login-field__pw-wrap :global(.login-field__input) {
+          padding-right: 2.75rem !important;
+        }
+
+        .login-field__eye {
+          position: absolute;
+          right: 0;
+          top: 0;
+          height: 100%;
+          width: 2.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: none;
+          color: rgba(255, 255, 255, 0.35);
+          cursor: pointer;
+          transition: color 0.15s ease;
+        }
+
+        .login-field__eye:hover {
+          color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Submit */
+        :global(.login-submit) {
+          margin-top: 0.375rem !important;
+          height: 46px !important;
+          width: 100% !important;
+          border-radius: 8px !important;
+          background: linear-gradient(135deg, #D98AA7 0%, #C56B88 100%) !important;
+          color: #ffffff !important;
+          font-size: 0.9375rem !important;
+          font-weight: 600 !important;
+          border: none !important;
+          cursor: pointer;
+          transition:
+            background 0.2s ease,
+            transform 0.1s ease,
+            opacity 0.2s ease !important;
+        }
+
+        :global(.login-submit:hover:not(:disabled)) {
+          opacity: 0.9 !important;
+        }
+
+        :global(.login-submit:active:not(:disabled)) {
+          transform: scale(0.985) !important;
+        }
+
+        :global(.login-submit:disabled) {
+          opacity: 0.55 !important;
+          cursor: not-allowed;
+        }
+
+        /* Trust */
+        .login-trust {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.375rem;
+          margin-top: 1.5rem;
+          font-size: 0.6875rem;
+          color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ======== RESPONSIVE ======== */
+        @media (max-width: 860px) {
+          .login-left {
+            display: none;
+          }
+
+          .login-page__container {
+            justify-content: center;
+            padding: 2rem 1.5rem;
+          }
+
+          .login-right {
+            max-width: 400px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .login-page__container {
+            opacity: 1;
+            transform: none;
+            transition: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -201,16 +524,55 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="space-y-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-400/15 text-rose-300">
-        {icon}
-      </div>
+    <div className="feature-card">
+      <div className="feature-card__icon">{icon}</div>
       <div>
-        <h3 className="text-sm font-semibold text-white/90">{title}</h3>
-        <p className="mt-1 text-xs leading-relaxed text-white/35">
-          {description}
-        </p>
+        <h3 className="feature-card__title">{title}</h3>
+        <p className="feature-card__desc">{description}</p>
       </div>
+
+      <style jsx>{`
+        .feature-card {
+          display: flex;
+          flex-direction: column;
+          gap: 0.875rem;
+          padding: 1.25rem;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.02);
+          transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .feature-card:hover {
+          border-color: rgba(231, 165, 189, 0.12);
+          background: rgba(255, 255, 255, 0.035);
+        }
+
+        .feature-card__icon {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 10px;
+          background: rgba(231, 165, 189, 0.12);
+          color: #E7A5BD;
+        }
+
+        .feature-card__title {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0;
+        }
+
+        .feature-card__desc {
+          margin-top: 0.25rem;
+          font-size: 0.8125rem;
+          line-height: 1.5;
+          color: rgba(255, 255, 255, 0.3);
+        }
+      `}</style>
     </div>
   );
 }

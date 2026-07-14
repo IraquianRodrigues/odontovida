@@ -10,7 +10,7 @@ import { AppointmentDetailsModal } from "@/components/appointment-details-modal"
 import { useAppointment } from "@/services/appointments/use-appointments";
 
 interface NotificationContextValue extends UseNotificationsReturn {
-  openAppointmentModal: (appointmentId: number) => void;
+  openAppointmentModal: (appointmentId: string | number) => void;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -31,8 +31,8 @@ interface NotificationProviderProps {
 
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const [userId, setUserId] = useState<string | null>(null);
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
-  const supabase = createClient();
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | number | null>(null);
+  const supabase = useMemo(() => createClient(), []);
 
   // Buscar appointment quando selecionado
   const { data: selectedAppointment, refetch: refetchAppointment } = useAppointment(
@@ -76,7 +76,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   const notificationsHook = useNotifications(userId);
 
   // Função para abrir modal de agendamento
-  const openAppointmentModal = useCallback((appointmentId: number) => {
+  const openAppointmentModal = useCallback((appointmentId: string | number) => {
     setSelectedAppointmentId(appointmentId);
   }, []);
 

@@ -3,7 +3,7 @@ import { MedicalRecordsService } from "./medical-records.service";
 import type { CreateMedicalRecordInput, UpdateMedicalRecordInput } from "./medical-records.service";
 
 // Query hook to get medical records for a client
-export function useMedicalRecords(clientId: number | null) {
+export function useMedicalRecords(clientId: string | number | null) {
   return useQuery({
     queryKey: ["medical-records", clientId],
     queryFn: async () => {
@@ -19,7 +19,7 @@ export function useMedicalRecords(clientId: number | null) {
 }
 
 // Query hook to get latest medical record
-export function useLatestMedicalRecord(clientId: number | null) {
+export function useLatestMedicalRecord(clientId: string | number | null) {
   return useQuery({
     queryKey: ["medical-records", "latest", clientId],
     queryFn: async () => {

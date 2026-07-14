@@ -189,7 +189,7 @@ export function AppointmentsKanban({ appointments, isLoading }: AppointmentsKanb
 
         if (!over) return;
 
-        const appointmentId = Number(active.id);
+        const appointmentId = String(active.id);
         const newStatus = over.id as string;
 
         const appointment = appointments.find(a => a.id === appointmentId);

@@ -83,7 +83,7 @@ export function useUpdateBreak() {
       id,
       breakData,
     }: {
-      id: number;
+      id: string | number;
       breakData: Parameters<typeof businessHoursService.updateBreak>[1];
     }) => businessHoursService.updateBreak(id, breakData),
     onSuccess: () => {
@@ -96,7 +96,7 @@ export function useDeleteBreak() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => businessHoursService.deleteBreak(id),
+    mutationFn: (id: string | number) => businessHoursService.deleteBreak(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: businessHoursKeys.breaks() });
     },
@@ -131,7 +131,7 @@ export function useDeleteHoliday() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => businessHoursService.deleteHoliday(id),
+    mutationFn: (id: string | number) => businessHoursService.deleteHoliday(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: businessHoursKeys.holidays() });
     },
@@ -168,7 +168,7 @@ export function useDeleteBlockedSlot() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => businessHoursService.deleteBlockedSlot(id),
+    mutationFn: (id: string | number) => businessHoursService.deleteBlockedSlot(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: businessHoursKeys.blockedSlots(),

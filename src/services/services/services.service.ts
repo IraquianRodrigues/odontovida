@@ -2,132 +2,85 @@ import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import type { ServiceRow } from "@/types/database.types";
 
+type ServiceDbRow = {
+  id: string;
+  service_code: number;
+  created_at: string;
+  nome: string;
+  duracao_minutos: number;
+  valor_reserva: number | null;
+  valor_integral: number | null;
+  ativo: boolean;
+};
+
+const toService = (row: ServiceDbRow): ServiceRow => ({
+  id: row.service_code,
+  database_id: row.id,
+  created_at: row.created_at,
+  code: String(row.service_code),
+  duration_minutes: row.duracao_minutos,
+  price: row.valor_reserva ?? row.valor_integral,
+  description: row.nome,
+  active: row.ativo,
+});
+
+const parseCode = (code: string) => {
+  const value = Number(code);
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error("O código do serviço deve ser um número inteiro positivo");
+  }
+  return value;
+};
+
 export class ServicesService {
   private get supabase() { return createClient(); }
 
-  /**
-   * Busca todos os serviços
-   */
   async getServices(): Promise<ServiceRow[]> {
-    const { data, error } = await this.supabase
-      .from("services")
-      .select("*")
-      .order("code", { ascending: true });
-
-    if (error) {
-      logger.error("Erro ao buscar serviços:", error);
-      throw new Error("Falha ao buscar serviços");
-    }
-
-    return data || [];
+    const { data, error } = await this.supabase.from("services").select("*").order("service_code");
+    if (error) throw new Error("Falha ao buscar serviços");
+    return ((data || []) as ServiceDbRow[]).map(toService);
   }
 
-  /**
-   * Busca um serviço específico por ID
-   */
   async getServiceById(id: number): Promise<ServiceRow | null> {
-    const { data, error } = await this.supabase
-      .from("services")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      logger.error("Erro ao buscar serviço:", error);
-      throw new Error("Falha ao buscar serviço");
-    }
-
-    return data;
+    const { data, error } = await this.supabase.from("services").select("*").eq("service_code", id).maybeSingle();
+    if (error) throw new Error("Falha ao buscar serviço");
+    return data ? toService(data as ServiceDbRow) : null;
   }
 
-  /**
-   * Busca um serviço específico por código
-   */
   async getServiceByCode(code: string): Promise<ServiceRow | null> {
-    const { data, error } = await this.supabase
-      .from("services")
-      .select("*")
-      .eq("code", code)
-      .single();
-
-    if (error) {
-      logger.error("Erro ao buscar serviço:", error);
-      return null;
-    }
-
-    return data;
+    return this.getServiceById(parseCode(code));
   }
 
-  /**
-   * Cria um novo serviço
-   */
-  async createService(params: {
-    code: string;
-    duration_minutes: number;
-    price?: number | null;
-    description?: string | null;
-  }): Promise<ServiceRow> {
-    const { data, error } = await this.supabase
-      .from("services")
-      .insert({
-        code: params.code,
-        duration_minutes: params.duration_minutes,
-        price: params.price ?? null,
-        description: params.description?.trim() ? params.description.trim() : null,
-      })
-      .select()
-      .single();
-
+  async createService(params: { code: string; duration_minutes: number; price?: number | null; description?: string | null }): Promise<ServiceRow> {
+    const serviceCode = parseCode(params.code);
+    const { data, error } = await this.supabase.from("services").insert({
+      service_code: serviceCode,
+      nome: params.description?.trim() || `Serviço ${serviceCode}`,
+      duracao_minutos: params.duration_minutes,
+      valor_reserva: params.price ?? null,
+    }).select().single();
     if (error) {
       logger.error("Erro ao criar serviço:", error);
       throw new Error("Falha ao criar serviço");
     }
-
-    return data;
+    return toService(data as ServiceDbRow);
   }
 
-  /**
-   * Atualiza um serviço
-   */
-  async updateService(params: {
-    id: number;
-    code: string;
-    duration_minutes: number;
-    price?: number | null;
-    description?: string | null;
-  }): Promise<ServiceRow> {
-    const { data, error } = await this.supabase
-      .from("services")
-      .update({
-        code: params.code,
-        duration_minutes: params.duration_minutes,
-        price: params.price ?? null,
-        description: params.description?.trim() ? params.description.trim() : null,
-      })
-      .eq("id", params.id)
-      .select()
-      .single();
-
-    if (error) {
-      logger.error("Erro ao atualizar serviço:", error);
-      throw new Error("Falha ao atualizar serviço");
-    }
-
-    return data;
+  async updateService(params: { id: number; code: string; duration_minutes: number; price?: number | null; description?: string | null }): Promise<ServiceRow> {
+    const { data, error } = await this.supabase.from("services").update({
+      service_code: parseCode(params.code),
+      nome: params.description?.trim() || `Serviço ${params.code}`,
+      duracao_minutos: params.duration_minutes,
+      valor_reserva: params.price ?? null,
+    }).eq("service_code", params.id).select().single();
+    if (error) throw new Error("Falha ao atualizar serviço");
+    return toService(data as ServiceDbRow);
   }
 
-  /**
-   * Deleta um serviço
-   */
   async deleteService(id: number): Promise<void> {
-    const { error } = await this.supabase.from("services").delete().eq("id", id);
-
-    if (error) {
-      logger.error("Erro ao deletar serviço:", error);
-      throw new Error("Falha ao deletar serviço");
-    }
+    const { error } = await this.supabase.from("services").delete().eq("service_code", id);
+    if (error) throw new Error("Falha ao excluir serviço");
   }
 }
 
 export const servicesService = new ServicesService();
-

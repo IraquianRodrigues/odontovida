@@ -2,6 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -22,15 +23,13 @@ import { FinancialService } from "@/services/financial";
 import { toast } from "sonner";
 import type { PaymentMethod } from "@/types/financial";
 import type { AppointmentWithRelations } from "@/types/database.types";
-import { useClienteByTelefone } from "@/services/clientes/use-clientes";
-import { useDeleteAppointment } from "@/services/appointments/use-appointments";
-import { formatDateBR, getTodayDateString } from "@/lib/date-utils";
+import { formatDateBR } from "@/lib/date-utils";
 
 interface CompleteAppointmentPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   appointment: AppointmentWithRelations | null;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
 }
 
 export function CompleteAppointmentPaymentModal({
@@ -39,32 +38,22 @@ export function CompleteAppointmentPaymentModal({
   appointment,
   onSuccess,
 }: CompleteAppointmentPaymentModalProps) {
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("dinheiro");
   const [amount, setAmount] = useState<number>(0);
 
-  // Buscar cliente pelo telefone
-  const { data: cliente } = useClienteByTelefone(appointment?.customer_phone || null);
-  
-  // Hook para deletar agendamento
-  const deleteAppointmentMutation = useDeleteAppointment();
-
   // Preencher valor automaticamente se disponível
   useEffect(() => {
-    if (appointment?.service?.price && amount === 0) {
-      setAmount(appointment.service.price);
+    if (isOpen) {
+      setAmount(appointment?.service?.price || 0);
     }
-  }, [appointment, amount]);
+  }, [appointment?.id, appointment?.service?.price, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!appointment) return;
-
-    if (!cliente) {
-      toast.error("Cliente não encontrado");
-      return;
-    }
 
     if (amount <= 0) {
       toast.error("Informe um valor válido");
@@ -75,31 +64,22 @@ export function CompleteAppointmentPaymentModal({
 
 
     try {
-      // Criar transação financeira
-      const result = await FinancialService.createTransaction({
-        client_id: cliente.id.toString(),
-        professional_id: appointment.professional_code, // Usar professional_code ao invés de professional_id
-        type: "receita",
-        category: appointment.service?.code || "Consulta",
-        description: "",
-        amount: amount,
-        payment_method: paymentMethod,
-        status: "pago",
-        due_date: getTodayDateString(),
-        paid_date: getTodayDateString(),
-      });
+      const result = await FinancialService.completeAppointmentWithPayment(
+        appointment.id,
+        paymentMethod,
+        amount
+      );
 
       if (result.success) {
-        // Deletar o agendamento após registrar o pagamento usando o hook
-        try {
-          await deleteAppointmentMutation.mutateAsync(appointment.id);
-          toast.success("Pagamento registrado e agendamento concluído!");
-        } catch (deleteError) {
-          logger.error('Erro ao deletar agendamento após pagamento:', deleteError);
-          toast.warning('Pagamento registrado, mas o agendamento não foi removido. Por favor, remova manualmente.');
-        }
-        
-        onSuccess();
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["appointments"] }),
+          queryClient.invalidateQueries({ queryKey: ["appointment"] }),
+          queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] }),
+          queryClient.invalidateQueries({ queryKey: ["financial-metrics"] }),
+          queryClient.invalidateQueries({ queryKey: ["financial-transactions"] }),
+        ]);
+        toast.success("Pagamento registrado e agendamento concluído!");
+        await onSuccess();
         onClose();
       } else {
         toast.error(result.error || "Erro ao registrar pagamento");
@@ -134,7 +114,11 @@ export function CompleteAppointmentPaymentModal({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Procedimento:</span>
-              <span className="font-medium">{appointment?.service?.code || "Consulta"}</span>
+              <span className="font-medium">
+                {appointment?.service?.description ||
+                  appointment?.service?.code ||
+                  "Consulta"}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Data:</span>
@@ -194,8 +178,8 @@ export function CompleteAppointmentPaymentModal({
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-              disabled={isSubmitting || !cliente}
+              className="flex-1"
+              disabled={isSubmitting}
             >
               {isSubmitting ? "Registrando..." : "Confirmar Pagamento"}
             </Button>

@@ -38,19 +38,15 @@ export async function getServerUserProfile(): Promise<UserProfile | null> {
     const user = await getServerUser();
     if (!user) return null;
 
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      console.error("Error fetching user profile:", error);
-      return null;
-    }
-
-    return data as UserProfile;
+    const metadata = user.user_metadata || {};
+    return {
+      id: user.id,
+      email: user.email || "",
+      full_name: metadata.full_name || metadata.name || null,
+      role: metadata.role || "recepcionista",
+      created_at: user.created_at,
+      updated_at: user.updated_at || user.created_at,
+    } as UserProfile;
   } catch (error) {
     console.error("Error getting server user profile:", error);
     return null;

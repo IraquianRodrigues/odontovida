@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as professionalSchedulesService from "./professional-schedules.service";
 
 // ============================================
@@ -10,10 +10,12 @@ export const professionalSchedulesKeys = {
   byProfessional: (professionalId: number) =>
     [...professionalSchedulesKeys.all, professionalId] as const,
   allSchedules: () => [...professionalSchedulesKeys.all, "all"] as const,
+  blockedDates: (professionalCode: number) =>
+    [...professionalSchedulesKeys.all, "blocked-dates", professionalCode] as const,
 };
 
 // ============================================
-// HOOKS
+// SCHEDULE HOOKS
 // ============================================
 
 export function useProfessionalSchedule(professionalId: number) {
@@ -24,7 +26,6 @@ export function useProfessionalSchedule(professionalId: number) {
     enabled: !!professionalId,
   });
 }
-
 export function useUpdateProfessionalSchedule() {
   const queryClient = useQueryClient();
 
@@ -59,10 +60,62 @@ export function useUpdateProfessionalSchedule() {
     },
   });
 }
-
 export function useAllProfessionalSchedules() {
   return useQuery({
     queryKey: professionalSchedulesKeys.allSchedules(),
     queryFn: professionalSchedulesService.getAllProfessionalSchedules,
+  });
+}
+
+// ============================================
+// BLOCKED DATES HOOKS
+// ============================================
+
+export function useProfessionalBlockedDates(professionalCode: number) {
+  return useQuery({
+    queryKey: professionalSchedulesKeys.blockedDates(professionalCode),
+    queryFn: () =>
+      professionalSchedulesService.getProfessionalBlockedDates(professionalCode),
+    enabled: !!professionalCode,
+  });
+}
+
+export function useCreateProfessionalBlockedDate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      professionalCode,
+      blockData,
+    }: {
+      professionalCode: number;
+      blockData: { date: string; end_date?: string | null; reason?: string | null };
+    }) =>
+      professionalSchedulesService.createProfessionalBlockedDate(
+        professionalCode,
+        blockData
+      ),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: professionalSchedulesKeys.blockedDates(
+          variables.professionalCode
+        ),
+      });
+    },
+  });
+}
+export function useDeleteProfessionalBlockedDate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id }: { id: string; professionalCode: number }) =>
+      professionalSchedulesService.deleteProfessionalBlockedDate(id),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: professionalSchedulesKeys.blockedDates(
+          variables.professionalCode
+        ),
+      });
+    },
   });
 }

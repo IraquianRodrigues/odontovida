@@ -206,8 +206,8 @@ export function LoginContent() {
           position: relative;
           min-height: 100dvh;
           overflow: hidden;
-          background: #0a0e13;
-          color: #ffffff;
+          background: #0C1014;
+          color: #F4EDDB;
         }
 
         /* ======== ARC DECORATION ======== */
@@ -219,10 +219,10 @@ export function LoginContent() {
           width: min(850px, 65vw);
           height: min(850px, 65vw);
           border-radius: 50%;
-          border: 1px solid rgba(231, 165, 189, 0.06);
+          border: 1px solid rgba(244, 237, 219, 0.08);
           background: radial-gradient(
             ellipse at 40% 40%,
-            rgba(231, 165, 189, 0.04) 0%,
+            rgba(76, 81, 59, 0.22) 0%,
             transparent 70%
           );
           pointer-events: none;
@@ -268,8 +268,8 @@ export function LoginContent() {
           width: fit-content;
           padding: 0.375rem 0.875rem;
           border-radius: 9999px;
-          border: 1px solid rgba(231, 165, 189, 0.25);
-          background: rgba(231, 165, 189, 0.08);
+          border: 1px solid rgba(244, 237, 219, 0.18);
+          background: rgba(76, 81, 59, 0.24);
           margin-bottom: 2rem;
         }
 
@@ -277,15 +277,15 @@ export function LoginContent() {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #E7A5BD;
-          box-shadow: 0 0 8px rgba(231, 165, 189, 0.5);
+          background: #F4EDDB;
+          box-shadow: 0 0 8px rgba(244, 237, 219, 0.38);
         }
 
         .login-badge__text {
           font-size: 0.6875rem;
           font-weight: 600;
           letter-spacing: 0.08em;
-          color: #E7A5BD;
+          color: #F4EDDB;
         }
 
         /* Headline */
@@ -298,7 +298,7 @@ export function LoginContent() {
         }
 
         .login-headline__accent {
-          color: #E7A5BD;
+          color: #F4EDDB;
         }
 
         /* Description */
@@ -379,13 +379,13 @@ export function LoginContent() {
         .login-field__forgot {
           font-size: 0.8125rem;
           font-weight: 500;
-          color: #E7A5BD;
+          color: #F4EDDB;
           text-decoration: none;
           transition: color 0.15s ease;
         }
 
         .login-field__forgot:hover {
-          color: #D98AA7;
+          color: #B7AD93;
         }
 
         :global(.login-field__input) {
@@ -408,8 +408,8 @@ export function LoginContent() {
         }
 
         :global(.login-field__input:focus-visible) {
-          border-color: rgba(231, 165, 189, 0.5) !important;
-          box-shadow: 0 0 0 3px rgba(231, 165, 189, 0.1) !important;
+          border-color: rgba(244, 237, 219, 0.42) !important;
+          box-shadow: 0 0 0 3px rgba(76, 81, 59, 0.28) !important;
           background: rgba(255, 255, 255, 0.07) !important;
           outline: none !important;
         }
@@ -449,8 +449,8 @@ export function LoginContent() {
           height: 46px !important;
           width: 100% !important;
           border-radius: 8px !important;
-          background: linear-gradient(135deg, #D98AA7 0%, #C56B88 100%) !important;
-          color: #ffffff !important;
+          background: linear-gradient(135deg, #4C513B 0%, #6F7657 100%) !important;
+          color: #F4EDDB !important;
           font-size: 0.9375rem !important;
           font-weight: 600 !important;
           border: none !important;
@@ -544,7 +544,7 @@ function FeatureCard({
         }
 
         .feature-card:hover {
-          border-color: rgba(231, 165, 189, 0.12);
+          border-color: rgba(244, 237, 219, 0.14);
           background: rgba(255, 255, 255, 0.035);
         }
 
@@ -555,8 +555,8 @@ function FeatureCard({
           align-items: center;
           justify-content: center;
           border-radius: 10px;
-          background: rgba(231, 165, 189, 0.12);
-          color: #E7A5BD;
+          background: rgba(76, 81, 59, 0.36);
+          color: #F4EDDB;
         }
 
         .feature-card__title {

@@ -1,125 +1,13 @@
-﻿import { createClient } from "@/lib/supabase/client";
-import { getErrorMessage } from "@/lib/get-error-message";
-
-const getSupabase = () => createClient();
-
 export type DiagnosisType = "primary" | "secondary" | "differential";
-
-export interface Diagnosis {
-  id: string;
-  medical_record_id: string;
-  diagnosis_type: DiagnosisType;
-  description: string;
-  cid10_code: string | null;
-  cid10_description: string | null;
-  clinical_justification: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateDiagnosisInput {
-  medical_record_id: string;
-  diagnosis_type: DiagnosisType;
-  description: string;
-  cid10_code?: string;
-  cid10_description?: string;
-  clinical_justification?: string;
-}
-
-export interface UpdateDiagnosisInput {
-  diagnosis_type?: DiagnosisType;
-  description?: string;
-  cid10_code?: string;
-  cid10_description?: string;
-  clinical_justification?: string;
-}
-
+export interface Diagnosis { id: string; medical_record_id: string; diagnosis_type: DiagnosisType; description: string; cid10_code: string | null; cid10_description: string | null; clinical_justification: string | null; created_at: string; updated_at: string }
+export interface CreateDiagnosisInput { medical_record_id: string; diagnosis_type: DiagnosisType; description: string; cid10_code?: string; cid10_description?: string; clinical_justification?: string }
+export type UpdateDiagnosisInput = Partial<Omit<CreateDiagnosisInput, "medical_record_id">>;
+const missing = { success: false as const, error: "Diagnósticos não existem no esquema conectado", data: undefined as Diagnosis | undefined };
 export class DiagnosesService {
-  // Get all diagnoses for a medical record
-  static async getDiagnosesByRecordId(recordId: string) {
-    try {
-      const { data, error } = await getSupabase()
-        .from("diagnoses")
-        .select("*")
-        .eq("medical_record_id", recordId)
-        .order("diagnosis_type", { ascending: true })
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return { success: true, data: data as Diagnosis[] };
-    } catch (error: unknown) {
-      return { success: false, error: getErrorMessage(error) };
-    }
-  }
-
-  // Get a single diagnosis by ID
-  static async getDiagnosisById(id: string) {
-    try {
-      const { data, error } = await getSupabase()
-        .from("diagnoses")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-      return { success: true, data: data as Diagnosis };
-    } catch (error: unknown) {
-      return { success: false, error: getErrorMessage(error) };
-    }
-  }
-
-  // Create a new diagnosis
-  static async createDiagnosis(input: CreateDiagnosisInput) {
-    try {
-      const { data, error } = await getSupabase()
-        .from("diagnoses")
-        .insert([input])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { success: true, data: data as Diagnosis };
-    } catch (error: unknown) {
-      return { success: false, error: getErrorMessage(error) };
-    }
-  }
-
-  // Update an existing diagnosis
-  static async updateDiagnosis(id: string, input: UpdateDiagnosisInput) {
-    try {
-      const { data, error } = await getSupabase()
-        .from("diagnoses")
-        .update(input)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return { success: true, data: data as Diagnosis };
-    } catch (error: unknown) {
-      return { success: false, error: getErrorMessage(error) };
-    }
-  }
-
-  // Delete a diagnosis
-  static async deleteDiagnosis(id: string) {
-    try {
-      const { error } = await getSupabase()
-        .from("diagnoses")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-      return { success: true };
-    } catch (error: unknown) {
-      return { success: false, error: getErrorMessage(error) };
-    }
-  }
-
-  // Search CID-10 codes (placeholder for future API integration)
-  static async searchCID10(query: string) {
-    // TODO: Integrate with CID-10 API in the future
-    // For now, return empty array
-    return { success: true, data: [] };
-  }
+  static async getDiagnosesByRecordId(_id: string) { return { success: true as const, data: [] as Diagnosis[], error: undefined }; }
+  static async getDiagnosisById(_id: string) { return { success: true as const, data: null as Diagnosis | null, error: undefined }; }
+  static async createDiagnosis(_input: CreateDiagnosisInput) { return missing; }
+  static async updateDiagnosis(_id: string, _input: UpdateDiagnosisInput) { return missing; }
+  static async deleteDiagnosis(_id: string) { return missing; }
+  static async searchCID10(_query: string) { return { success: true as const, data: [] }; }
 }

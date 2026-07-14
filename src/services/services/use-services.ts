@@ -8,8 +8,8 @@ export function useServices() {
   return useQuery({
     queryKey: ["services"],
     queryFn: () => servicesService.getServices(),
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -22,8 +22,8 @@ export function useService(id: number | null) {
     queryFn: () =>
       id ? servicesService.getServiceById(id) : Promise.resolve(null),
     enabled: id !== null,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -36,8 +36,8 @@ export function useServiceByCode(code: string | null) {
     queryFn: () =>
       code ? servicesService.getServiceByCode(code) : Promise.resolve(null),
     enabled: code !== null,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -94,4 +94,3 @@ export function useDeleteService() {
     },
   });
 }
-

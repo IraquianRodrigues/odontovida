@@ -1,198 +1,168 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import {
+  CalendarDays,
+  CircleCheckBig,
+  Clock3,
+  Plus,
+  Radio,
+} from "lucide-react";
 import { formatDateFullBR } from "@/lib/date-utils";
+import { useAppointments } from "@/services/appointments/use-appointments";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FloatingActionButton } from "@/components/floating-action-button";
 import { AppointmentsTable } from "./appointments-table";
 import { DatePickerButton } from "./date-picker-button";
-import { useAppointments } from "@/services/appointments/use-appointments";
-import { Card } from "@/components/ui/card";
-import { Calendar, Clock, Users, CheckCircle2 } from "lucide-react";
-import { StatCard } from "./stat-card";
-import { FloatingActionButton } from "@/components/floating-action-button";
 
 const NewAppointmentModal = dynamic(
-  () => import("@/components/new-appointment-modal").then(mod => mod.NewAppointmentModal),
+  () =>
+    import("@/components/new-appointment-modal").then(
+      (mod) => mod.NewAppointmentModal
+    ),
   { ssr: false }
 );
 
 export default function DashboardContent() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] = useState(false);
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] =
+    useState(false);
 
   const {
     data: appointments = [],
     isLoading,
     error,
     refetch: refetchAppointments,
-    isFetching: isFetchingAppointments,
-  } = useAppointments({
-    date: selectedDate,
-  });
+  } = useAppointments({ date: selectedDate });
 
   const stats = useMemo(() => {
-    const total = appointments.length;
-    const completed = appointments.filter(apt => apt.completed_at !== null).length;
-    const pending = appointments.filter(apt => apt.completed_at === null).length;
-    
-    // Calculate completion percentage
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-    const pendingRate = total > 0 ? Math.round((pending / total) * 100) : 0;
+    const confirmedStatuses = new Set(["confirmed", "scheduled", "agendado"]);
+    const confirmed = appointments.filter((appointment) =>
+      confirmedStatuses.has(appointment.status)
+    ).length;
 
-    return { total, completed, pending, completionRate, pendingRate };
+    return {
+      total: appointments.length,
+      confirmed,
+      waiting: Math.max(appointments.length - confirmed, 0),
+    };
   }, [appointments]);
 
+  const metrics = [
+    {
+      label: "Agenda do dia",
+      value: stats.total,
+      detail: "agendamentos ativos",
+      icon: CalendarDays,
+    },
+    {
+      label: "Confirmados",
+      value: stats.confirmed,
+      detail: "prontos para atendimento",
+      icon: CircleCheckBig,
+    },
+    {
+      label: "Aguardando",
+      value: stats.waiting,
+      detail: "aguardando confirmação",
+      icon: Clock3,
+    },
+  ];
+
+  const openNewAppointment = () => setIsNewAppointmentModalOpen(true);
+
   return (
-    <div className="min-h-screen bg-muted/40 transition-colors duration-300">
-      <div className="container mx-auto p-6 lg:p-12 space-y-10 lg:space-y-12">
-        {/* Header - Premium refinement */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-              Dashboard
+    <div className="min-h-full bg-background">
+      <div className="mx-auto w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Visão geral
             </h1>
-            <div className="flex items-center gap-2">
-              <div className="h-1 w-12 bg-primary rounded-full" />
-              <p className="text-sm text-muted-foreground font-medium">
-                {formatDateFullBR(selectedDate)}
-              </p>
-            </div>
+            <p className="mt-1 text-sm capitalize text-muted-foreground">
+              {formatDateFullBR(selectedDate)}
+            </p>
           </div>
-          <div className="flex items-center gap-3 bg-card p-1.5 rounded-sm border border-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.04)]">
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-xs font-medium text-muted-foreground">
+              <Radio className="h-3.5 w-3.5 text-primary" />
+              Atualização em tempo real
+            </div>
             <DatePickerButton
               date={selectedDate}
               onDateChange={setSelectedDate}
             />
+            <Button
+              onClick={openNewAppointment}
+              className="hidden h-10 gap-2 rounded-lg px-4 sm:inline-flex"
+            >
+              <Plus className="h-4 w-4" />
+              Novo agendamento
+            </Button>
           </div>
-        </div>
+        </section>
 
-        {/* Stats Cards - Asymmetric Premium Layout */}
-        {!isLoading && !error && (
-          <div className="grid gap-4 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-            {/* Hero Card - Total (Larger, prominent) */}
-            <StatCard
-              title="Total de Agendamentos"
-              value={stats.total}
-              icon={Calendar}
-              progress={100}
-              delay={0}
-              variant="hero"
-              className="sm:col-span-2 lg:col-span-1 lg:row-span-2"
-            />
-
-            {/* Compact Cards - Secondary metrics */}
-            <StatCard
-              title="Concluídos"
-              value={stats.completed}
-              icon={CheckCircle2}
-              progress={stats.completionRate}
-              delay={100}
-              variant="compact"
-            />
-
-            <StatCard
-              title="Pendentes"
-              value={stats.pending}
-              icon={Clock}
-              progress={stats.pendingRate}
-              delay={200}
-              variant="compact"
-            />
-
-            {/* Additional info card - spans 2 columns on larger screens */}
-            <div className="sm:col-span-2 p-6 bg-card border border-border/50 rounded-sm shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-bottom-2 duration-600 delay-300 fill-mode-backwards">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/5 rounded-sm">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                    Taxa de Conclusão
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-card-foreground tracking-tight">
-                      {stats.completionRate}%
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      dos agendamentos
-                    </span>
-                  </div>
-                </div>
-                <div className="hidden sm:block h-12 w-px bg-border/50" />
-                <div className="hidden sm:block text-right">
-                  <p className="text-xs text-muted-foreground mb-1">Hoje</p>
-                  <p className="text-lg font-semibold text-card-foreground">
-                    {stats.total} total
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State - Premium skeleton */}
-        {isLoading && (
-          <div className="grid gap-4 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Hero skeleton */}
-            <div className="sm:col-span-2 lg:col-span-1 lg:row-span-2 h-[280px] lg:h-full rounded-sm border border-border/50 bg-card animate-pulse">
-              <div className="p-8 space-y-4">
-                <div className="h-14 w-14 rounded-sm bg-muted/50" />
-                <div className="space-y-2">
-                  <div className="h-3 w-32 rounded bg-muted/50" />
-                  <div className="h-12 w-24 rounded bg-muted/50" />
-                </div>
-              </div>
-            </div>
-            {/* Compact skeletons */}
-            {[0, 1, 2].map((i) => (
+        {isLoading ? (
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[0, 1, 2].map((item) => (
               <div
-                key={i}
-                className="h-[140px] rounded-sm border border-border/50 bg-card animate-pulse"
-              >
-                <div className="p-5 space-y-3">
-                  <div className="h-10 w-10 rounded-sm bg-muted/50" />
-                  <div className="space-y-2">
-                    <div className="h-2 w-20 rounded bg-muted/50" />
-                    <div className="h-8 w-16 rounded bg-muted/50" />
-                  </div>
-                </div>
-              </div>
+                key={item}
+                className="h-28 animate-pulse rounded-xl border border-border bg-card"
+              />
             ))}
           </div>
+        ) : (
+          !error && (
+            <section className="grid gap-3 sm:grid-cols-3">
+              {metrics.map(({ label, value, detail, icon: Icon }) => (
+                <div
+                  key={label}
+                  className="rounded-xl border border-border bg-card p-5 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {label}
+                      </p>
+                      <p className="mt-2 text-3xl font-semibold tracking-tight text-card-foreground">
+                        {value}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {detail}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </section>
+          )
         )}
 
-        {/* Main Content - Premium table container */}
-        <div className="flex flex-col gap-6">
-          {error ? (
-            <Card className="p-12 border border-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.04)] rounded-sm bg-card">
-              <div className="text-center space-y-3">
-                <div className="mx-auto w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-sm flex items-center justify-center">
-                  <Users className="h-6 w-6 text-red-500 dark:text-red-400" />
-                </div>
-                <p className="text-red-600 dark:text-red-400 font-medium">
-                  Erro ao carregar agendamentos
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Por favor, tente novamente mais tarde.
-                </p>
-              </div>
-            </Card>
-          ) : (
-            <div className="bg-card rounded-sm border border-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.04),0_8px_16px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_8px_16px_rgba(0,0,0,0.06),0_16px_32px_rgba(0,0,0,0.08)]">
-              <AppointmentsTable
-                appointments={appointments}
-                isLoading={isLoading}
-                onRefresh={refetchAppointments}
-                isRefreshing={isFetchingAppointments}
-              />
-            </div>
-          )}
-        </div>
+        {error ? (
+          <Card className="rounded-xl border-border p-10 text-center shadow-none">
+            <p className="font-medium text-destructive">
+              Erro ao carregar agendamentos
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tente novamente em alguns instantes.
+            </p>
+          </Card>
+        ) : (
+          <AppointmentsTable
+            appointments={appointments}
+            isLoading={isLoading}
+            onRefresh={refetchAppointments}
+          />
+        )}
 
-        {/* Floating Action Button */}
-        <FloatingActionButton onClick={() => setIsNewAppointmentModalOpen(true)} />
+        <FloatingActionButton onClick={openNewAppointment} />
 
-        {/* New Appointment Modal */}
         <NewAppointmentModal
           isOpen={isNewAppointmentModalOpen}
           onClose={() => setIsNewAppointmentModalOpen(false)}

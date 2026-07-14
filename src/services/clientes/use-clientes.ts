@@ -1,4 +1,4 @@
-﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientesService } from "./clientes.service";
 
 /**
@@ -8,8 +8,8 @@ export function useClientes() {
   return useQuery({
     queryKey: ["clientes"],
     queryFn: () => clientesService.getAllClientes(),
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -24,8 +24,8 @@ export function useClienteByTelefone(telefone: string | null) {
         ? clientesService.getClienteByTelefone(telefone)
         : Promise.resolve(null),
     enabled: !!telefone,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -72,10 +72,9 @@ export function useDeleteCliente() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => clientesService.deleteCliente(id),
+    mutationFn: (id: string) => clientesService.deleteCliente(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clientes"] });
     },
   });
 }
-

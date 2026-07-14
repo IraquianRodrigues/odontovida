@@ -88,6 +88,9 @@ export function AppSidebar() {
 
   // Filtrar itens de navegação baseado em permissões
   const filteredNavItems = navItems.filter(item => {
+    if (item.href === "/dashboard/prontuarios" || item.href === "/dashboard/odontograma") {
+      return false;
+    }
     if (item.requiresAdmin) {
       return hasFinancialAccess;
     }
@@ -175,10 +178,10 @@ export function AppSidebar() {
           "shadow-sm",
           // Desktop
           "hidden md:flex",
-          isCollapsed ? "w-16" : "w-64",
+          isCollapsed ? "w-16" : "w-60",
           // Mobile
           "md:translate-x-0",
-          isMobileOpen ? "flex translate-x-0 w-64" : "-translate-x-full"
+          isMobileOpen ? "flex w-60 translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo Section */}
@@ -187,12 +190,12 @@ export function AppSidebar() {
           isCollapsed ? "justify-center px-2" : "justify-start"
         )}>
           {isCollapsed ? (
-            <div className="bg-primary rounded-xl p-2.5 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-center rounded-lg bg-primary p-2.5">
               <Calendar className="h-5 w-5 text-primary-foreground" />
             </div>
           ) : (
             <div className="flex items-center gap-3 group">
-              <div className="bg-primary rounded-xl p-2.5 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
+              <div className="flex items-center justify-center rounded-lg bg-primary p-2.5">
                 <Calendar className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="flex flex-col">
@@ -223,11 +226,10 @@ export function AppSidebar() {
                   animationDelay: `${index * 50}ms`,
                 }}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300",
-                  "animate-in fade-in slide-in-from-left-2",
+                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-primary shadow-sm scale-[1.02]"
-                    : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:scale-[1.01]",
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   isCollapsed && "md:justify-center md:px-2"
                 )}
               >
@@ -238,8 +240,8 @@ export function AppSidebar() {
 
                 <Icon 
                   className={cn(
-                    "h-5 w-5 flex-shrink-0 transition-all duration-300",
-                    isActive ? "scale-110 text-primary" : "group-hover:scale-110"
+                    "h-5 w-5 flex-shrink-0 transition-colors",
+                    isActive ? "text-sidebar-primary" : ""
                   )} 
                 />
                 <span

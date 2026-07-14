@@ -13,7 +13,7 @@ import { ptBR } from "date-fns/locale";
 
 interface PatientListProps {
   searchQuery: string;
-  onPatientClick: (patientId: number) => void;
+  onPatientClick: (patientId: string | number) => void;
 }
 
 export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
@@ -35,13 +35,13 @@ export function PatientList({ searchQuery, onPatientClick }: PatientListProps) {
       const supabase = createClient();
       const { data: professionals } = await supabase
         .from("professionals")
-        .select("id")
+        .select("professional_code")
         .eq("email", profile.email)
         .single();
       
       if (!professionals) return { success: false, data: [] };
       
-      return MedicalRecordsService.getPatientsByProfessional(professionals.id);
+      return MedicalRecordsService.getPatientsByProfessional(professionals.professional_code);
     },
     enabled: !!profile?.id,
   });

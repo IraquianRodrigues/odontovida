@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useQuery } from "@tanstack/react-query";
 import { ProtectedRoute } from "@/components/protected-route";
 import { FinancialService } from "@/services/financial";
-import type { Transaction, FinancialMetrics, TransactionType, TransactionStatus } from "@/types/financial";
+import type { TransactionType, TransactionStatus } from "@/types/financial";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp, TrendingDown, Clock, DollarSign, AlertCircle, FileText } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Clock, AlertCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { FinancialTable } from "./_components/financial-table";
 import { FinancialFilters } from "./_components/financial-filters";
@@ -23,9 +24,6 @@ const FinancialReportModal = dynamic(
 );
 
 export default function FinanceiroPage() {
-  const [metrics, setMetrics] = useState<FinancialMetrics | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   
@@ -34,34 +32,59 @@ export default function FinanceiroPage() {
   const [selectedProfessional, setSelectedProfessional] = useState<number | "all">("all");
   const [selectedStatus, setSelectedStatus] = useState<TransactionStatus | "all">("all");
 
-  const loadData = async () => {
-    setIsLoading(true);
-    
-    // Load metrics
-    const metricsResult = await FinancialService.getFinancialMetrics();
-    if (metricsResult.success && metricsResult.data) {
-      setMetrics(metricsResult.data);
-    }
+  const {
+    data: metrics = null,
+    isLoading: isLoadingMetrics,
+    error: metricsError,
+    refetch: refetchMetrics,
+  } = useQuery({
+    queryKey: ["financial-metrics"],
+    queryFn: async () => {
+      const result = await FinancialService.getFinancialMetrics();
+      if (!result.success) {
+        throw new Error(result.error || "Erro ao carregar indicadores financeiros");
+      }
+      return result.data || null;
+    },
+  });
 
-    // Load transactions with filters
-    const filters: any = {};
-    if (selectedType !== "all") filters.type = selectedType;
-    if (selectedProfessional !== "all") filters.professionalId = selectedProfessional;
-    if (selectedStatus !== "all") filters.status = selectedStatus;
+  const {
+    data: transactions = [],
+    isLoading: isLoadingTransactions,
+    error: transactionsError,
+    refetch: refetchTransactions,
+  } = useQuery({
+    queryKey: [
+      "financial-transactions",
+      { selectedType, selectedProfessional, selectedStatus },
+    ],
+    queryFn: async () => {
+      const filters: Parameters<typeof FinancialService.getTransactions>[0] = {};
+      if (selectedType !== "all") filters.type = selectedType;
+      if (selectedProfessional !== "all") {
+        filters.professionalId = selectedProfessional;
+      }
+      if (selectedStatus !== "all") filters.status = selectedStatus;
 
-    const transactionsResult = await FinancialService.getTransactions(filters);
-    if (transactionsResult.success && transactionsResult.data) {
-      setTransactions(transactionsResult.data);
-    } else {
-      toast.error("Erro ao carregar transações");
-    }
+      const result = await FinancialService.getTransactions(filters);
+      if (!result.success) {
+        throw new Error(result.error || "Erro ao carregar transações");
+      }
+      return result.data || [];
+    },
+  });
 
-    setIsLoading(false);
-  };
+  const loadData = useCallback(async () => {
+    await Promise.all([refetchMetrics(), refetchTransactions()]);
+  }, [refetchMetrics, refetchTransactions]);
+
+  const isLoading = isLoadingMetrics || isLoadingTransactions;
 
   useEffect(() => {
-    loadData();
-  }, [selectedType, selectedProfessional, selectedStatus]);
+    if (metricsError || transactionsError) {
+      toast.error("Erro ao carregar dados financeiros");
+    }
+  }, [metricsError, transactionsError]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -126,21 +149,33 @@ export default function FinanceiroPage() {
                 </div>
               </Card>
 
-              {/* Total Recebido */}
+              {/* Saldo do mês */}
               <Card className="p-6 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-green-100 dark:bg-green-900/30">
-                    <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  <div className={`p-3 rounded-xl ${
+                    metrics.netProfit >= 0
+                      ? "bg-green-100 dark:bg-green-900/30"
+                      : "bg-red-100 dark:bg-red-900/30"
+                  }`}>
+                    <TrendingUp className={`h-6 w-6 ${
+                      metrics.netProfit >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Recebido no Mês
+                      Saldo no Mês
                     </p>
-                    <p className="text-xl font-bold text-green-600 dark:text-green-400 mt-1 truncate">
-                      {formatCurrency(metrics.monthlyRevenue)}
+                    <p className={`text-xl font-bold mt-1 truncate ${
+                      metrics.netProfit >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}>
+                      {formatCurrency(metrics.netProfit)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Receitas confirmadas
+                      Receitas e despesas lançadas
                     </p>
                   </div>
                 </div>
@@ -166,33 +201,21 @@ export default function FinanceiroPage() {
                 </div>
               </Card>
 
-              {/* Lucro Líquido */}
+              {/* Despesas do mês */}
               <Card className="p-6 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${
-                    metrics.netProfit >= 0 
-                      ? "bg-blue-100 dark:bg-blue-900/30" 
-                      : "bg-red-100 dark:bg-red-900/30"
-                  }`}>
-                    <DollarSign className={`h-6 w-6 ${
-                      metrics.netProfit >= 0
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-red-600 dark:text-red-400"
-                    }`} />
+                  <div className="p-3 rounded-xl bg-red-100 dark:bg-red-900/30">
+                    <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Lucro Líquido
+                      Despesas no Mês
                     </p>
-                    <p className={`text-xl font-bold mt-1 truncate ${
-                      metrics.netProfit >= 0 
-                        ? "text-blue-600 dark:text-blue-400" 
-                        : "text-red-600 dark:text-red-400"
-                    }`}>
-                      {formatCurrency(metrics.netProfit)}
+                    <p className="text-xl font-bold mt-1 truncate text-red-600 dark:text-red-400">
+                      {formatCurrency(metrics.monthlyExpenses > 0 ? -metrics.monthlyExpenses : 0)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Receitas - Despesas
+                      Movimentações não canceladas
                     </p>
                   </div>
                 </div>

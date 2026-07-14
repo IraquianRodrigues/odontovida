@@ -56,7 +56,7 @@ export function HolidaysManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
       await deleteHoliday.mutateAsync(id);
       toast({

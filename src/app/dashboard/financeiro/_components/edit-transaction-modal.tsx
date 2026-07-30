@@ -97,7 +97,11 @@ export function EditTransactionModal({ isOpen, transaction, onClose, onSuccess }
       }
     }
 
-    const result = await FinancialService.updateTransaction(transaction.id, updateData);
+    const result = await FinancialService.updateTransaction(
+      transaction.id,
+      updateData,
+      transaction.source
+    );
 
     if (result.success) {
       toast.success("Transação atualizada com sucesso!");

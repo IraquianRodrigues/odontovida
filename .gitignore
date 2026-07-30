@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# gemini (contains MCP tokens)
+.gemini/settings.json
 
 # vercel
 .vercel
@@ -39,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local Codex files and credentials
+/.codex/
+/.codex-*.log
+/creds.txt

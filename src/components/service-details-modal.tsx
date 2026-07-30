@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Briefcase, Trash2, Clock, Banknote, FileText } from "lucide-react";
+import { Briefcase, Trash2, Clock, FileText } from "lucide-react";
 import type { ServiceRow } from "@/types/database.types";
 import { formatDateTimeBR } from "@/lib/date-utils";
 import { toast } from "sonner";
@@ -47,7 +47,6 @@ export function ServiceDetailsModal({
 }: ServiceDetailsModalProps) {
   const [code, setCode] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("");
-  const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
@@ -59,12 +58,10 @@ export function ServiceDetailsModal({
     if (service) {
       setCode(service.code);
       setDurationMinutes(service.duration_minutes.toString());
-      setPrice(service.price ? service.price.toString() : "");
       setDescription(service.description || "");
     } else if (isCreating) {
       setCode("");
       setDurationMinutes("");
-      setPrice("");
       setDescription("");
     }
   }, [service, isCreating]);
@@ -89,23 +86,19 @@ export function ServiceDetailsModal({
       return;
     }
 
-    const priceValue = price ? parseFloat(price) : null;
-
     try {
       if (isCreating) {
         await createMutation.mutateAsync({
-          code: code.trim(),
+          name: code.trim(),
           duration_minutes: duration,
-          price: priceValue,
           description,
         });
         toast.success("Serviço criado com sucesso!");
       } else if (service) {
         await updateMutation.mutateAsync({
           id: service.id,
-          code: code.trim(),
+          name: code.trim(),
           duration_minutes: duration,
-          price: priceValue,
           description,
         });
         toast.success("Serviço atualizado com sucesso!");
@@ -170,17 +163,17 @@ export function ServiceDetailsModal({
               </h3>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="code">Código do Serviço *</Label>
+                  <Label htmlFor="code">Nome do Serviço *</Label>
                   <Input
                     id="code"
-                    placeholder="Ex: consulta-geral, exame-rotina"
+                    placeholder="Ex: Avaliação, Limpeza, Clareamento"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     disabled={isPending}
                     className="w-full"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Use um código único para identificar o serviço
+                    Nome exibido no agendamento e usado pela equipe.
                   </p>
                 </div>
 
@@ -201,27 +194,6 @@ export function ServiceDetailsModal({
                   />
                   <p className="text-xs text-muted-foreground">
                     Tempo estimado em minutos para realização do serviço
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="flex items-center gap-2">
-                    <Banknote className="h-4 w-4" />
-                    Valor (R$)
-                  </Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="Ex: 150.00"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    disabled={isPending}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Valor base do serviço (opcional)
                   </p>
                 </div>
 

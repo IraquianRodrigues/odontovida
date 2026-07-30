@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-import { User, Trash2, Code2 } from "lucide-react";
+import { User, Trash2 } from "lucide-react";
 import type { ProfessionalRow } from "@/types/database.types";
 import { formatDateTimeBR } from "@/lib/date-utils";
 import { toast } from "sonner";
@@ -52,8 +52,6 @@ export function ProfessionalDetailsModal({
   const createMutation = useCreateProfessional();
   const updateMutation = useUpdateProfessional();
   const deleteMutation = useDeleteProfessional();
-
-  const generatedCode = name.toLowerCase().trim().replace(/\s+/g, "-");
 
   useEffect(() => {
     if (professional) {
@@ -176,24 +174,6 @@ export function ProfessionalDetailsModal({
                   />
                 </div>
 
-                {name !== "" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="code" className="flex items-center gap-2">
-                      <Code2 className="h-4 w-4" />
-                      Código (gerado automaticamente)
-                    </Label>
-                    <Input
-                      id="code"
-                      value={generatedCode || "digite-o-nome-acima"}
-                      disabled
-                      className="font-mono text-sm bg-muted"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      O código é gerado automaticamente: sem espaços, tudo em
-                      minúsculas, separado por hífens
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 

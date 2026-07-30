@@ -4,9 +4,11 @@ export type TransactionType = 'receita' | 'despesa';
 export type TransactionStatus = 'pendente' | 'pago' | 'cancelado' | 'atrasado';
 export type PaymentMethod = 'dinheiro' | 'cartao_credito' | 'cartao_debito' | 'pix' | 'boleto' | 'transferencia';
 export type PaymentPlanStatus = 'ativo' | 'concluido' | 'cancelado';
+export type TransactionSource = 'appointment' | 'transaction';
 
 export interface Transaction {
   id: string;
+  source: TransactionSource;
   client_id: string;
   appointment_id?: string | null;
   professional_id?: number | null;
@@ -23,7 +25,7 @@ export interface Transaction {
   updated_at: string;
   // Joined data
   client?: {
-    id: number;
+    id: string | number;
     nome: string;
     telefone?: string;
   };

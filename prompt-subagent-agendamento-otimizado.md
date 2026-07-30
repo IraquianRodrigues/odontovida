@@ -56,17 +56,21 @@ Quando `acao: consultar`, siga este fluxo:
 ```
 1. Receber: date + professional_code
           ↓
-2. Converter data → dia da semana (0-6)
+2. Verificar bloqueios na tabela blocked_dates (onde active = true e a data cai no bloqueio — global ou do profissional, unitário ou range)
+   └─ Bloqueio de dia inteiro (sem start_time)? → Retornar "Profissional indisponível nesta data (motivo: [motivo])"
           ↓
-3. Chamar buscar_horarios_profissional(professional_id, day_of_week)
+3. Converter data → dia da semana (0-6)
           ↓
+4. Chamar buscar_horarios_profissional(professional_id, day_of_week)
    └─ Retorno vazio? → "Profissional não atende neste dia"
           ↓
-4. Usar open_time / close_time → Gerar slots de 30 em 30 min
+5. Usar open_time / close_time → Gerar slots de 30 em 30 min
           ↓
-5. Buscar appointments (professional_code + date) → Remover ocupados
+6. Buscar appointments (professional_code + date) → Remover ocupados
           ↓
-6. Retornar slots livres (horário da clínica, não UTC)
+7. Se houver bloqueio parcial em blocked_dates (com start_time/end_time) → Remover slots do intervalo bloqueado
+          ↓
+8. Retornar slots livres (horário da clínica, não UTC)
 ```
 
 ---
@@ -75,11 +79,16 @@ Quando `acao: consultar`, siga este fluxo:
 
 ### Consultar Disponibilidade
 
-1. Identifique dia da semana da data solicitada
-2. Busque horários do profissional via `buscar_horarios_profissional`
-3. Gere slots entre `open_time` e `close_time` (intervalo 30 min)
-4. Remova horários já ocupados na tabela `appointments`
-5. Retorne lista de horários livres no fuso da clínica
+1. Identifique a data solicitada e o `professional_code`.
+2. Verifique na tabela `blocked_dates` se há algum bloqueio ativo (`active = true`) para esta data:
+   - Que seja global (`professional_code IS NULL`) ou específico do profissional (`professional_code = professional_code`).
+   - Onde a data consultada seja igual a `date`, ou caia no intervalo entre `date` e `end_date` (se `end_date` estiver preenchido).
+   - Se for um bloqueio de dia inteiro (sem `start_time` definido), retorne imediatamente que o profissional está indisponível na data, informando o motivo (se houver).
+3. Busque os horários do profissional via `buscar_horarios_profissional` para o dia da semana correspondente.
+4. Gere slots de 30 em 30 minutos entre `open_time` e `close_time`.
+5. Remova os horários já ocupados na tabela `appointments`.
+6. Se houver bloqueios parciais ativos para o período (com `start_time` e `end_time` definidos), remova os slots correspondentes a esse intervalo.
+7. Retorne a lista de horários livres no fuso da clínica.
 
 ### Agendar
 

@@ -1,13 +1,18 @@
-﻿import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import type { ProfessionalRow } from "@/types/database.types";
 
-export class ProfessionalsService {
-  private get supabase() { return createClient(); }
+type ProfessionalDatabaseRow = Omit<ProfessionalRow, "code">;
 
-  /**
-   * Busca todos os profissionais
-   */
+export class ProfessionalsService {
+  private get supabase() {
+    return createClient();
+  }
+
+  private toProfessionalRow(professional: ProfessionalDatabaseRow): ProfessionalRow {
+    return { ...professional, code: professional.name };
+  }
+
   async getProfessionals(): Promise<ProfessionalRow[]> {
     const { data, error } = await this.supabase
       .from("professionals")
@@ -19,55 +24,51 @@ export class ProfessionalsService {
       throw new Error("Falha ao buscar profissionais");
     }
 
-    return data || [];
+    return (data || []).map((professional) => this.toProfessionalRow(professional));
   }
 
-  /**
-   * Busca um profissional específico por ID
-   */
   async getProfessionalById(id: number): Promise<ProfessionalRow | null> {
     const { data, error } = await this.supabase
       .from("professionals")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       logger.error("Erro ao buscar profissional:", error);
       throw new Error("Falha ao buscar profissional");
     }
 
-    return data;
+    return data ? this.toProfessionalRow(data) : null;
   }
 
-  /**
-   * Busca um profissional específico por código
-   */
-  async getProfessionalByCode(code: string): Promise<ProfessionalRow | null> {
+  async getProfessionalByCode(name: string): Promise<ProfessionalRow | null> {
     const { data, error } = await this.supabase
       .from("professionals")
       .select("*")
-      .eq("code", code)
-      .single();
+      .eq("name", name)
+      .maybeSingle();
 
     if (error) {
       logger.error("Erro ao buscar profissional:", error);
       return null;
     }
 
-    return data;
+    return data ? this.toProfessionalRow(data) : null;
   }
 
-  /**
-   * Cria um novo profissional
-   */
-  async createProfessional(params: { name: string; specialty: string | null }): Promise<ProfessionalRow> {
-    // Gera o código a partir do nome (remove espaços, converte para minúsculas e substitui por hífen)
-    const code = params.name.toLowerCase().trim().replace(/\s+/g, "-");
-
+  async createProfessional(params: {
+    name: string;
+    specialty: string | null;
+    active?: boolean;
+  }): Promise<ProfessionalRow> {
     const { data, error } = await this.supabase
       .from("professionals")
-      .insert({ name: params.name, code, specialty: params.specialty })
+      .insert({
+        name: params.name.trim(),
+        specialty: params.specialty,
+        active: params.active ?? true,
+      })
       .select()
       .single();
 
@@ -76,19 +77,22 @@ export class ProfessionalsService {
       throw new Error("Falha ao criar profissional");
     }
 
-    return data;
+    return this.toProfessionalRow(data);
   }
 
-  /**
-   * Atualiza o nome e especialidade de um profissional
-   */
-  async updateProfessional(params: { id: number; name: string; specialty: string | null }): Promise<ProfessionalRow> {
-    // Gera o novo código a partir do novo nome
-    const code = params.name.toLowerCase().trim().replace(/\s+/g, "-");
-
+  async updateProfessional(params: {
+    id: number;
+    name: string;
+    specialty: string | null;
+    active?: boolean;
+  }): Promise<ProfessionalRow> {
     const { data, error } = await this.supabase
       .from("professionals")
-      .update({ name: params.name, code, specialty: params.specialty })
+      .update({
+        name: params.name.trim(),
+        specialty: params.specialty,
+        ...(params.active === undefined ? {} : { active: params.active }),
+      })
       .eq("id", params.id)
       .select()
       .single();
@@ -98,12 +102,9 @@ export class ProfessionalsService {
       throw new Error("Falha ao atualizar profissional");
     }
 
-    return data;
+    return this.toProfessionalRow(data);
   }
 
-  /**
-   * Deleta um profissional
-   */
   async deleteProfessional(id: number): Promise<void> {
     const { error } = await this.supabase
       .from("professionals")

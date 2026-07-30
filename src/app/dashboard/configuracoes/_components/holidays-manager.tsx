@@ -63,7 +63,7 @@ export function HolidaysManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
       await deleteMutation.mutateAsync(id);
       toast.success("Feriado removido com sucesso!");

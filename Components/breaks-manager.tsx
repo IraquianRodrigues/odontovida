@@ -68,7 +68,7 @@ export function BreaksManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
       await deleteBreak.mutateAsync(id);
       toast({

@@ -1,4 +1,4 @@
-﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   appointmentsService,
   type GetAppointmentsParams,
@@ -8,10 +8,9 @@ export function useAppointments(params?: GetAppointmentsParams) {
   return useQuery({
     queryKey: ["appointments", params],
     queryFn: () => appointmentsService.getAppointments(params),
-    staleTime: 1000 * 60 * 10, // 10 minutos - dados considerados frescos
-    gcTime: 1000 * 60 * 15,    // 15 minutos - tempo no cache
-    refetchOnWindowFocus: false, // Desabilitado para melhor performance
-    // Removido refetchInterval - sem polling automático
+    staleTime: 1000 * 60 * 2,  // 2 minutos - fallback se Realtime falhar
+    gcTime: 1000 * 60 * 10,    // 10 minutos - tempo no cache
+    refetchOnWindowFocus: true, // Atualiza ao voltar pra aba
   });
 }
 
@@ -20,19 +19,19 @@ export function useAppointmentsByPhone(phone: string | null) {
     queryKey: ["appointments-history", phone],
     queryFn: () => phone ? appointmentsService.getAppointmentsByPhone(phone) : Promise.resolve([]),
     enabled: !!phone,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
-export function useAppointment(id: number | null) {
+export function useAppointment(id: string | number | null) {
   return useQuery({
     queryKey: ["appointment", id],
     queryFn: () =>
       id ? appointmentsService.getAppointmentById(id) : Promise.resolve(null),
     enabled: !!id,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -44,7 +43,7 @@ export function useUpdateAppointment() {
       id,
       data,
     }: {
-      id: number;
+      id: string | number;
       data: Partial<{
         service_code: number;
         professional_code: number;
@@ -65,7 +64,7 @@ export function useDeleteAppointment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => appointmentsService.deleteAppointment(id),
+    mutationFn: (id: string | number) => appointmentsService.deleteAppointment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["appointment"] });
@@ -95,7 +94,7 @@ export function useMarkAppointmentAsCompleted() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => appointmentsService.markAsCompleted(id),
+    mutationFn: (id: string | number) => appointmentsService.markAsCompleted(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["appointment"] });
@@ -107,7 +106,7 @@ export function useMarkAppointmentAsNotCompleted() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => appointmentsService.markAsNotCompleted(id),
+    mutationFn: (id: string | number) => appointmentsService.markAsNotCompleted(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["appointment"] });
@@ -119,7 +118,7 @@ export function useUpdateAppointmentStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) =>
+    mutationFn: ({ id, status }: { id: string | number; status: string }) =>
       appointmentsService.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
@@ -143,7 +142,8 @@ export function useAvailableServicesForProfessional(
         )
         : Promise.resolve([]),
     enabled: professionalId !== null,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -158,7 +158,8 @@ export function useAvailableProfessionalsForService(serviceId: number | null) {
         ? appointmentsService.getAvailableProfessionalsForService(serviceId)
         : Promise.resolve([]),
     enabled: serviceId !== null,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -179,9 +180,11 @@ export function useDurationForProfessionalService(
         )
         : Promise.resolve(null),
     enabled: professionalId !== null && serviceId !== null,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
+
 /**
  * Hook para buscar estatísticas do dashboard
  */
@@ -189,7 +192,6 @@ export function useDashboardStats(startDate: Date, endDate: Date) {
   return useQuery({
     queryKey: ["dashboard-stats", startDate, endDate],
     queryFn: async () => {
-      // Reutiliza o serviço existente para buscar appointments no intervalo
       const appointments = await appointmentsService.getAppointments({
         startDate,
         endDate
@@ -197,6 +199,7 @@ export function useDashboardStats(startDate: Date, endDate: Date) {
 
       return appointments;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutos de cache
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }

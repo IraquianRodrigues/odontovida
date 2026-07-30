@@ -76,7 +76,7 @@ export function BlockedSlotsManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
       await deleteMutation.mutateAsync(id);
       toast.success("Bloqueio removido com sucesso!");

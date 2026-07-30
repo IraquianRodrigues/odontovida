@@ -86,7 +86,7 @@ export function BreaksManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
       await deleteMutation.mutateAsync(id);
       toast.success("Intervalo removido com sucesso!");

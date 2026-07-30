@@ -2,10 +2,10 @@
 
 import { Card } from "@/components/ui/card";
 import { Calendar, CheckCircle2, XCircle, Users } from "lucide-react";
-import type { Appointment } from "@/lib/mock-data";
+import type { AppointmentWithRelations } from "@/types/database.types";
 
 interface StatsCardsProps {
-  appointments: Appointment[];
+  appointments: AppointmentWithRelations[];
 }
 
 export function StatsCards({ appointments }: StatsCardsProps) {

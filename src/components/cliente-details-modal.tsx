@@ -88,11 +88,11 @@ export function ClienteDetailsModal({ cliente, onClose }: ClienteDetailsModalPro
       if (user) {
         const { data: professional } = await supabase
           .from('professionals')
-          .select('id')
-          .eq('user_id', user.id)
-          .single();
+          .select('professional_code')
+          .eq('email', user.email || '')
+          .maybeSingle();
         if (professional) {
-          setProfessionalId(professional.id);
+          setProfessionalId(professional.professional_code);
         }
       }
     };

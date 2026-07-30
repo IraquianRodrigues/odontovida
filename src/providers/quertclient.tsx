@@ -14,16 +14,16 @@ export function QueryClientContext({
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Cache data for 5 minutes
-            staleTime: 5 * 60 * 1000,
+            // Cache data for 2 minutes (Realtime handles instant updates)
+            staleTime: 2 * 60 * 1000,
             // Keep unused data in cache for 10 minutes
             gcTime: 10 * 60 * 1000,
             // Retry failed requests once
             retry: 1,
-            // Refetch on window focus only if data is stale
-            refetchOnWindowFocus: false,
-            // Refetch on reconnect only if data is stale
-            refetchOnReconnect: false,
+            // Refetch on window focus as fallback for Realtime
+            refetchOnWindowFocus: true,
+            // Refetch on reconnect as fallback for Realtime
+            refetchOnReconnect: true,
           },
         },
       })

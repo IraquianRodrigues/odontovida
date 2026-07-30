@@ -35,24 +35,27 @@ interface FinancialTableProps {
 export function FinancialTable({ transactions, isLoading, onRefresh }: FinancialTableProps) {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
-  const allSelected = transactions.length > 0 && selectedIds.size === transactions.length;
-  const someSelected = selectedIds.size > 0 && selectedIds.size < transactions.length;
+  const transactionKey = (transaction: Transaction) => `${transaction.source}:${transaction.id}`;
+  const deletableTransactions = transactions.filter((transaction) => transaction.source !== "appointment");
+  const allSelected = deletableTransactions.length > 0 && selectedIds.size === deletableTransactions.length;
+  const someSelected = selectedIds.size > 0 && selectedIds.size < deletableTransactions.length;
 
   const toggleSelectAll = () => {
     if (allSelected) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(transactions.map((t) => t.id)));
+      setSelectedIds(new Set(deletableTransactions.map(transactionKey)));
     }
   };
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (transaction: Transaction) => {
+    const id = transactionKey(transaction);
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -102,9 +105,10 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
     );
   };
 
-  const handleMarkAsPaid = async (id: string) => {
-    setProcessingId(id);
-    const result = await FinancialService.markAsPaid(id, "dinheiro");
+  const handleMarkAsPaid = async (transaction: Transaction) => {
+    const key = transactionKey(transaction);
+    setProcessingId(key);
+    const result = await FinancialService.markAsPaid(transaction, "dinheiro");
     
     if (result.success) {
       toast.success("Transação marcada como paga!");
@@ -116,18 +120,21 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
     setProcessingId(null);
   };
 
-  const openDeleteDialog = (id: string) => {
-    setTransactionToDelete(id);
+  const openDeleteDialog = (transaction: Transaction) => {
+    setTransactionToDelete(transaction);
     setDeleteDialogOpen(true);
   };
 
   const handleDelete = async () => {
     if (!transactionToDelete) return;
     
-    setProcessingId(transactionToDelete);
+    setProcessingId(transactionKey(transactionToDelete));
     setDeleteDialogOpen(false);
     
-    const result = await FinancialService.deleteTransaction(transactionToDelete);
+    const result = await FinancialService.deleteTransaction(
+      transactionToDelete.id,
+      transactionToDelete.source
+    );
     
     if (result.success) {
       toast.success("Transação excluída!");
@@ -146,7 +153,10 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
     setIsBulkDeleting(true);
     setBulkDeleteDialogOpen(false);
 
-    const result = await FinancialService.deleteTransactions(Array.from(selectedIds));
+    const selectedTransactions = deletableTransactions
+      .filter((transaction) => selectedIds.has(transactionKey(transaction)))
+      .map(({ id, source }) => ({ id, source }));
+    const result = await FinancialService.deleteTransactions(selectedTransactions);
 
     if (result.success) {
       toast.success(`${selectedIds.size} transação(ões) excluída(s)!`);
@@ -232,15 +242,20 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactions.map((transaction) => (
+            {transactions.map((transaction) => {
+              const key = transactionKey(transaction);
+              const canDelete = transaction.source !== "appointment";
+
+              return (
               <TableRow
-                key={transaction.id}
-                className={selectedIds.has(transaction.id) ? "bg-primary/5" : ""}
+                key={key}
+                className={selectedIds.has(key) ? "bg-primary/5" : ""}
               >
                 <TableCell>
                   <Checkbox
-                    checked={selectedIds.has(transaction.id)}
-                    onCheckedChange={() => toggleSelect(transaction.id)}
+                    checked={selectedIds.has(key)}
+                    disabled={!canDelete}
+                    onCheckedChange={() => toggleSelect(transaction)}
                     aria-label={`Selecionar transação ${transaction.id}`}
                   />
                 </TableCell>
@@ -293,7 +308,7 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        disabled={processingId === transaction.id}
+                        disabled={processingId === key}
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
@@ -308,25 +323,28 @@ export function FinancialTable({ transactions, isLoading, onRefresh }: Financial
                       </DropdownMenuItem>
                       {transaction.status === "pendente" && (
                         <DropdownMenuItem
-                          onClick={() => handleMarkAsPaid(transaction.id)}
+                          onClick={() => handleMarkAsPaid(transaction)}
                           className="gap-2"
                         >
                           <Check className="h-4 w-4" />
                           Marcar como Pago
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem
-                        onClick={() => openDeleteDialog(transaction.id)}
-                        className="gap-2 text-red-600"
-                      >
-                        <X className="h-4 w-4" />
-                        Excluir
-                      </DropdownMenuItem>
+                      {canDelete && (
+                        <DropdownMenuItem
+                          onClick={() => openDeleteDialog(transaction)}
+                          className="gap-2 text-red-600"
+                        >
+                          <X className="h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
       </div>

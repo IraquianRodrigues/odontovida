@@ -1,4 +1,4 @@
-﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { professionalsService } from "./professionals.service";
 
 /**
@@ -8,8 +8,8 @@ export function useProfessionals() {
   return useQuery({
     queryKey: ["professionals"],
     queryFn: () => professionalsService.getProfessionals(),
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -22,8 +22,8 @@ export function useProfessional(id: number | null) {
     queryFn: () =>
       id ? professionalsService.getProfessionalById(id) : Promise.resolve(null),
     enabled: id !== null,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -38,8 +38,8 @@ export function useProfessionalByCode(code: string | null) {
         ? professionalsService.getProfessionalByCode(code)
         : Promise.resolve(null),
     enabled: code !== null,
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: true,
   });
 }
 

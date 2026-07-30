@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, ChevronLeft, ChevronRight, Plus, Clock, DollarSign, Edit2, Package } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Plus, Clock, Edit2, Package } from "lucide-react";
 import type { ServiceRow } from "@/types/database.types";
 import { ServiceDetailsModal } from "@/components/service-details-modal";
 
@@ -31,7 +31,7 @@ export function ServicesTable({
 
     const normalizedQuery = searchQuery.toLowerCase();
     return services.filter((service) =>
-      service.code.toLowerCase().includes(normalizedQuery) ||
+      service.name.toLowerCase().includes(normalizedQuery) ||
       (service.description || "").toLowerCase().includes(normalizedQuery)
     );
   }, [services, searchQuery]);
@@ -77,7 +77,7 @@ export function ServicesTable({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por código ou descrição..."
+              placeholder="Buscar por nome ou descrição..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -129,13 +129,13 @@ export function ServicesTable({
                   onClick={() => setSelectedService(service)}
                 >
                   <div className="p-6 space-y-4">
-                    {/* Service Code */}
+                    {/* Service name */}
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                        Código
+                        Serviço
                       </p>
-                      <h3 className="text-xl font-bold font-mono text-foreground group-hover:text-primary transition-colors">
-                        {service.code}
+                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        {service.name}
                       </h3>
                       {service.description && (
                         <p className="mt-2 text-sm text-muted-foreground line-clamp-2 min-h-10">
@@ -144,8 +144,8 @@ export function ServicesTable({
                       )}
                     </div>
 
-                    {/* Duration and Price */}
-                    <div className="flex items-center justify-between gap-4">
+                    {/* Duration */}
+                    <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
                         <div className="p-2 rounded-lg bg-muted">
                           <Clock className="h-4 w-4 text-muted-foreground" />
@@ -154,24 +154,6 @@ export function ServicesTable({
                           <p className="text-xs text-muted-foreground">Duração</p>
                           <p className="text-sm font-semibold text-foreground">
                             {service.duration_minutes} min
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-lg bg-muted">
-                          <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">Valor</p>
-                          <p className="text-sm font-bold text-foreground">
-                            {service.price
-                              ? new Intl.NumberFormat("pt-BR", {
-                                  style: "currency",
-                                  currency: "BRL",
-                                  minimumFractionDigits: 0,
-                                }).format(service.price)
-                              : "-"}
                           </p>
                         </div>
                       </div>

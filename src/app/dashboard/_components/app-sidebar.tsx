@@ -1,12 +1,11 @@
 "use client";
 
-import { Calendar, Users, BriefcaseMedical, DollarSign, FileText, ChevronLeft, ChevronRight, Menu, X, IdCard, LogOut, User, Settings, LayoutGrid } from "lucide-react";
+import { Calendar, Users, BriefcaseMedical, ChevronLeft, ChevronRight, Menu, X, IdCard, LogOut, User, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useUserRole } from "@/hooks/use-user-role";
 import { createClient } from "@/lib/supabase/client";
 
 // Ícone de Dente customizado para Odontograma
@@ -42,16 +41,9 @@ const navItems = [
     icon: Users,
   },
   {
-    href: "/dashboard/prontuarios",
-    label: "Prontuários",
-    icon: FileText,
-    requiresProfessional: true,
-  },
-  {
-    href: "/dashboard/odontograma",
-    label: "Odontograma",
-    icon: ToothIcon, // Ícone customizado de Dente
-    requiresDentist: true,
+    href: "/dashboard/crm",
+    label: "Pipeline",
+    icon: Users,
   },
   {
     href: "/dashboard/profissionais",
@@ -63,18 +55,6 @@ const navItems = [
     label: "Serviços",
     icon: BriefcaseMedical, // Alterado para Maleta Médica
   },
-  {
-    href: "/dashboard/financeiro",
-    label: "Financeiro",
-    icon: DollarSign,
-    requiresAdmin: true,
-  },
-  {
-    href: "/dashboard/configuracoes",
-    label: "Configurações",
-    icon: Settings,
-    requiresAdmin: true,
-  },
 ];
 
 export function AppSidebar() {
@@ -83,25 +63,10 @@ export function AppSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { hasFinancialAccess, hasMedicalRecordsAccess, hasOdontogramAccess, profile, role } = useUserRole();
   const supabase = createClient();
 
   // Filtrar itens de navegação baseado em permissões
-  const filteredNavItems = navItems.filter(item => {
-    if (item.href === "/dashboard/prontuarios" || item.href === "/dashboard/odontograma") {
-      return false;
-    }
-    if (item.requiresAdmin) {
-      return hasFinancialAccess;
-    }
-    if (item.requiresProfessional) {
-      return hasMedicalRecordsAccess;
-    }
-    if (item.requiresDentist) {
-      return hasOdontogramAccess;
-    }
-    return true;
-  });
+  const filteredNavItems = navItems;
 
   // Load collapsed state from localStorage on mount
   useEffect(() => {
@@ -178,10 +143,10 @@ export function AppSidebar() {
           "shadow-sm",
           // Desktop
           "hidden md:flex",
-          isCollapsed ? "w-16" : "w-60",
+          isCollapsed ? "w-16" : "w-64",
           // Mobile
           "md:translate-x-0",
-          isMobileOpen ? "flex w-60 translate-x-0" : "-translate-x-full"
+          isMobileOpen ? "flex translate-x-0 w-64" : "-translate-x-full"
         )}
       >
         {/* Logo Section */}
@@ -190,12 +155,12 @@ export function AppSidebar() {
           isCollapsed ? "justify-center px-2" : "justify-start"
         )}>
           {isCollapsed ? (
-            <div className="flex items-center justify-center rounded-lg bg-primary p-2.5">
+            <div className="bg-primary rounded-xl p-2.5 flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105">
               <Calendar className="h-5 w-5 text-primary-foreground" />
             </div>
           ) : (
             <div className="flex items-center gap-3 group">
-              <div className="flex items-center justify-center rounded-lg bg-primary p-2.5">
+              <div className="bg-primary rounded-xl p-2.5 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
                 <Calendar className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="flex flex-col">
@@ -203,7 +168,7 @@ export function AppSidebar() {
                   {process.env.NEXT_PUBLIC_CLINIC_NAME || "Clínica"}
                 </h1>
                 <p className="text-[10px] text-muted-foreground font-semibold tracking-wider uppercase">
-                  CRM Inteligente
+                  Pipeline Inteligente
                 </p>
               </div>
             </div>
@@ -226,10 +191,11 @@ export function AppSidebar() {
                   animationDelay: `${index * 50}ms`,
                 }}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300",
+                  "animate-in fade-in slide-in-from-left-2",
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-primary"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    ? "bg-sidebar-accent text-sidebar-primary shadow-sm scale-[1.02]"
+                    : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:scale-[1.01]",
                   isCollapsed && "md:justify-center md:px-2"
                 )}
               >
@@ -240,8 +206,8 @@ export function AppSidebar() {
 
                 <Icon 
                   className={cn(
-                    "h-5 w-5 flex-shrink-0 transition-colors",
-                    isActive ? "text-sidebar-primary" : ""
+                    "h-5 w-5 flex-shrink-0 transition-all duration-300",
+                    isActive ? "scale-110 text-primary" : "group-hover:scale-110"
                   )} 
                 />
                 <span
@@ -273,7 +239,7 @@ export function AppSidebar() {
             <div className="flex flex-col items-center gap-2">
               <div className="relative">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm">
-                  {profile?.full_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
+                  <User className="h-5 w-5" />
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-sidebar shadow-sm" />
               </div>
@@ -290,16 +256,16 @@ export function AppSidebar() {
               <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-accent transition-all duration-200 cursor-pointer group">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
-                    {profile?.full_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
+                    <User className="h-5 w-5" />
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-sidebar shadow-sm animate-pulse" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">
-                    {profile?.full_name || "Usuário"}
+                    Usuário
                   </p>
                   <p className="text-xs text-muted-foreground font-medium">
-                    {getRoleDisplay(role)}
+                    Equipe
                   </p>
                 </div>
               </div>

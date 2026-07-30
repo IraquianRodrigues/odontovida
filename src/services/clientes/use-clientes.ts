@@ -72,7 +72,7 @@ export function useDeleteCliente() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => clientesService.deleteCliente(id),
+    mutationFn: (id: number) => clientesService.deleteCliente(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clientes"] });
     },

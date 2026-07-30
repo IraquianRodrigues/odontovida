@@ -20,7 +20,7 @@ export const NotificationItem = memo(function NotificationItem({ notification }:
   const handleClick = () => {
     // Se for novo agendamento e tiver appointment_id, abrir modal
     if (notification.appointment_id) {
-      openAppointmentModal(notification.appointment_id);
+      openAppointmentModal(String(notification.appointment_id));
       
       // Marcar como lida automaticamente ao clicar
       if (isUnread) {

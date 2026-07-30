@@ -49,10 +49,10 @@ export function useCreateService() {
 
   return useMutation({
     mutationFn: (params: {
-      code: string;
+      name: string;
       duration_minutes: number;
-      price?: number | null;
       description?: string | null;
+      active?: boolean;
     }) =>
       servicesService.createService(params),
     onSuccess: () => {
@@ -70,10 +70,10 @@ export function useUpdateService() {
   return useMutation({
     mutationFn: (params: {
       id: number;
-      code: string;
+      name: string;
       duration_minutes: number;
-      price?: number | null;
       description?: string | null;
+      active?: boolean;
     }) => servicesService.updateService(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });

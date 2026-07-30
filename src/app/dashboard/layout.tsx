@@ -1,6 +1,5 @@
 import { AppHeader } from "./_components/app-header";
 import { AppSidebar } from "./_components/app-sidebar";
-import { NotificationProvider } from "@/providers/notification-provider";
 import { RealtimeProvider } from "@/providers/realtime-provider";
 
 export default function DashboardLayout({
@@ -9,8 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <NotificationProvider>
-      <RealtimeProvider>
+    <RealtimeProvider>
         <div className="flex h-screen overflow-hidden">
           {/* Sidebar */}
           <AppSidebar />
@@ -23,7 +21,6 @@ export default function DashboardLayout({
             </main>
           </div>
         </div>
-      </RealtimeProvider>
-    </NotificationProvider>
+    </RealtimeProvider>
   );
 }

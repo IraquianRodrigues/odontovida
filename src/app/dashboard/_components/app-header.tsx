@@ -2,7 +2,6 @@
 "use client";
 
 import { ModeToggle } from "@/components/mode-toggle";
-import { NotificationBell } from "@/components/notification-bell";
 
 export function AppHeader() {
   return (
@@ -11,7 +10,6 @@ export function AppHeader() {
         <div />
 
         <div className="flex items-center gap-1">
-          <NotificationBell />
           <ModeToggle />
         </div>
       </div>

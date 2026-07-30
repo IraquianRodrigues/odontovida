@@ -2,84 +2,121 @@ import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import type { ServiceRow } from "@/types/database.types";
 
-type ServiceDbRow = {
-  id: string;
-  service_code: number;
-  created_at: string;
-  nome: string;
-  duracao_minutos: number;
-  valor_reserva: number | null;
-  valor_integral: number | null;
-  ativo: boolean;
-};
-
-const toService = (row: ServiceDbRow): ServiceRow => ({
-  id: row.service_code,
-  database_id: row.id,
-  created_at: row.created_at,
-  code: String(row.service_code),
-  duration_minutes: row.duracao_minutos,
-  price: row.valor_reserva ?? row.valor_integral,
-  description: row.nome,
-  active: row.ativo,
-});
-
-const parseCode = (code: string) => {
-  const value = Number(code);
-  if (!Number.isInteger(value) || value <= 0) {
-    throw new Error("O código do serviço deve ser um número inteiro positivo");
-  }
-  return value;
-};
+type ServiceDatabaseRow = Omit<ServiceRow, "code" | "price">;
 
 export class ServicesService {
-  private get supabase() { return createClient(); }
+  private get supabase() {
+    return createClient();
+  }
+
+  private toServiceRow(service: ServiceDatabaseRow): ServiceRow {
+    return { ...service, code: service.name, price: null };
+  }
 
   async getServices(): Promise<ServiceRow[]> {
-    const { data, error } = await this.supabase.from("services").select("*").order("service_code");
-    if (error) throw new Error("Falha ao buscar serviços");
-    return ((data || []) as ServiceDbRow[]).map(toService);
+    const { data, error } = await this.supabase
+      .from("services")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      logger.error("Erro ao buscar serviÃ§os:", error);
+      throw new Error("Falha ao buscar serviÃ§os");
+    }
+
+    return (data || []).map((service) => this.toServiceRow(service));
   }
 
   async getServiceById(id: number): Promise<ServiceRow | null> {
-    const { data, error } = await this.supabase.from("services").select("*").eq("service_code", id).maybeSingle();
-    if (error) throw new Error("Falha ao buscar serviço");
-    return data ? toService(data as ServiceDbRow) : null;
-  }
+    const { data, error } = await this.supabase
+      .from("services")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
 
-  async getServiceByCode(code: string): Promise<ServiceRow | null> {
-    return this.getServiceById(parseCode(code));
-  }
-
-  async createService(params: { code: string; duration_minutes: number; price?: number | null; description?: string | null }): Promise<ServiceRow> {
-    const serviceCode = parseCode(params.code);
-    const { data, error } = await this.supabase.from("services").insert({
-      service_code: serviceCode,
-      nome: params.description?.trim() || `Serviço ${serviceCode}`,
-      duracao_minutos: params.duration_minutes,
-      valor_reserva: params.price ?? null,
-    }).select().single();
     if (error) {
-      logger.error("Erro ao criar serviço:", error);
-      throw new Error("Falha ao criar serviço");
+      logger.error("Erro ao buscar serviÃ§o:", error);
+      throw new Error("Falha ao buscar serviÃ§o");
     }
-    return toService(data as ServiceDbRow);
+
+    return data ? this.toServiceRow(data) : null;
   }
 
-  async updateService(params: { id: number; code: string; duration_minutes: number; price?: number | null; description?: string | null }): Promise<ServiceRow> {
-    const { data, error } = await this.supabase.from("services").update({
-      service_code: parseCode(params.code),
-      nome: params.description?.trim() || `Serviço ${params.code}`,
-      duracao_minutos: params.duration_minutes,
-      valor_reserva: params.price ?? null,
-    }).eq("service_code", params.id).select().single();
-    if (error) throw new Error("Falha ao atualizar serviço");
-    return toService(data as ServiceDbRow);
+  // Compatibilidade para chamadas antigas: o nome Ã© o identificador exibido.
+  async getServiceByCode(name: string): Promise<ServiceRow | null> {
+    const { data, error } = await this.supabase
+      .from("services")
+      .select("*")
+      .eq("name", name)
+      .maybeSingle();
+
+    if (error) {
+      logger.error("Erro ao buscar serviÃ§o:", error);
+      return null;
+    }
+
+    return data ? this.toServiceRow(data) : null;
+  }
+
+  async createService(params: {
+    name: string;
+    duration_minutes: number;
+    description?: string | null;
+    active?: boolean;
+  }): Promise<ServiceRow> {
+    const { data, error } = await this.supabase
+      .from("services")
+      .insert({
+        name: params.name.trim(),
+        duration_minutes: params.duration_minutes,
+        description: params.description?.trim() || null,
+        active: params.active ?? true,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error("Erro ao criar serviÃ§o:", error);
+      throw new Error("Falha ao criar serviÃ§o");
+    }
+
+    return this.toServiceRow(data);
+  }
+
+  async updateService(params: {
+    id: number;
+    name: string;
+    duration_minutes: number;
+    description?: string | null;
+    active?: boolean;
+  }): Promise<ServiceRow> {
+    const { data, error } = await this.supabase
+      .from("services")
+      .update({
+        name: params.name.trim(),
+        duration_minutes: params.duration_minutes,
+        description: params.description?.trim() || null,
+        ...(params.active === undefined ? {} : { active: params.active }),
+      })
+      .eq("id", params.id)
+      .select()
+      .single();
+
+    if (error) {
+      logger.error("Erro ao atualizar serviÃ§o:", error);
+      throw new Error("Falha ao atualizar serviÃ§o");
+    }
+
+    return this.toServiceRow(data);
   }
 
   async deleteService(id: number): Promise<void> {
-    const { error } = await this.supabase.from("services").delete().eq("service_code", id);
-    if (error) throw new Error("Falha ao excluir serviço");
+    const { error } = await this.supabase.from("services").delete().eq("id", id);
+
+    if (error) {
+      logger.error("Erro ao deletar serviÃ§o:", error);
+      throw new Error("Falha ao deletar serviÃ§o");
+    }
   }
 }
 

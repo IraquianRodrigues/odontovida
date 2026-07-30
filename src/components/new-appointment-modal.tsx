@@ -156,7 +156,7 @@ export function NewAppointmentModal({
   };
 
   const handleClienteSelect = (clienteId: string) => {
-    const cliente = clientes.find((c) => c.id === clienteId);
+    const cliente = clientes.find((c) => c.id === Number(clienteId));
     if (cliente) {
       setCustomerName(cliente.nome);
       setCustomerPhone(cliente.telefone);

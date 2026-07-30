@@ -2,94 +2,126 @@ import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import type { ClienteRow } from "@/types/database.types";
 
-type ClienteDbRow = {
-  id: string; created_at: string; updated_at: string; nome: string; telefone: string;
-  email: string | null; data_nascimento: string | null; endereco_completo: string | null;
-  cidade: string | null; estado: string | null; trava_humano: boolean;
-  observacoes_internas: string | null;
-};
-
-const toCliente = (row: ClienteDbRow): ClienteRow => ({
-  id: row.id,
-  created_at: row.created_at,
-  updated_at: row.updated_at,
-  nome: row.nome,
-  telefone: row.telefone,
-  email: row.email,
-  data_nascimento: row.data_nascimento,
-  endereco: row.endereco_completo,
-  cidade: row.cidade,
-  bairro: null,
-  estado: row.estado,
-  trava: row.trava_humano,
-  notes: row.observacoes_internas,
-});
+type ClienteDatabaseRow = Omit<
+  ClienteRow,
+  "notes" | "endereco" | "cidade" | "bairro" | "data_nascimento"
+>;
 
 export class ClientesService {
-  private get supabase() { return createClient(); }
+  private get supabase() {
+    return createClient();
+  }
+
+  private toClienteRow(cliente: ClienteDatabaseRow): ClienteRow {
+    return {
+      ...cliente,
+      // O esquema atual nÃ£o possui campos de endereÃ§o/nascimento. Mantemos
+      // valores nulos para que telas legadas continuem renderizando sem erro.
+      notes: cliente.motivo_trava_humano,
+      endereco: null,
+      cidade: null,
+      bairro: null,
+      data_nascimento: null,
+    };
+  }
 
   async getAllClientes(): Promise<ClienteRow[]> {
-    const { data, error } = await this.supabase.from("clientes").select("*").order("nome");
+    const { data, error } = await this.supabase
+      .from("clientes")
+      .select("*")
+      .order("nome", { ascending: true });
     if (error) throw new Error("Falha ao buscar clientes");
-    return ((data || []) as ClienteDbRow[]).map(toCliente);
+    return (data || []).map((cliente) => this.toClienteRow(cliente));
   }
 
   async getClienteByTelefone(telefone: string): Promise<ClienteRow | null> {
-    const { data, error } = await this.supabase.from("clientes").select("*").eq("telefone", telefone).maybeSingle();
-    if (error) throw new Error("Falha ao buscar cliente");
-    return data ? toCliente(data as ClienteDbRow) : null;
+    const { data, error } = await this.supabase
+      .from("clientes")
+      .select("*")
+      .eq("telefone", telefone)
+      .maybeSingle();
+    if (error) {
+      logger.error("Erro ao buscar cliente:", error);
+      throw new Error("Falha ao buscar cliente");
+    }
+    return data ? this.toClienteRow(data) : null;
   }
 
   async updateClienteTrava(telefone: string, trava: boolean): Promise<ClienteRow | null> {
-    const { data, error } = await this.supabase.from("clientes").update({ trava_humano: trava }).eq("telefone", telefone).select().maybeSingle();
+    const { data, error } = await this.supabase
+      .from("clientes")
+      .update({ trava })
+      .eq("telefone", telefone)
+      .select()
+      .maybeSingle();
     if (error) throw new Error("Falha ao atualizar trava do cliente");
-    return data ? toCliente(data as ClienteDbRow) : null;
+    return data ? this.toClienteRow(data) : null;
   }
 
   async updateClienteNotes(telefone: string, notes: string): Promise<ClienteRow | null> {
-    const { data, error } = await this.supabase.from("clientes").update({ observacoes_internas: notes }).eq("telefone", telefone).select().maybeSingle();
-    if (error) throw new Error("Falha ao atualizar anotações do cliente");
-    return data ? toCliente(data as ClienteDbRow) : null;
+    const { data, error } = await this.supabase
+      .from("clientes")
+      .update({ motivo_trava_humano: notes || null })
+      .eq("telefone", telefone)
+      .select()
+      .maybeSingle();
+    if (error) throw new Error("Falha ao atualizar observaÃ§Ãµes do cliente");
+    return data ? this.toClienteRow(data) : null;
   }
 
-  async createCliente(data: Omit<ClienteRow, "id" | "created_at">): Promise<ClienteRow> {
-    const { data: created, error } = await this.supabase.from("clientes").insert({
-      nome: data.nome,
-      telefone: data.telefone,
-      email: data.email ?? null,
-      data_nascimento: data.data_nascimento ?? null,
-      endereco_completo: data.endereco ?? null,
-      cidade: data.cidade ?? null,
-      estado: data.estado ?? null,
-      trava_humano: data.trava ?? false,
-      observacoes_internas: data.notes ?? null,
-    }).select().single();
+  async createCliente(
+    data: Pick<ClienteRow, "nome" | "telefone"> & Partial<ClienteRow>
+  ): Promise<ClienteRow> {
+    const { data: cliente, error } = await this.supabase
+      .from("clientes")
+      .insert({
+        nome: data.nome.trim(),
+        telefone: data.telefone.trim(),
+        trava: data.trava ?? false,
+        ia_ativa: data.ia_ativa ?? true,
+        motivo_trava_humano: data.motivo_trava_humano ?? data.notes ?? null,
+        trava_humano_ate: data.trava_humano_ate ?? null,
+      })
+      .select()
+      .single();
+
     if (error) {
       logger.error("Erro ao criar cliente:", error);
-      throw new Error(error.code === "23505" ? "Já existe um cliente com este telefone" : "Falha ao criar cliente");
+      if (error.code === "23505") throw new Error("JÃ¡ existe um cliente cadastrado com este telefone");
+      throw new Error("Falha ao criar cliente");
     }
-    return toCliente(created as ClienteDbRow);
+    return this.toClienteRow(cliente);
   }
 
-  async updateCliente(id: string, data: Partial<Omit<ClienteRow, "id" | "created_at">>): Promise<ClienteRow> {
-    const update: Record<string, unknown> = {};
-    if (data.nome !== undefined) update.nome = data.nome;
-    if (data.telefone !== undefined) update.telefone = data.telefone;
-    if (data.email !== undefined) update.email = data.email;
-    if (data.data_nascimento !== undefined) update.data_nascimento = data.data_nascimento;
-    if (data.endereco !== undefined) update.endereco_completo = data.endereco;
-    if (data.cidade !== undefined) update.cidade = data.cidade;
-    if (data.estado !== undefined) update.estado = data.estado;
-    if (data.trava !== undefined) update.trava_humano = data.trava;
-    if (data.notes !== undefined) update.observacoes_internas = data.notes;
-    const { data: updated, error } = await this.supabase.from("clientes").update(update).eq("id", id).select().single();
-    if (error) throw new Error("Falha ao atualizar cliente");
-    return toCliente(updated as ClienteDbRow);
+  async updateCliente(
+    id: number,
+    data: Partial<ClienteRow>
+  ): Promise<ClienteRow> {
+    const { data: cliente, error } = await this.supabase
+      .from("clientes")
+      .update({
+        ...(data.nome === undefined ? {} : { nome: data.nome.trim() }),
+        ...(data.telefone === undefined ? {} : { telefone: data.telefone.trim() }),
+        ...(data.trava === undefined ? {} : { trava: data.trava }),
+        ...(data.ia_ativa === undefined ? {} : { ia_ativa: data.ia_ativa }),
+        ...(data.motivo_trava_humano === undefined && data.notes === undefined
+          ? {}
+          : { motivo_trava_humano: data.motivo_trava_humano ?? data.notes ?? null }),
+        ...(data.trava_humano_ate === undefined ? {} : { trava_humano_ate: data.trava_humano_ate }),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      logger.error("Erro ao atualizar cliente:", error);
+      throw new Error("Falha ao atualizar cliente");
+    }
+    return this.toClienteRow(cliente);
   }
 
-  async deleteCliente(id: string): Promise<void> {
+  async deleteCliente(id: number): Promise<void> {
     const { error } = await this.supabase.from("clientes").delete().eq("id", id);
-    if (error) throw new Error("Falha ao excluir cliente");
+    if (error) throw new Error("Falha ao deletar cliente");
   }
 }
 
